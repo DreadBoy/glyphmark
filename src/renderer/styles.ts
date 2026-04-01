@@ -1,8 +1,6 @@
 import { FONT_CSS } from "../vendor/font-css.js";
-import { SCRIBE_LAYOUT_CSS } from "../vendor/scribe-layout-css.js";
-import { SCRIBE_THEME_CSS } from "../vendor/scribe-theme-css.js";
+import { GLYPHMARK_CSS } from "../styles/glyphmark-css.js";
 
-// Combined CSS for scribe-compatible output
 export function getScribeCSS(options?: {
   googleFonts?: string[];
   pageNumbers?: boolean;
@@ -18,8 +16,7 @@ export function getScribeCSS(options?: {
   }
 
   parts.push(FONT_CSS);
-  parts.push(SCRIBE_LAYOUT_CSS);
-  parts.push(SCRIBE_THEME_CSS);
+  parts.push(GLYPHMARK_CSS);
 
   // Page numbers
   if (options?.pageNumbers) {
@@ -37,7 +34,3 @@ export function getScribeCSS(options?: {
 
   return parts.join("\n\n");
 }
-
-// Backward compat - removed in Phase 3 renderer rewrite
-export const PF2E_CSS = "";
-export const SCRIBE_LAYOUT_CSS_COMPAT = "";
