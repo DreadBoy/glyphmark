@@ -1,0 +1,9 @@
+item(
+# Hanging Indent Test
+-
+**Bold Start** followed by regular text that should produce a hanging indent paragraph style.
+
+**Another Bold** with more text demonstrating the hanging indent behavior across multiple lines of content.
+
+Regular paragraph without bold start for contrast.
+)

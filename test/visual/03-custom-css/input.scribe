@@ -1,0 +1,7 @@
+css (
+.content p { color: darkblue; border-left: 3px solid red; padding-left: 8px; }
+)
+
+This paragraph should have blue text and a red left border.
+
+Another paragraph to confirm the style applies consistently.

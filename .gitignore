@@ -2,6 +2,7 @@ node_modules/
 dist/
 *.html
 !reference/*.html
+!test/visual/**/*.html
 .idea/
 .obsidian/
 .gstack/

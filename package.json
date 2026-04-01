@@ -10,7 +10,9 @@
     "build": "tsc",
     "dev": "tsc --watch",
     "start": "node dist/cli.js",
-    "test": "node --import tsx --test test/*.test.ts"
+    "serve": "node dist/cli.js serve",
+    "test": "node --import tsx --test test/*.test.ts",
+    "test:visual": "node --import tsx --test test/visual/visual.test.ts"
   },
   "keywords": [
     "pathfinder",
@@ -28,6 +30,7 @@
   "devDependencies": {
     "@types/node": "^25.5.0",
     "@types/ws": "^8.18.1",
+    "playwright": "^1.59.1",
     "tsx": "^4.21.0",
     "typescript": "^6.0.2"
   }

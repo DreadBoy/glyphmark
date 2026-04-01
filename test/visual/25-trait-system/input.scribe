@@ -1,0 +1,23 @@
+item(
+# Creature Entry
+-
+; unique,large,chaotic evil,beast,dragon
+-
+A unique large creature with multiple trait types.
+)
+
+item(
+# Common Item
+-
+; uncommon,class,feat
+-
+An uncommon class feat.
+)
+
+item(
+# Rare Spell
+-
+; rare,arcane,evocation
+-
+A rare arcane evocation spell.
+)

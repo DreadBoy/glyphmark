@@ -30,7 +30,7 @@ function buildFile(
 function getScribeFiles(dir: string): string[] {
   return fs
     .readdirSync(dir)
-    .filter((f) => (f.endsWith(".scribe") || f.endsWith(".md")) && !f.startsWith("."))
+    .filter((f) => (f.endsWith(".scribe")) && !f.startsWith("."))
     .map((f) => path.join(dir, f));
 }
 
@@ -47,7 +47,7 @@ function buildAll(
 
   const files = getScribeFiles(target);
   if (files.length === 0) {
-    console.log("No .scribe or .md files found.");
+    console.log("No .scribe found.");
     return;
   }
 
@@ -98,7 +98,7 @@ program
     buildAll(inputDir, outDir);
 
     const { watch } = await import("chokidar");
-    const watcher = watch(path.join(inputDir, "**/*.{md,scribe}"), {
+    const watcher = watch(path.join(inputDir, "**/*.{scribe}"), {
       ignoreInitial: true,
     });
 
@@ -149,7 +149,7 @@ program
       });
 
       const { watch } = await import("chokidar");
-      const watcher = watch(path.join(inputDir, "**/*.{md,scribe}"), {
+      const watcher = watch(path.join(inputDir, "**/*.{scribe}"), {
         ignoreInitial: true,
       });
 
