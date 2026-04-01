@@ -14,7 +14,7 @@ const UPDATE_SNAPSHOTS = process.env.UPDATE_SNAPSHOTS === "1";
 const VIEWPORT = { width: 816, height: 1056 };
 
 // Max allowed pixel diff ratio (0 = exact match)
-const DIFF_THRESHOLD = 0.001;
+const DIFF_THRESHOLD = 0;
 
 // Discover fixture directories (contain input.scribe)
 const fixtureDirs = fs

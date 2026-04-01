@@ -45,10 +45,10 @@ export const GLYPHMARK_CSS = `
   --gm-link-hover: rgb(211, 126, 14);
 
   /* Font stacks */
-  --font-display: 'Taroca', serif;
-  --font-heading: 'gin', serif;
-  --font-body: 'linotype-sabon', serif;
-  --font-ui: 'ff-good-web-pro', sans-serif;
+  --font-display: 'Taroca';
+  --font-heading: 'gin';
+  --font-body: 'linotype-sabon';
+  --font-ui: 'ff-good-web-pro';
   --font-ui-condensed: 'ff-good-web-pro-condensed', 'Open Sans Condensed', sans-serif;
 }
 
@@ -269,14 +269,14 @@ body { counter-reset: pages; }
 }
 
 .title h1 {
-  font-family: var(--font-display);
+  font-family: var(--font-display) !important;
   font-weight: normal;
   width: 50%;
   text-align: right;
   padding: 0.25rem 0.5rem;
-  margin-bottom: 0;
+  margin-bottom: -0.5rem !important;
   border: 0.33rem solid #000;
-  font-size: 1.25rem;
+  font-size: 1rem;
   border-left-width: 0;
   padding-left: 0;
   margin-left: 0;
@@ -293,16 +293,31 @@ body { counter-reset: pages; }
   color: var(--gm-red);
 }
 
-.head h1, .head h3 {
+.head h1 {
   font-family: var(--font-display);
   text-align: center;
   font-size: 2.25rem;
   margin-bottom: -0.5rem;
 }
 
-.head h2, .head h4 {
+.head h2 {
   font-family: var(--font-display);
   font-size: 2.5rem;
+  margin-bottom: -0.5rem !important;
+}
+
+.head h3 {
+  font-family: var(--font-display);
+  text-align: center;
+  font-size: 2.25rem;
+  color: var(--gm-blue);
+  margin-bottom: -0.5rem;
+}
+
+.head h4 {
+  font-family: var(--font-display);
+  font-size: 2.5rem;
+  color: var(--gm-blue);
   margin-bottom: -0.5rem !important;
   color: var(--gm-blue);
 }
@@ -362,6 +377,7 @@ body { counter-reset: pages; }
   font-size: 1.25rem;
   font-kerning: none;
   margin-top: -0.5rem;
+  margin-bottom: -0.5rem;
   color: var(--gm-gold);
   font-variant-ligatures: no-common-ligatures;
 }
@@ -475,7 +491,16 @@ body { counter-reset: pages; }
   margin-top: -1.45rem !important;
 }
 
-.item h3, .item h4, .item h5, .item h6 {
+.item h3 {
+  font-family: var(--font-ui-condensed);
+  font-weight: bold;
+  text-transform: uppercase;
+  line-height: 1.5;
+  margin-bottom: -0.5rem;
+  white-space: nowrap;
+}
+
+.item h4, .item h5, .item h6 {
   font-family: var(--font-ui);
   font-weight: bold;
   text-transform: uppercase;
@@ -522,9 +547,8 @@ body { counter-reset: pages; }
   overflow: hidden;
   vertical-align: top;
   background-color: var(--gm-trait-edge) !important;
-  width: 3px !important;
+  width: 0px !important;
   display: inline-block !important;
-  border: none !important;
 }
 
 .pf-trait-uncommon { background: var(--gm-trait-uncommon); }
@@ -557,6 +581,7 @@ body { counter-reset: pages; }
 }
 
 .left h3, .right h3 {
+  font-family: var(--font-ui-condensed);
   text-transform: uppercase;
   font-size: 1.4rem;
   font-weight: bold;
