@@ -32,7 +32,7 @@ async function buildFile(
 function getMdFiles(dir: string): string[] {
   return fs
     .readdirSync(dir)
-    .filter((f) => f.endsWith(".md") && !f.startsWith("."))
+    .filter((f) => (f.endsWith(".md") || f.endsWith(".scribe")) && !f.startsWith("."))
     .map((f) => path.join(dir, f));
 }
 
@@ -49,7 +49,7 @@ async function buildAll(
 
   const files = getMdFiles(target);
   if (files.length === 0) {
-    console.log("No .md files found.");
+    console.log("No .scribe or .md files found.");
     return;
   }
 
@@ -67,7 +67,7 @@ async function buildAll(
 // build command
 program
   .command("build [target]")
-  .description("Convert .md files to HTML")
+  .description("Convert .scribe/.md files to HTML")
   .option("-o, --out <dir>", "Output directory (default: same as source)")
   .action(async (target: string | undefined, options: { out?: string }) => {
     const inputPath = path.resolve(target ?? ".");
@@ -102,7 +102,7 @@ program
 
     // Watch for changes
     const { watch } = await import("chokidar");
-    const watcher = watch(path.join(inputDir, "**/*.md"), {
+    const watcher = watch(path.join(inputDir, "**/*.{md,scribe}"), {
       ignoreInitial: true,
     });
 
@@ -163,7 +163,7 @@ program
 
       // Watch for changes
       const { watch } = await import("chokidar");
-      const watcher = watch(path.join(inputDir, "**/*.md"), {
+      const watcher = watch(path.join(inputDir, "**/*.{md,scribe}"), {
         ignoreInitial: true,
       });
 
