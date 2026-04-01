@@ -941,6 +941,7 @@ h5+table {
 /* Item block */
 .item hr {
     margin: 0 !important;
+    clear: both;
 }
 
 .item *+p {
@@ -987,6 +988,8 @@ h5+table {
 /* Tables */
 .page table {
     width: 100%;
+    border-collapse: collapse;
+    border-spacing: 0;
 }
 
 .page thead tr th {
@@ -1003,6 +1006,7 @@ h5+table {
 .tfoot {
     padding: 0.25rem;
     font-size: 0.9rem;
+    margin-top: 0 !important;
 }
 
 .page img {
@@ -1566,19 +1570,66 @@ h5+table {
 <div class="page-overlay"></div>
 <div data-markdown="1" class="flex-even column">
 <div data-markdown="1" class="content">
-<p>Left column text goes here. It should occupy the left half of the page.</p>
-</div>
-</div>
-<div data-markdown="1" class="flex-even column">
-<div data-markdown="1" class="content">
-<p>Right column text goes here. It should occupy the right half of the page.</p>
+<h2>Scenario 1: Full-width to two columns and back</h2>
+<p>This paragraph is full-width, spanning the entire page before the column break.</p>
 </div>
 </div>
 <div class="content w-100"></div>
 <div data-markdown="1" class="flex-even column">
 <div data-markdown="1" class="content">
-<p>This text spans the full width after columns end.</p>
+<p>This is the left column with some content. It should take up roughly half the page width and sit beside the right column.</p>
 </div>
+</div>
+<div data-markdown="1" class="flex-even column">
+<div data-markdown="1" class="content">
+<p>This is the right column with some content. It should appear next to the left column at roughly the same vertical position.</p>
+</div>
+</div>
+<div class="content w-100"></div>
+<div data-markdown="1" class="flex-even column">
+<div data-markdown="1" class="content">
+<p>This paragraph returns to full-width after the columns end. It should span the entire page width again.</p>
+<h2>Scenario 2: Columns with substantial content</h2>
+</div>
+</div>
+<div class="content w-100"></div>
+<div data-markdown="1" class="flex-even column">
+<div data-markdown="1" class="item d-flex flex-wrap"><div data-markdown="1" class="flex-even column"><h1>Column Item Left</h1>
+<h2>Type 1</h2>
+<hr>
+<div class="traits">
+<div class="pf-trait pf-trait-edge">&nbsp;</div><!---->
+<div class="pf-trait pf-trait-uncommon">uncommon</div><!----><div class="pf-trait pf-trait-feat">feat</div><!---->
+<div class="pf-trait pf-trait-edge">&nbsp;</div>
+</div>
+<p class="hang"><strong>Requirements</strong> You need a free hand.</p>
+<hr>
+<p>This item sits in the left column and has traits, requirements, and body text to verify that complex content renders correctly inside a column.</p></div></div>
+</div>
+<div data-markdown="1" class="flex-even column">
+<div data-markdown="1" class="item d-flex flex-wrap"><div data-markdown="1" class="flex-even column"><h1>Column Item Right</h1>
+<h2>Type 2</h2>
+<hr>
+<div class="traits">
+<div class="pf-trait pf-trait-edge">&nbsp;</div><!---->
+<div class="pf-trait pf-trait-rare">rare</div><!----><div class="pf-trait pf-trait-spell">spell</div><!---->
+<div class="pf-trait pf-trait-edge">&nbsp;</div>
+</div>
+<p class="hang"><strong>Trigger</strong> An enemy targets you with a Strike.</p>
+<hr>
+<p>This item sits in the right column. It should be visually aligned with the left column item and maintain proper styling within the narrower column width.</p></div></div>
+</div>
+<div class="content w-100"></div>
+<div data-markdown="1" class="flex-even column">
+<div data-markdown="1" class="content">
+<p>Full-width content after the second column scenario.</p>
+<h2>Scenario 3: Columns inside a sidebar layout</h2>
+</div>
+<div data-markdown="1" class="right d-flex flex-wrap"><div data-markdown="1" class="flex-even column"><h1>Sidebar</h1>
+<p>This sidebar takes about one-third of the page width.</p></div></div>
+<div data-markdown="1" class="info d-flex flex-wrap"><div data-markdown="1" class="flex-even column"><p>Left info column content. This info block takes up the remaining two-thirds of the page. The column break below should create two sub-columns within this info block.</p>
+</div><div data-markdown="1" class="flex-even column">
+<p>Right info column content. This text should appear in the second sub-column of the info block, demonstrating that column breaks work inside content blocks.</p></div></div>
 </div>
 </div>
 </div>

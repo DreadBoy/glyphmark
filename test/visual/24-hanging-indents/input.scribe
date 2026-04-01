@@ -1,9 +1,13 @@
 item(
 # Hanging Indent Test
 -
-**Bold Start** followed by regular text that should produce a hanging indent paragraph style.
+**Requirements** You must be wielding a two-handed melee weapon with which you are trained, and you must have a shield raised or be benefiting from cover. This requirement text is intentionally long so that it wraps to multiple lines, making the hanging indent visually obvious. The first line starts at the bold label, while continuation lines should be indented past the label.
 
-**Another Bold** with more text demonstrating the hanging indent behavior across multiple lines of content.
+**Trigger** A creature within your reach critically fails a melee Strike against you, or a creature within your reach attempts to move away from you without properly disengaging. This trigger description is also deliberately verbose to test multi-line wrapping behavior with the hanging indent styling.
 
-Regular paragraph without bold start for contrast.
+**Critical Success** You deal double damage and the target is knocked prone. The target also takes persistent bleed damage equal to your weapon's number of damage dice. On its next turn, the target is flat-footed and takes a circumstance penalty to all attacks.
+
+**Failure** Your Strike deals no damage, but you do not lose your action or provoke reactions from the failed attempt.
+
+Regular paragraph without bold start for contrast. This text should have normal indentation, not the hanging indent applied to bold-start paragraphs. It helps verify that the hanging indent is only applied conditionally.
 )

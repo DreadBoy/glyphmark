@@ -373,6 +373,7 @@ h5+table {
 /* Item block */
 .item hr {
     margin: 0 !important;
+    clear: both;
 }
 
 .item *+p {
@@ -419,6 +420,8 @@ h5+table {
 /* Tables */
 .page table {
     width: 100%;
+    border-collapse: collapse;
+    border-spacing: 0;
 }
 
 .page thead tr th {
@@ -435,6 +438,7 @@ h5+table {
 .tfoot {
     padding: 0.25rem;
     font-size: 0.9rem;
+    margin-top: 0 !important;
 }
 
 .page img {

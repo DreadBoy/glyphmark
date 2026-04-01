@@ -941,6 +941,7 @@ h5+table {
 /* Item block */
 .item hr {
     margin: 0 !important;
+    clear: both;
 }
 
 .item *+p {
@@ -987,6 +988,8 @@ h5+table {
 /* Tables */
 .page table {
     width: 100%;
+    border-collapse: collapse;
+    border-spacing: 0;
 }
 
 .page thead tr th {
@@ -1003,6 +1006,7 @@ h5+table {
 .tfoot {
     padding: 0.25rem;
     font-size: 0.9rem;
+    margin-top: 0 !important;
 }
 
 .page img {
@@ -1566,7 +1570,6 @@ h5+table {
 <div class="page-overlay"></div>
 <div data-markdown="1" class="flex-even column">
 <div data-markdown="1" class="content">
-<h5>Table 1: Example Data <a id="toc-tables"></a><a id="toc-tables-0"></a></h5>
 <h5>Table 1: Example Data</h5>
 <table>
 <thead><tr>

@@ -125,8 +125,8 @@ Structure:
 | Syntax | Effect |
 |--------|--------|
 | `=` | Page break |
-| `\|` | Column break |
-| `/` | End columns (return to full width) |
+| `/` | Toggle columns on/off (start or end column layout) |
+| `\|` | Break to next column within column layout |
 | `-` | Horizontal rule |
 
 ### Inline Formatting

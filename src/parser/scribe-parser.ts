@@ -564,6 +564,7 @@ function parseTable(
   const prevNode = bodyNodes[bodyNodes.length - 1];
   if (prevNode && prevNode.type === "heading" && prevNode.level >= 4) {
     caption = prevNode.text;
+    bodyNodes.pop(); // Remove heading — it becomes the table caption
   }
 
   const headerLine = lines[startIndex]!.trim();
