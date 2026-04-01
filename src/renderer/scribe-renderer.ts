@@ -83,6 +83,30 @@ export function renderScribeDocument(
 function renderPages(nodes: ScribeNode[], state: RenderState): string[] {
   const pages: string[] = [];
   let currentPageContent: string[] = [];
+  let inContentDiv = false; // Track if we're inside a <div class="content">
+
+  function closeContentDiv(): void {
+    if (inContentDiv) {
+      currentPageContent.push("</div>"); // close .content
+      inContentDiv = false;
+    }
+  }
+
+  function openContentDiv(): void {
+    if (!inContentDiv) {
+      currentPageContent.push('<div data-markdown="1" class="content">');
+      inContentDiv = true;
+    }
+  }
+
+  function closeColumn(): void {
+    closeContentDiv();
+    currentPageContent.push("</div>"); // close .column
+  }
+
+  function openColumn(): void {
+    currentPageContent.push('<div data-markdown="1" class="flex-even column">');
+  }
 
   function flushPage(): void {
     const pageHtml = buildPage(currentPageContent.join("\n"), state);
@@ -90,46 +114,110 @@ function renderPages(nodes: ScribeNode[], state: RenderState): string[] {
     currentPageContent = [];
   }
 
+  // "Inline" node types that go inside a shared .content div
+  const isInlineNode = (type: string) =>
+    type === "heading" || type === "paragraph" || type === "table" || type === "hr";
+
   // Start with a default column
-  currentPageContent.push('<div data-markdown="1" class="flex-even column">');
+  openColumn();
 
   for (const node of nodes) {
     if (node.type === "page-break") {
-      // Close current column
-      currentPageContent.push("</div>"); // close column
+      closeColumn();
       flushPage();
-      // Start new page with fresh column
-      currentPageContent.push('<div data-markdown="1" class="flex-even column">');
+      openColumn();
       continue;
     }
 
     if (node.type === "column-break") {
-      // Close current column, start new one
-      currentPageContent.push("</div>"); // close column
-      currentPageContent.push('<div data-markdown="1" class="flex-even column">');
+      closeColumn();
+      openColumn();
       continue;
     }
 
     if (node.type === "end-columns") {
-      // Close current column, add row separator, start new column
-      currentPageContent.push("</div>"); // close column
+      closeColumn();
       currentPageContent.push('<div class="content w-100"></div>');
-      currentPageContent.push('<div data-markdown="1" class="flex-even column">');
+      openColumn();
       continue;
     }
 
-    // Render the node and add to current column
-    const html = renderNode(node, state);
-    if (html) {
-      currentPageContent.push(html);
+    if (node.type === "paragraph") {
+      // Paragraphs might be content refs with block-level DSL
+      const blockRef = expandAndRenderRef(node.content, state);
+      if (blockRef !== null) {
+        // Block-level content ref: close content div, render block, continue
+        closeContentDiv();
+        currentPageContent.push(blockRef);
+      } else {
+        // Regular paragraph: goes inside shared .content div
+        openContentDiv();
+        const expanded = expandRefs(node.content, state.contentRefs);
+        currentPageContent.push(renderBlockContent(expanded));
+      }
+    } else if (isInlineNode(node.type)) {
+      // Headings, tables, hrs share a .content div
+      openContentDiv();
+      const html = renderInlineNode(node, state);
+      if (html) currentPageContent.push(html);
+    } else {
+      // Block-level nodes (head, info, rules, note, math, item, left, right)
+      closeContentDiv();
+      const html = renderNode(node, state);
+      if (html) currentPageContent.push(html);
     }
   }
 
-  // Close final column and flush last page
-  currentPageContent.push("</div>"); // close column
+  closeColumn();
   flushPage();
 
   return pages;
+}
+
+/**
+ * Render inline nodes (headings, paragraphs, tables, hrs) that go inside
+ * a shared <div class="content"> wrapper. Returns raw HTML without wrapper.
+ */
+function renderInlineNode(node: ScribeNode, state: RenderState): string {
+  switch (node.type) {
+    case "hr":
+      return "<hr>";
+
+    case "heading": {
+      let text = expandRefs(node.text, state.contentRefs);
+      let tocAnchors = "";
+
+      if (node.tocLabel) {
+        const id = node.tocLabel.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+        tocAnchors = ` <a id="toc-${id}"></a><a id="toc-${id}-${state.tocCounter}"></a>`;
+        state.tocCounter++;
+      }
+
+      // H2 ordinal suffix splitting
+      if (node.level === 2) {
+        const ordinalMatch = text.match(/^(.+?)\s+(\d+(?:st|nd|rd|th))\s*$/i);
+        if (ordinalMatch) {
+          return `<div class="p d-flex"><h2>${renderInlineMarkdown(ordinalMatch[1]!)}</h2><h2 class="mr-0 my-0 ml-auto">${ordinalMatch[2]!}</h2></div>`;
+        }
+      }
+
+      return `<h${node.level}>${renderInlineMarkdown(text)}${tocAnchors}</h${node.level}>`;
+    }
+
+    case "paragraph": {
+      // Check if this is a standalone content ref with block DSL
+      // If so, we need to close the content div, render the block, and reopen
+      // (this is handled in renderPages, not here)
+      const expanded = expandRefs(node.content, state.contentRefs);
+      return renderBlockContent(expanded);
+    }
+
+    case "table":
+      return renderTable(node);
+
+    default:
+      return "";
+  }
 }
 
 function buildPage(content: string, state: RenderState): string {
@@ -174,11 +262,26 @@ function renderNode(node: ScribeNode, state: RenderState): string {
     case "right-sidebar":
       return renderSimpleBlock("right", node.content, state);
 
-    case "paragraph":
-      return renderParagraph(node, state);
+    case "paragraph": {
+      // Check for block-level content ref expansion
+      const blockRef = expandAndRenderRef(node.content, state);
+      if (blockRef !== null) return blockRef;
+      // Inline paragraphs are handled by renderInlineNode
+      const expanded = expandRefs(node.content, state.contentRefs);
+      return `<div data-markdown="1" class="content">${renderBlockContent(expanded)}</div>`;
+    }
 
-    case "heading":
-      return renderHeading(node, state);
+    case "heading": {
+      // Fallback: headings are normally handled by renderInlineNode in renderPages
+      let text = expandRefs(node.text, state.contentRefs);
+      let tocAnchors = "";
+      if (node.tocLabel) {
+        const id = node.tocLabel.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+        tocAnchors = ` <a id="toc-${id}"></a><a id="toc-${id}-${state.tocCounter}"></a>`;
+        state.tocCounter++;
+      }
+      return `<h${node.level}>${renderInlineMarkdown(text)}${tocAnchors}</h${node.level}>`;
+    }
 
     case "table":
       return renderTable(node);
@@ -258,42 +361,7 @@ function renderItemBlock(
   return `<div data-markdown="1" class="item d-flex flex-wrap"><div data-markdown="1" class="flex-even column">${parts.join("\n")}</div></div>`;
 }
 
-function renderParagraph(
-  node: ScribeNode & { type: "paragraph" },
-  state: RenderState,
-): string {
-  // Check if this paragraph is a standalone content ref with block-level DSL
-  const blockRef = expandAndRenderRef(node.content, state);
-  if (blockRef !== null) return blockRef;
-
-  const expanded = expandRefs(node.content, state.contentRefs);
-  return `<div data-markdown="1" class="content">${renderBlockContent(expanded)}</div>`;
-}
-
-function renderHeading(
-  node: ScribeNode & { type: "heading" },
-  state: RenderState,
-): string {
-  let text = expandRefs(node.text, state.contentRefs);
-  let tocAnchors = "";
-
-  if (node.tocLabel) {
-    const id = node.tocLabel.toLowerCase().replace(/[^a-z0-9]+/g, "-");
-    tocAnchors = ` <a id="toc-${id}"></a><a id="toc-${id}-${state.tocCounter}"></a>`;
-    state.tocCounter++;
-  }
-
-  // H2 ordinal suffix splitting: "More Text 4th" → flex container
-  if (node.level === 2) {
-    const ordinalMatch = text.match(/^(.+?)\s+(\d+(?:st|nd|rd|th))\s*$/i);
-    if (ordinalMatch) {
-      return `<div data-markdown="1" class="content"><div class="p d-flex"><h2>${renderInlineMarkdown(ordinalMatch[1]!)}</h2><h2 class="mr-0 my-0 ml-auto">${ordinalMatch[2]!}</h2></div></div>`;
-    }
-  }
-
-  const heading = `<h${node.level}>${renderInlineMarkdown(text)}${tocAnchors}</h${node.level}>`;
-  return `<div data-markdown="1" class="content">${heading}</div>`;
-}
+// renderParagraph and renderHeading are now handled inline by renderPages/renderInlineNode
 
 function renderTable(node: ScribeNode & { type: "table" }): string {
   const parts: string[] = [];

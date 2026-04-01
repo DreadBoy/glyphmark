@@ -85,6 +85,13 @@ export function renderBlockContent(content: string, options?: {
       continue;
     }
 
+    // Horizontal rule inside blocks (lone -)
+    if (trimmed === "-") {
+      if (inList) { parts.push("</ul>"); inList = false; }
+      parts.push("<hr>");
+      continue;
+    }
+
     // Column break inside blocks
     if (trimmed === "|") {
       if (inList) { parts.push("</ul>"); inList = false; }
