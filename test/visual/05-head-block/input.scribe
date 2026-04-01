@@ -4,12 +4,19 @@ A description that goes under the heading in the head block.
 -
 )
 
-Left column content below the head block. The head block should break columns, so this column layout starts fresh after it.
+head (
+## Large Subtitle
+### Centered Subheading
+#### Another Large Subtitle
+-
+)
+
+Left column content below the head blocks.
 
 |
 
-Right column content below the head block. This verifies that columns work correctly after a head block resets the layout.
+Right column content below the head blocks.
 
 /
 
-Full-width paragraph after the columns, below the head.
+Full-width paragraph after the columns.
