@@ -12,7 +12,8 @@
     "start": "node dist/cli.js",
     "serve": "node dist/cli.js serve",
     "test": "node --import tsx --test test/*.test.ts",
-    "test:visual": "node --import tsx --test test/visual/visual.test.ts"
+    "test:visual": "node --import tsx --test test/visual/visual.test.ts",
+    "test:visual:update": "UPDATE_SNAPSHOTS=1 node --import tsx --test test/visual/visual.test.ts"
   },
   "keywords": [
     "pathfinder",
@@ -29,8 +30,11 @@
   },
   "devDependencies": {
     "@types/node": "^25.5.0",
+    "@types/pngjs": "^6.0.5",
     "@types/ws": "^8.18.1",
+    "pixelmatch": "^7.1.0",
     "playwright": "^1.59.1",
+    "pngjs": "^7.0.0",
     "tsx": "^4.21.0",
     "typescript": "^6.0.2"
   }
