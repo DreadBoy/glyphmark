@@ -1,15 +1,9 @@
 /**
  * Renders inline markdown and action symbols to HTML.
- * Used by both the scribe block renderer and the main renderer.
+ * Outputs scribe-compatible HTML classes for visual parity.
  */
 
-const ACTION_SVGS: Record<string, string> = {
-  ":aaa:": `<span class="pf2e-action" title="Three Actions"><svg viewBox="0 0 36 12" width="54" height="18"><polygon points="3,6 6,1 9,6 6,11" fill="currentColor"/><polygon points="15,6 18,1 21,6 18,11" fill="currentColor"/><polygon points="27,6 30,1 33,6 30,11" fill="currentColor"/></svg></span>`,
-  ":aa:": `<span class="pf2e-action" title="Two Actions"><svg viewBox="0 0 24 12" width="36" height="18"><polygon points="3,6 6,1 9,6 6,11" fill="currentColor"/><polygon points="15,6 18,1 21,6 18,11" fill="currentColor"/></svg></span>`,
-  ":a:": `<span class="pf2e-action" title="Single Action"><svg viewBox="0 0 12 12" width="18" height="18"><polygon points="3,6 6,1 9,6 6,11" fill="currentColor"/></svg></span>`,
-  ":r:": `<span class="pf2e-action" title="Reaction"><svg viewBox="0 0 12 12" width="18" height="18"><path d="M9,6 L5,2 L5,5 L3,5 L3,7 L5,7 L5,10 Z" fill="currentColor"/></svg></span>`,
-  ":f:": `<span class="pf2e-action" title="Free Action"><svg viewBox="0 0 12 12" width="18" height="18"><polygon points="3,6 6,1 9,6 6,11" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></span>`,
-};
+import { ACTION_SYMBOLS } from "../vendor/action-symbols.js";
 
 function escapeHtml(text: string): string {
   return text
@@ -20,12 +14,18 @@ function escapeHtml(text: string): string {
 }
 
 function replaceActionSymbols(text: string): string {
-  return text.replace(/:aaa:|:aa:|:a:|:r:|:f:/g, (m) => ACTION_SVGS[m] ?? m);
+  return text.replace(/:aaa:|:aa:|:a:|:r:|:f:/g, (m) => {
+    const src = ACTION_SYMBOLS[m];
+    if (src) {
+      return `<img src="${src}" class="text-img">`;
+    }
+    return m;
+  });
 }
 
 /**
- * Renders inline markdown (bold, italic, links, images, action symbols)
- * from plain text to HTML. Does NOT handle block-level elements.
+ * Renders inline markdown (bold, italic, links, images, action symbols).
+ * Does NOT handle block-level elements.
  */
 export function renderInlineMarkdown(text: string): string {
   let html = escapeHtml(text);
@@ -33,13 +33,19 @@ export function renderInlineMarkdown(text: string): string {
   // Images: ![alt](src)
   html = html.replace(
     /!\[([^\]]*)\]\(([^)]+)\)/g,
-    '<img src="$2" alt="$1" />',
+    '<img alt="$1" src="$2">',
   );
 
-  // Links: [text](url)
+  // Label links: [text](#label) → scribe-style anchor
+  html = html.replace(
+    /\[([^\]]+)\]\(#([^)]+)\)/g,
+    '<a data-label="$2" href="#" class="pointer">$1</a>',
+  );
+
+  // Regular links: [text](url)
   html = html.replace(
     /\[([^\]]+)\]\(([^)]+)\)/g,
-    '<a href="$2">$1</a>',
+    '<a rel="noopener noreferrer" href="$2">$1</a>',
   );
 
   // Bold: **text**
@@ -56,9 +62,13 @@ export function renderInlineMarkdown(text: string): string {
 
 /**
  * Renders a block of scribe content that may contain markdown.
- * Handles paragraphs, lists, headings within block content.
+ * Handles paragraphs, headings, lists within block content.
+ * Returns scribe-compatible HTML with proper classes.
  */
-export function renderBlockContent(content: string): string {
+export function renderBlockContent(content: string, options?: {
+  /** Counter state for TOC anchors - mutated in place */
+  tocState?: { counter: number; toc: Array<{ label: string; id: string; indent: number }> };
+}): string {
   const lines = content.split("\n");
   const parts: string[] = [];
   let inList = false;
@@ -78,7 +88,8 @@ export function renderBlockContent(content: string): string {
     // Column break inside blocks
     if (trimmed === "|") {
       if (inList) { parts.push("</ul>"); inList = false; }
-      parts.push('<div class="column-break"></div>');
+      // Close current column, start new one
+      parts.push('</div></div><div data-markdown="1" class="flex-even column">');
       continue;
     }
 
@@ -88,9 +99,24 @@ export function renderBlockContent(content: string): string {
       if (inList) { parts.push("</ul>"); inList = false; }
       const level = headingMatch[1]!.length;
       let text = headingMatch[2]!;
-      // Strip ToC labels from display
-      text = text.replace(/\(\((\+*)(.*?)\)\)\s*$/, "").trim();
-      parts.push(`<h${level}>${renderInlineMarkdown(text)}</h${level}>`);
+
+      // Extract ToC label
+      let tocAnchors = "";
+      const tocMatch = text.match(/\(\((\+*)(.*?)\)\)\s*$/);
+      if (tocMatch && options?.tocState) {
+        const indent = tocMatch[1]!.length;
+        const label = tocMatch[2]!;
+        text = text.replace(tocMatch[0], "").trim();
+        const id = label.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+        tocAnchors = ` <a id="toc-${id}"></a><a id="toc-${id}-${options.tocState.counter}"></a>`;
+        options.tocState.toc.push({ label, id, indent });
+        options.tocState.counter++;
+      } else {
+        // Strip label without tracking
+        text = text.replace(/\(\((\+*)(.*?)\)\)\s*$/, "").trim();
+      }
+
+      parts.push(`<h${level}>${renderInlineMarkdown(text)}${tocAnchors}</h${level}>`);
       continue;
     }
 
@@ -106,9 +132,28 @@ export function renderBlockContent(content: string): string {
 
     // Regular paragraph
     if (inList) { parts.push("</ul>"); inList = false; }
-    const indent = line.match(/^(\s+)/)?.[1]?.length ?? 0;
-    const style = indent > 0 ? ` style="text-indent: ${indent * 0.5}em"` : "";
-    parts.push(`<p${style}>${renderInlineMarkdown(trimmed)}</p>`);
+
+    // Hanging indent: paragraphs starting with **bold** get class="hang"
+    const isHang = trimmed.startsWith("**") && trimmed.includes("**", 2);
+    const hangClass = isHang ? ' class="hang"' : "";
+
+    // Leading space indent: convert to &nbsp;
+    const leadingSpaces = line.match(/^(\s+)/)?.[1]?.length ?? 0;
+    if (leadingSpaces > 0 && parts.length > 0) {
+      // Continuation line with indent - append as <br> to previous paragraph
+      const nbsp = "&nbsp;".repeat(Math.min(leadingSpaces, 8));
+      const lastPart = parts[parts.length - 1]!;
+      if (lastPart.startsWith("<p")) {
+        // Remove closing </p>, add <br> + indented line, re-close
+        parts[parts.length - 1] = lastPart.replace(
+          /<\/p>$/,
+          `<br>\n${nbsp}${renderInlineMarkdown(trimmed)}</p>`,
+        );
+        continue;
+      }
+    }
+
+    parts.push(`<p${hangClass}>${renderInlineMarkdown(trimmed)}</p>`);
   }
 
   if (inList) parts.push("</ul>");

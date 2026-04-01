@@ -11,6 +11,9 @@ export interface ScribeDocument {
   watermark?: string;
   title?: string;
   customCss?: string;
+  contentRefs: Map<string, string>;
+  fonts?: string[];
+  pageNumbers: boolean;
   toc: TocEntry[];
   body: ScribeNode[];
 }
@@ -117,12 +120,66 @@ interface TableNode {
 
 export function parseScribe(input: string): ScribeDocument {
   const doc: ScribeDocument = {
+    contentRefs: new Map(),
+    pageNumbers: false,
     toc: [],
     body: [],
   };
 
-  // Pre-process: extract watermark, title, css blocks at top level
+  // ── Phase 1: Content reference extraction ──
   let content = input;
+
+  // Split hidden section (everything after lone %)
+  let hiddenSection = "";
+  const hiddenMatch = content.match(/^\s*%\s*$/m);
+  if (hiddenMatch && hiddenMatch.index !== undefined) {
+    hiddenSection = content.slice(hiddenMatch.index + hiddenMatch[0].length);
+    content = content.slice(0, hiddenMatch.index);
+  }
+
+  // Extract content refs from HTML comments
+  const htmlComments = content.matchAll(/<!--([\s\S]*?)-->/g);
+  for (const cm of htmlComments) {
+    extractContentRefs(cm[1]!, doc.contentRefs);
+  }
+  // Also check hidden section for HTML comments
+  const hiddenComments = hiddenSection.matchAll(/<!--([\s\S]*?)-->/g);
+  for (const cm of hiddenComments) {
+    extractContentRefs(cm[1]!, doc.contentRefs);
+  }
+
+  // Extract content refs from body and hidden section
+  extractContentRefs(content, doc.contentRefs);
+  extractContentRefs(hiddenSection, doc.contentRefs);
+
+  // Strip content ref definitions from body (but keep {{key}} for expansion during rendering)
+  content = stripContentRefDefinitions(content);
+
+  // Strip HTML comments
+  content = content.replace(/<!--[\s\S]*?-->/g, "");
+
+  // Extract fonts() blocks
+  const fontsMatches = content.matchAll(/fonts\s*\(\s*\n([\s\S]*?)\n\s*\)/g);
+  const fontSpecs: string[] = [];
+  for (const m of fontsMatches) {
+    const specs = m[1]!.split("\n").map(s => s.trim()).filter(Boolean);
+    fontSpecs.push(...specs);
+    content = content.replace(m[0], "");
+  }
+  if (fontSpecs.length > 0) {
+    doc.fonts = fontSpecs;
+  }
+
+  // Extract pagenumbers keyword
+  if (/^\s*pagenumbers\s*$/m.test(content)) {
+    doc.pageNumbers = true;
+    content = content.replace(/^\s*pagenumbers\s*$/gm, "");
+  }
+
+  // Strip sticky() blocks (unsupported)
+  content = content.replace(/sticky\s*\([^)]*\)/g, "");
+
+  // ── Phase 2: Extract watermark, title, css blocks ──
 
   // Extract watermark
   const wmMatch = content.match(/^watermark\s*\(\s*\n([\s\S]*?)\n\s*\)/m);
@@ -149,20 +206,10 @@ export function parseScribe(input: string): ScribeDocument {
     doc.customCss = cssParts.join("\n");
   }
 
-  // Strip unsupported features silently
-  // Content references: key { ... } and {{key}}
-  content = content.replace(/^\w+\s*\{[\s\S]*?\n\}/gm, "");
-  content = content.replace(/\{\{[^}]+\}\}/g, "");
-  // Hidden section: everything after a lone %
-  content = content.replace(/^\s*%\s*\n[\s\S]*$/m, "");
-  // fonts() blocks
-  content = content.replace(/fonts\s*\([\s\S]*?\)/g, "");
-  // sticky() blocks
-  content = content.replace(/sticky\s*\([^)]*\)/g, "");
-  // pagenumbers keyword
-  content = content.replace(/^\s*pagenumbers\s*$/gm, "");
-  // HTML comments
-  content = content.replace(/<!--[\s\S]*?-->/g, "");
+  // Strip {{key}} placeholders from content (they'll be expanded during rendering)
+  // We keep them as literal text for now; the renderer will expand them
+  // Actually, we need to keep {{key}} in the content for the renderer to find and expand
+  // No stripping needed here
 
   const lines = content.split("\n");
   let i = 0;
@@ -571,4 +618,85 @@ function parseTable(
     },
     endIndex: i,
   };
+}
+
+// ── Content Reference Helpers ─────────────────────────────────
+
+/**
+ * Extract content reference definitions (key { ... }) from text.
+ * Handles nested braces by depth tracking.
+ */
+function extractContentRefs(
+  text: string,
+  refs: Map<string, string>,
+): void {
+  // Match: identifier { content } where content can span multiple lines
+  // and may contain nested braces
+  const lines = text.split("\n");
+  let i = 0;
+
+  while (i < lines.length) {
+    const line = lines[i]!;
+    const match = line.match(/^(\w+)\s*\{\s*$/);
+    if (match) {
+      const key = match[1]!;
+      let depth = 1;
+      const contentLines: string[] = [];
+      i++;
+
+      while (i < lines.length && depth > 0) {
+        const l = lines[i]!;
+        for (const ch of l) {
+          if (ch === "{") depth++;
+          else if (ch === "}") depth--;
+        }
+        if (depth > 0) {
+          contentLines.push(l);
+        } else {
+          // Last line - include everything before the closing brace
+          const lastBrace = l.lastIndexOf("}");
+          if (lastBrace > 0) {
+            contentLines.push(l.slice(0, lastBrace));
+          }
+        }
+        i++;
+      }
+
+      refs.set(key, contentLines.join("\n").trim());
+      continue;
+    }
+    i++;
+  }
+}
+
+/**
+ * Strip content reference definitions from text, leaving {{key}} placeholders intact.
+ */
+function stripContentRefDefinitions(text: string): string {
+  const lines = text.split("\n");
+  const result: string[] = [];
+  let i = 0;
+
+  while (i < lines.length) {
+    const line = lines[i]!;
+    const match = line.match(/^(\w+)\s*\{\s*$/);
+    if (match) {
+      // Skip the entire definition block
+      let depth = 1;
+      i++;
+      while (i < lines.length && depth > 0) {
+        const l = lines[i]!;
+        for (const ch of l) {
+          if (ch === "{") depth++;
+          else if (ch === "}") depth--;
+        }
+        i++;
+      }
+      continue;
+    }
+    result.push(line);
+    i++;
+  }
+
+  return result.join("\n");
 }

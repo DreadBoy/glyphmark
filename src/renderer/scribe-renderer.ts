@@ -1,252 +1,374 @@
 /**
- * Renders a ScribeDocument to HTML.
+ * Scribe-compatible HTML renderer.
+ * Outputs HTML with scribe.pf2.tools CSS class names for visual parity.
  */
 
 import type { ScribeDocument, ScribeNode, TocEntry } from "../parser/scribe-parser.js";
-import {
-  renderInlineMarkdown,
-  renderBlockContent,
-} from "./inline-markdown.js";
-import { PF2E_CSS } from "./styles.js";
+import { renderInlineMarkdown, renderBlockContent } from "./inline-markdown.js";
+import { getScribeCSS } from "./styles.js";
+import { parseScribe } from "../parser/scribe-parser.js";
+
+// ── Types ─────────────────────────────────────────────────────
+
+interface RenderState {
+  inColumns: boolean;
+  watermark: string;
+  title: string;
+  tocCounter: number;
+  toc: TocEntry[];
+  contentRefs: Map<string, string>;
+}
+
+interface ConvertOptions {
+  devScript?: string;
+}
+
+// ── Main Renderer ─────────────────────────────────────────────
 
 export function renderScribeDocument(
   doc: ScribeDocument,
-  opts?: { devScript?: string },
+  opts?: ConvertOptions,
 ): string {
-  const title = doc.title ?? "Glyphmark Document";
-  const parts: string[] = [];
+  const state: RenderState = {
+    inColumns: false,
+    watermark: doc.watermark ?? "",
+    title: doc.title ?? "",
+    tocCounter: 0,
+    toc: doc.toc,
+    contentRefs: doc.contentRefs,
+  };
 
-  // Build ToC if entries exist
-  if (doc.toc.length > 0) {
-    parts.push(renderToc(doc.toc));
+  const css = getScribeCSS({
+    googleFonts: doc.fonts,
+    pageNumbers: doc.pageNumbers,
+    customCss: doc.customCss,
+  });
+
+  // Render body nodes into pages
+  const pages = renderPages(doc.body, state);
+
+  // Build full HTML document
+  const parts: string[] = [];
+  parts.push("<!DOCTYPE html>");
+  parts.push('<html lang="en">');
+  parts.push("<head>");
+  parts.push('  <meta charset="UTF-8">');
+  parts.push('  <meta name="viewport" content="width=device-width, initial-scale=1.0">');
+  if (doc.title) {
+    parts.push(`  <title>${escapeHtml(doc.title)}</title>`);
+  }
+  parts.push("</head>");
+  parts.push("<body>");
+  parts.push('<div id="result">');
+  parts.push(`<style>${css}</style>`);
+
+  for (const page of pages) {
+    parts.push(page);
   }
 
-  // Render body nodes
-  let inColumns = false;
-  for (const node of doc.body) {
+  parts.push("</div>"); // #result
+
+  if (opts?.devScript) {
+    parts.push(opts.devScript);
+  }
+
+  parts.push("</body>");
+  parts.push("</html>");
+
+  return parts.join("\n");
+}
+
+// ── Page Rendering ────────────────────────────────────────────
+
+function renderPages(nodes: ScribeNode[], state: RenderState): string[] {
+  const pages: string[] = [];
+  let currentPageContent: string[] = [];
+
+  function flushPage(): void {
+    const pageHtml = buildPage(currentPageContent.join("\n"), state);
+    pages.push(pageHtml);
+    currentPageContent = [];
+  }
+
+  // Start with a default column
+  currentPageContent.push('<div data-markdown="1" class="flex-even column">');
+
+  for (const node of nodes) {
+    if (node.type === "page-break") {
+      // Close current column
+      currentPageContent.push("</div>"); // close column
+      flushPage();
+      // Start new page with fresh column
+      currentPageContent.push('<div data-markdown="1" class="flex-even column">');
+      continue;
+    }
+
     if (node.type === "column-break") {
-      if (!inColumns) {
-        parts.push('<div class="columns">');
-        parts.push('<div class="column">');
-        inColumns = true;
-      } else {
-        parts.push("</div>"); // close previous column
-        parts.push('<div class="column">');
-      }
+      // Close current column, start new one
+      currentPageContent.push("</div>"); // close column
+      currentPageContent.push('<div data-markdown="1" class="flex-even column">');
       continue;
     }
 
     if (node.type === "end-columns") {
-      if (inColumns) {
-        parts.push("</div>"); // close last column
-        parts.push("</div>"); // close columns wrapper
-        inColumns = false;
-      }
+      // Close current column, add row separator, start new column
+      currentPageContent.push("</div>"); // close column
+      currentPageContent.push('<div class="content w-100"></div>');
+      currentPageContent.push('<div data-markdown="1" class="flex-even column">');
       continue;
     }
 
-    parts.push(renderNode(node));
+    // Render the node and add to current column
+    const html = renderNode(node, state);
+    if (html) {
+      currentPageContent.push(html);
+    }
   }
 
-  // Close any open columns
-  if (inColumns) {
-    parts.push("</div></div>");
-  }
+  // Close final column and flush last page
+  currentPageContent.push("</div>"); // close column
+  flushPage();
 
-  const bodyHtml = parts.join("\n");
-  const watermarkHtml = doc.watermark
-    ? `<div class="pf2e-watermark">${escapeHtml(doc.watermark)}</div>`
-    : "";
-
-  const customCss = doc.customCss ? `\n${doc.customCss}` : "";
-  const devScript = opts?.devScript ?? "";
-
-  return `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${escapeHtml(title)}</title>
-  <style>${PF2E_CSS}${SCRIBE_LAYOUT_CSS}${customCss}</style>
-</head>
-<body>
-${watermarkHtml}
-${bodyHtml}
-${devScript}
-</body>
-</html>`;
+  return pages;
 }
 
-function renderNode(node: ScribeNode): string {
-  switch (node.type) {
-    case "page-break":
-      return '<div class="page-break"></div>';
-
-    case "hr":
-      return "<hr>";
-
-    case "column-break":
-    case "end-columns":
-      return ""; // handled by the column tracking in renderScribeDocument
-
-    case "head": {
-      // Head blocks use - as bottom separator, strip it
-      const headContent = node.content.replace(/\n-\s*$/, "").trim();
-      return `<div class="scribe-head">${renderBlockContent(headContent)}</div>`;
-    }
-
-    case "info":
-      return `<div class="scribe-info">${renderBlockContent(node.content)}</div>`;
-
-    case "rules":
-      return `<div class="scribe-rules">${renderBlockContent(node.content)}</div>`;
-
-    case "note":
-      return `<div class="scribe-note">${renderBlockContent(node.content)}</div>`;
-
-    case "math":
-      return `<div class="scribe-math">${renderInlineMarkdown(node.content)}</div>`;
-
-    case "item":
-      return renderItemBlock(node);
-
-    case "left-sidebar":
-      return `<div class="scribe-sidebar scribe-sidebar-left">${renderBlockContent(node.content)}</div>`;
-
-    case "right-sidebar":
-      return `<div class="scribe-sidebar scribe-sidebar-right">${renderBlockContent(node.content)}</div>`;
-
-    case "paragraph": {
-      // Check if content contains list items
-      if (node.content.match(/^\* /m)) {
-        return renderBlockContent(node.content);
-      }
-      const style = node.indent ? ` style="text-indent: ${node.indent * 0.5}em"` : "";
-      return `<p${style}>${renderInlineMarkdown(node.content)}</p>`;
-    }
-
-    case "heading": {
-      const id = node.tocLabel
-        ? ` id="${node.tocLabel.toLowerCase().replace(/[^a-z0-9]+/g, "-")}"`
-        : "";
-      const text = renderInlineMarkdown(node.text);
-      return `<h${node.level}${id}>${text}</h${node.level}>`;
-    }
-
-    case "table":
-      return renderTable(node);
-  }
-}
-
-function renderItemBlock(item: ScribeNode & { type: "item" }): string {
+function buildPage(content: string, state: RenderState): string {
   const parts: string[] = [];
+  parts.push("<div>");
+  parts.push('<div data-markdown="1" class="bg-paper page d-flex flex-wrap">');
+  parts.push('<div class="page-overlay"></div>');
+  parts.push(content);
 
-  // Header
-  const actions = item.nameActions
-    ? ` ${renderInlineMarkdown(item.nameActions)}`
-    : "";
-  const id = item.tocLabel
-    ? ` id="${item.tocLabel.toLowerCase().replace(/[^a-z0-9]+/g, "-")}"`
-    : "";
-
-  parts.push(`<div class="pf2e-block pf2e-item"${id}>`);
-  parts.push(`<header class="pf2e-header">`);
-  parts.push(
-    `<h3 class="pf2e-name">${escapeHtml(item.name)}${actions}</h3>`,
-  );
-  if (item.subtitle) {
-    parts.push(
-      `<span class="pf2e-level">${renderInlineMarkdown(item.subtitle)}</span>`,
-    );
+  if (state.watermark) {
+    parts.push(`<div class="watermark">${escapeHtml(state.watermark)}</div>`);
   }
-  parts.push(`</header>`);
-
-  // Traits
-  if (item.traits.length > 0) {
-    parts.push(`<div class="pf2e-traits">`);
-    for (const trait of item.traits) {
-      const rarity = getRarityClass(trait);
-      parts.push(
-        `<span class="pf2e-trait ${rarity}">${escapeHtml(trait)}</span>`,
-      );
-    }
-    parts.push(`</div>`);
+  if (state.title) {
+    parts.push(`<div class="title"><h1>${escapeHtml(state.title)}</h1></div>`);
   }
 
-  // Top section (between first and second -)
-  if (item.topSection) {
-    parts.push(`<div class="pf2e-separator"></div>`);
-    parts.push(
-      `<div class="pf2e-top-section">${renderBlockContent(item.topSection)}</div>`,
-    );
-  }
-
-  // Body
-  if (item.body) {
-    parts.push(`<div class="pf2e-separator"></div>`);
-    parts.push(
-      `<div class="pf2e-description">${renderBlockContent(item.body)}</div>`,
-    );
-  }
-
-  parts.push(`</div>`);
+  parts.push("</div>"); // .page
+  parts.push("</div>");
   return parts.join("\n");
 }
 
-function renderTable(table: ScribeNode & { type: "table" }): string {
+// ── Node Rendering ────────────────────────────────────────────
+
+function renderNode(node: ScribeNode, state: RenderState): string {
+  switch (node.type) {
+    case "hr":
+      return "<hr>";
+
+    case "head":
+    case "info":
+    case "rules":
+    case "note":
+    case "math":
+      return renderSimpleBlock(node.type, node.content, state);
+
+    case "item":
+      return renderItemBlock(node, state);
+
+    case "left-sidebar":
+      return renderSimpleBlock("left", node.content, state);
+
+    case "right-sidebar":
+      return renderSimpleBlock("right", node.content, state);
+
+    case "paragraph":
+      return renderParagraph(node, state);
+
+    case "heading":
+      return renderHeading(node, state);
+
+    case "table":
+      return renderTable(node);
+
+    default:
+      return "";
+  }
+}
+
+function renderSimpleBlock(
+  cssClass: string,
+  content: string,
+  state: RenderState,
+): string {
+  const expanded = expandRefs(content, state.contentRefs);
+  const tocState = { counter: state.tocCounter, toc: state.toc };
+  const inner = renderBlockContent(expanded, { tocState });
+  state.tocCounter = tocState.counter;
+
+  return `<div data-markdown="1" class="${cssClass} d-flex flex-wrap"><div data-markdown="1" class="flex-even column">${inner}</div></div>`;
+}
+
+function renderItemBlock(
+  item: ScribeNode & { type: "item" },
+  state: RenderState,
+): string {
   const parts: string[] = [];
 
-  if (table.caption) {
-    parts.push(
-      `<div class="table-caption">${renderInlineMarkdown(table.caption)}</div>`,
-    );
+  // Name with action symbols and TOC anchor
+  let nameHtml = renderInlineMarkdown(item.name);
+  if (item.nameActions) {
+    nameHtml += " " + renderInlineMarkdown(item.nameActions);
+  }
+  let tocAnchors = "";
+  if (item.tocLabel) {
+    const id = item.tocLabel.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+    tocAnchors = ` <a id="toc-${id}"></a><a id="toc-${id}-${state.tocCounter}"></a>`;
+    state.toc.push({ label: item.tocLabel, id, indent: item.tocIndent ?? 0 });
+    state.tocCounter++;
+  }
+  parts.push(`<h1>${nameHtml}${tocAnchors}</h1>`);
+
+  // Subtitle
+  if (item.subtitle) {
+    parts.push(`<h2>${renderInlineMarkdown(item.subtitle)}</h2>`);
+  }
+
+  // First separator
+  parts.push("<hr>");
+
+  // Traits
+  if (item.traits.length > 0) {
+    const traitDivs = item.traits.map((t) => {
+      const traitClass = getTraitClass(t);
+      return `<div class="pf-trait${traitClass}">${escapeHtml(t)}</div><!---->`;
+    });
+    parts.push('<div class="traits">');
+    parts.push('<div class="pf-trait pf-trait-edge">&nbsp;</div><!---->');
+    parts.push(traitDivs.join(""));
+    parts.push('<div class="pf-trait pf-trait-edge">&nbsp;</div>');
+    parts.push("</div>");
+  }
+
+  // Top section
+  if (item.topSection) {
+    const expanded = expandRefs(item.topSection, state.contentRefs);
+    parts.push(renderBlockContent(expanded));
+  }
+
+  // Second separator (if there's a body)
+  if (item.body) {
+    parts.push("<hr>");
+    const expanded = expandRefs(item.body, state.contentRefs);
+    parts.push(renderBlockContent(expanded));
+  }
+
+  return `<div data-markdown="1" class="item d-flex flex-wrap"><div data-markdown="1" class="flex-even column">${parts.join("\n")}</div></div>`;
+}
+
+function renderParagraph(
+  node: ScribeNode & { type: "paragraph" },
+  state: RenderState,
+): string {
+  const expanded = expandRefs(node.content, state.contentRefs);
+  return `<div data-markdown="1" class="content">${renderBlockContent(expanded)}</div>`;
+}
+
+function renderHeading(
+  node: ScribeNode & { type: "heading" },
+  state: RenderState,
+): string {
+  let text = expandRefs(node.text, state.contentRefs);
+  let tocAnchors = "";
+
+  if (node.tocLabel) {
+    const id = node.tocLabel.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+    tocAnchors = ` <a id="toc-${id}"></a><a id="toc-${id}-${state.tocCounter}"></a>`;
+    state.tocCounter++;
+  }
+
+  // H2 ordinal suffix splitting: "More Text 4th" → flex container
+  if (node.level === 2) {
+    const ordinalMatch = text.match(/^(.+?)\s+(\d+(?:st|nd|rd|th))\s*$/i);
+    if (ordinalMatch) {
+      return `<div data-markdown="1" class="content"><div class="p d-flex"><h2>${renderInlineMarkdown(ordinalMatch[1]!)}</h2><h2 class="mr-0 my-0 ml-auto">${ordinalMatch[2]!}</h2></div></div>`;
+    }
+  }
+
+  const heading = `<h${node.level}>${renderInlineMarkdown(text)}${tocAnchors}</h${node.level}>`;
+  return `<div data-markdown="1" class="content">${heading}</div>`;
+}
+
+function renderTable(node: ScribeNode & { type: "table" }): string {
+  const parts: string[] = [];
+
+  // Caption (h5 before table)
+  if (node.caption) {
+    parts.push(`<h5>${renderInlineMarkdown(node.caption)}</h5>`);
   }
 
   parts.push("<table>");
+
+  // Header
   parts.push("<thead><tr>");
-  for (const h of table.headers) {
-    parts.push(`<th>${renderInlineMarkdown(h)}</th>`);
+  for (let j = 0; j < node.headers.length; j++) {
+    const align = node.alignments[j];
+    const style = align && align !== "left" ? ` style="text-align:${align};"` : "";
+    parts.push(`<th${style}>${renderInlineMarkdown(node.headers[j]!)}</th>`);
   }
   parts.push("</tr></thead>");
 
+  // Body rows
   parts.push("<tbody>");
-  for (const row of table.rows) {
+  for (const row of node.rows) {
     parts.push("<tr>");
-    for (let i = 0; i < row.length; i++) {
-      const align = table.alignments[i] ?? "left";
-      const style = align !== "left" ? ` style="text-align: ${align}"` : "";
-      parts.push(`<td${style}>${renderInlineMarkdown(row[i]!)}</td>`);
+    for (let j = 0; j < row.length; j++) {
+      const align = node.alignments[j];
+      const style = align && align !== "left" ? ` style="text-align:${align};"` : "";
+      parts.push(`<td${style}>${renderInlineMarkdown(row[j]!)}</td>`);
     }
     parts.push("</tr>");
   }
   parts.push("</tbody></table>");
 
-  for (const fn of table.footnotes) {
-    parts.push(
-      `<div class="table-footnote">* ${renderInlineMarkdown(fn)}</div>`,
-    );
+  // Footnotes
+  for (const fn of node.footnotes) {
+    parts.push(`<div class="tfoot">* ${renderInlineMarkdown(fn)}</div>`);
   }
 
   return parts.join("\n");
 }
 
-function renderToc(entries: TocEntry[]): string {
-  const items = entries
-    .map(
-      (e) =>
-        `<li class="toc-indent-${e.indent}"><a href="#${e.id}">${escapeHtml(e.label)}</a></li>`,
-    )
-    .join("\n");
-  return `<nav class="toc"><h2>Table of Contents</h2><ul>${items}</ul></nav>`;
+// ── Trait Helpers ──────────────────────────────────────────────
+
+function getTraitClass(trait: string): string {
+  const t = trait.toLowerCase().trim();
+  if (t === "uncommon") return " pf-trait-uncommon";
+  if (t === "rare") return " pf-trait-rare";
+  if (t === "unique") return " pf-trait-unique";
+  const sizes = ["tiny", "small", "medium", "large", "huge", "gargantuan"];
+  if (sizes.includes(t)) return " pf-trait-size";
+  const aligns = ["lg", "ln", "le", "ng", "n", "ne", "cg", "cn", "ce",
+    "lawful good", "lawful neutral", "lawful evil",
+    "neutral good", "neutral", "neutral evil",
+    "chaotic good", "chaotic neutral", "chaotic evil"];
+  if (aligns.includes(t)) return " pf-trait-align";
+  return ` pf-trait-${t.replace(/\s+/g, "-")}`;
 }
 
-function getRarityClass(trait: string): string {
-  const lower = trait.toLowerCase();
-  if (lower === "uncommon") return "rarity-uncommon";
-  if (lower === "rare") return "rarity-rare";
-  if (lower === "unique") return "rarity-unique";
-  return "";
+// ── Content Reference Expansion ───────────────────────────────
+
+function expandRefs(
+  text: string,
+  refs: Map<string, string>,
+  depth: number = 0,
+): string {
+  if (depth > 10) return text;
+  if (!text.includes("{{")) return text;
+
+  return text.replace(/\{\{(\w+)\}\}/g, (match, key: string) => {
+    const content = refs.get(key);
+    if (content === undefined) {
+      console.warn(`[glyphmark] Undefined content reference: {{${key}}}`);
+      return match;
+    }
+    return expandRefs(content, refs, depth + 1);
+  });
 }
+
+// ── Utilities ─────────────────────────────────────────────────
 
 function escapeHtml(text: string): string {
   return text
@@ -255,182 +377,3 @@ function escapeHtml(text: string): string {
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;");
 }
-
-// Additional CSS for scribe layout features
-const SCRIBE_LAYOUT_CSS = `
-
-/* Columns */
-.columns {
-  display: flex;
-  gap: 1.5em;
-}
-.column {
-  flex: 1;
-  min-width: 0;
-}
-
-/* Page break */
-.page-break {
-  page-break-after: always;
-  border-top: 3px double var(--pf2e-separator);
-  margin: 2em 0;
-  padding-top: 2em;
-}
-
-@media print {
-  .page-break {
-    border: none;
-    margin: 0;
-    padding: 0;
-  }
-}
-
-/* Head block */
-.scribe-head {
-  background: var(--pf2e-header-bg);
-  color: var(--pf2e-header-text);
-  padding: 0.8em 1.2em;
-  margin: 1em 0;
-}
-.scribe-head h1, .scribe-head h2, .scribe-head h3,
-.scribe-head h4, .scribe-head h5, .scribe-head h6 {
-  color: var(--pf2e-header-text);
-  margin-top: 0;
-}
-.scribe-head p {
-  color: var(--pf2e-header-text);
-}
-
-/* Info block */
-.scribe-info {
-  background: var(--pf2e-header-bg);
-  color: var(--pf2e-header-text);
-  padding: 0.8em 1.2em;
-  margin: 1em 0;
-  border-radius: 4px;
-}
-.scribe-info h1, .scribe-info h2, .scribe-info h3 {
-  color: var(--pf2e-header-text);
-  margin-top: 0.3em;
-}
-.scribe-info p {
-  color: var(--pf2e-header-text);
-}
-
-/* Rules block */
-.scribe-rules {
-  background: rgba(93, 0, 0, 0.08);
-  border: 2px solid var(--pf2e-accent);
-  padding: 0.8em 1.2em;
-  margin: 1em 0;
-}
-.scribe-rules h1, .scribe-rules h2, .scribe-rules h3 {
-  color: var(--pf2e-accent);
-  margin-top: 0.3em;
-}
-
-/* Note block */
-.scribe-note {
-  background: rgba(212, 196, 160, 0.3);
-  border: 1px solid var(--pf2e-separator);
-  padding: 0.8em 1.2em;
-  margin: 1em 0;
-}
-.scribe-note h1, .scribe-note h2 {
-  color: var(--pf2e-accent);
-  margin-top: 0.3em;
-}
-
-/* Math block */
-.scribe-math {
-  font-family: "Courier New", Courier, monospace;
-  background: rgba(0, 0, 0, 0.04);
-  border: 1px solid var(--pf2e-separator);
-  padding: 0.6em 1em;
-  margin: 1em 0;
-  text-align: center;
-}
-
-/* Sidebars */
-.scribe-sidebar {
-  background: rgba(93, 0, 0, 0.06);
-  border: 1px solid var(--pf2e-separator);
-  padding: 0.8em 1.2em;
-  margin: 1em 0;
-  float: left;
-  width: 33%;
-  margin-right: 1em;
-}
-.scribe-sidebar-right {
-  float: right;
-  margin-right: 0;
-  margin-left: 1em;
-}
-.scribe-sidebar h1, .scribe-sidebar h2, .scribe-sidebar h3 {
-  color: var(--pf2e-accent);
-  margin-top: 0.3em;
-  font-size: 1em;
-}
-
-/* Clear floats after sidebars */
-.scribe-sidebar + * {
-  overflow: hidden;
-}
-
-/* Table of Contents */
-.toc {
-  background: rgba(212, 196, 160, 0.2);
-  border: 1px solid var(--pf2e-separator);
-  padding: 0.8em 1.2em;
-  margin: 1em 0;
-}
-.toc h2 {
-  margin-top: 0;
-  font-size: 1.2em;
-}
-.toc ul {
-  list-style: none;
-  padding: 0;
-}
-.toc li {
-  padding: 0.15em 0;
-}
-.toc-indent-1 {
-  padding-left: 1.2em !important;
-}
-.toc-indent-2 {
-  padding-left: 2.4em !important;
-}
-.toc a {
-  color: var(--pf2e-accent);
-  text-decoration: none;
-}
-.toc a:hover {
-  text-decoration: underline;
-}
-
-/* Table caption */
-.table-caption {
-  font-weight: bold;
-  font-size: 0.9em;
-  margin-bottom: 0.3em;
-  color: var(--pf2e-accent);
-}
-
-/* Table footnote */
-.table-footnote {
-  font-size: 0.85em;
-  font-style: italic;
-  margin-top: 0.3em;
-}
-
-/* Column break inside blocks */
-.column-break {
-  break-before: column;
-}
-
-/* Item top section */
-.pf2e-top-section p {
-  margin: 0.2em 0;
-}
-`;

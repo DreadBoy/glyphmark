@@ -1,0 +1,692 @@
+<div id="result"><style>@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+#result .pf-trait{
+    font-family: 'ff-good-web-pro-condensed', 'Open Sans Condensed', sans-serif!important;
+    background: #5d0000!important;
+    color: #fff!important;
+    border-color: #d8c384!important;
+}
+
+#result .pf-trait-edge{
+    background-color: #d8c384!important;
+    width: 3px!important;
+    display: inline-block!important;
+}
+
+#result .pf-traits{
+    background: #d8c384!important;
+}
+
+#result .pf-trait-size{
+    background: #3a7a58!important;
+}
+
+#result .pf-trait-align{
+    background: #566193!important;
+}
+
+#result .pf-trait-rare{
+    background: #002564!important;
+}
+
+#result .pf-trait-uncommon{
+    background: #98503c!important;
+}
+
+#result .pf-trait-unique{
+    background: #54166d!important;
+}
+
+#result .pf-trait-type{
+    background: #004316!important;
+}
+
+#result .content h1,
+#result .title h1,
+#result .head h1,
+#result .head h2,
+#result .head h3,
+#result .head h4,
+#result .head h5,
+#result .head h6,
+#result .info h1,
+#result .info h3{
+    font-family: 'Taroca'!important;
+    margin-bottom: -0.5rem!important;
+}
+
+#result .content h1{
+    color: #002564!important;
+}
+
+#result .title h1{
+    font-family: 'Taroca'!important;
+}
+
+#result .title h1{
+    color: #D8C384!important;
+    background: #5D0000!important;
+    border-color: #d8c384!important;
+}
+
+#result .head h3,
+#result .head h4{
+    color: #002564!important;
+}
+
+#result .content h2,
+#result .content h3,
+#result .content h4,
+#result .left h1,
+#result .right h1{
+    font-family: 'gin'!important;
+}
+
+#result .content h4{
+    background: #002564!important;
+    color: #EDE3C7!important;
+    position: relative!important;
+    font-size: 1.1rem!important;
+    padding: 0.3rem 0 0.25rem 0.5rem!important;
+    border-radius: 0.75rem 0.75rem 0 0!important;
+    letter-spacing: 0.75px!important;
+}
+#result .content h4::after{
+    position: absolute!important;
+    content: ""!important;
+    left: 0!important;
+    top: 0!important;
+    height: 1.9rem!important;
+    background: transparent!important;
+    width: 100%!important;
+    display: block!important;
+    border-bottom: 1px solid #002564!important;
+}
+#result .content p,
+#result .content li{
+    font-family: 'linotype-sabon'!important;
+}
+
+#result .right p,
+#result .right ul,
+#result .right li,
+#result .right ol,
+#result .right h2{
+    font-family: 'ff-good-web-pro'!important;
+}
+
+#result .content h2{
+    color: #5D0000!important;
+}
+
+#result .content h3{
+    color: #A76652!important;
+}
+
+#result .item h1,
+#result .item h2,
+#result .item h3,
+#result .right h3,
+#result .left h3,
+#result .content h5{
+    font-family: 'ff-good-web-pro-condensed'!important;
+}
+
+#result .item,
+#result .note,
+#result .info{
+    font-family: 'ff-good-web-pro'!important;
+}
+
+#result .note{
+    background: #D1C7B1!important;
+}
+
+#result .note h1,
+#result .note h2,
+#result .note h3,
+#result .note h4,
+#result .note h5,
+#result .note h6{
+    font-family: 'ff-good-web-pro'!important;
+}
+
+#result .head{
+    color: #5D0000!important;
+}
+
+#result .head p{
+    font-family: 'linotype-sabon'!important;
+}
+
+#result .info{
+    background: #5D0000!important;
+    color: #fff!important;
+}
+
+#result .info h3{
+    color: #D8C384!important;
+    font-variant-ligatures: no-common-ligatures!important;
+}
+
+#result .info h4,
+#result .info h6{
+    font-family: 'gin'!important;
+}
+
+#result .info h2,
+#result .info h5,
+#result .item h4,
+#result .item h5,
+#result .item h6{
+    font-family: 'ff-good-web-pro'!important;
+}
+
+#result .info em{
+    font-family: 'linotype-sabon'!important;
+}
+
+#result .info hr{
+    background: #980000!important;
+    border-top-color: #980000!important;
+    border-bottom-color: #980000!important;
+}
+
+#result .head hr{
+    background: #5D0000!important;
+    border-top-color: #5D0000!important;
+    border-bottom-color: #5D0000!important;
+}
+
+#result .column+.column{
+    border-left: 1px solid #F1F0EB!important;
+}
+
+#result .page thead tr th{
+    background: #5D0000!important;
+    color: #fff!important;
+    font-family: 'ff-good-web-pro'!important;
+}
+
+#result .page tbody tr td{
+    font-family: 'ff-good-web-pro'!important;
+}
+
+#result .page tbody tr:nth-child(odd){
+    background: #EDE3C7!important;
+}
+
+#result .page tbody tr:nth-child(even){
+    background: #F4EEE0!important;
+}
+
+#result .tfoot{
+    font-family: 'ff-good-web-pro'!important;
+    background: #E6D8B0!important;
+}
+
+#result .math{
+    background: #EAE3D8!important;
+    border-top: 2px solid #E0C9C0!important;
+    border-bottom: 2px solid #E0C9C0!important;
+}
+
+#result .math p,
+#result .math h1,
+#result .math h2,
+#result .math h3,
+#result .math h4,
+#result .math h5,
+#result .math h6{
+    font-family: 'ff-good-web-pro'!important;
+}
+
+#result .rules{
+    background: #F0E8D3!important;
+}
+
+#result .sample{
+    background: #EAE3D8!important;
+}
+
+#result .sample h1{
+    font-family: 'ff-good-web-pro'!important;
+}
+
+#result .left,
+#result .right{
+    color: #5D0000!important;
+}
+
+#result .left{
+    border-right: 1px solid #5D0000!important;
+}
+
+#result .left p,
+#result .left ol,
+#result .left ul,
+#result .left li,
+#result .left h2{
+    font-family: 'ff-good-web-pro'!important;
+}
+
+#result .right{
+    border-left: 1px solid #5D0000!important;
+}
+
+#result a{
+    color: rgb(172, 13, 74)!important;
+}
+
+#result a:hover{
+    color: rgb(211, 126, 14)!important;
+}
+
+#result .rules p,
+#result .sample p,
+#result .rules li,
+#result .sample li,
+#result .rules h1,
+#result .rules h2,
+#result .rules h3,
+#result .rules h4,
+#result .rules h5,
+#result .rules h6,
+#result .sample h1,
+#result .sample h2,
+#result .sample h3,
+#result .sample h4,
+#result .sample h5,
+#result .sample h6{
+    font-family: 'ff-good-web-pro'!important;
+}
+#result .page::after{
+    counter-increment: pages!important;
+    content: counter(pages)!important;
+}
+
+/* css styles go here! */</style> <div><div data-markdown="1" class="bg-paper page d-flex flex-wrap"><div class="page-overlay"></div>
+<div data-markdown="1" class="flex-even column">
+<div data-markdown="1" class="head d-flex flex-wrap"><div data-markdown="1" class="flex-even column"><h1>Example Entry <a id="toc-title"></a><a id="toc-title-0"></a></h1>
+<p>This is an example of how to use this tool. Imagine that this description is capturing your imagination and bringing you into a world of wonder and excitement. Isn't this great? Look at how fancy this font looks in italics.</p>
+<hr></div></div>
+</div>
+<div class="content w-100"></div>
+<div data-markdown="1" class="flex-even column"><div data-markdown="1" class="content"><p>Now let's say that we have some text here. This is some text that I'm writing here for some reason I guess. I don't really know why.</p></div></div>
+<div data-markdown="1" class="flex-even column"><div data-markdown="1" class="content"><p>Now let's say that we have some text here. This is some text that I'm writing here for some reason I guess. I don't really know why.</p></div></div>
+<div class="content w-100"></div>
+<div data-markdown="1" class="flex-even column"><div data-markdown="1" class="content"><h1>Info <a id="toc-info"></a><a id="toc-info-1"></a></h1>
+<p>This tool allows you to make fancy looking content.</p>
+<h2>Editor <a id="toc-editor"></a><a id="toc-editor-2"></a></h2>
+<p>Use the editor on the left side of the screen to create text on the right side of the screen.</p>
+<h3>Markdown <a id="toc-markdown"></a><a id="toc-markdown-3"></a></h3>
+<p>The editor makes use of <strong>markdown</strong> for a lot of the formatting. A <em>basic guide</em> is provided in the help window. Use the menu on the top left to find it.</p>
+<h3>Account <a id="toc-account"></a><a id="toc-account-4"></a></h3>
+<p>You can login using a number of different services. Logging in is handled by the external <strong>auth0</strong> service, and this application does not keep a record of your information. The application uses an unique id from your login to store your data, and that's it.</p>
+<h3>Sharing <a id="toc-sharing"></a><a id="toc-sharing-5"></a></h3>
+<p>You can share data that you create while logged in. Make sure that sharing is enabled on the document and then the link should allow anyone to view the data, but only the author can make edits and save changes.</p>
+<h3>Printing <a id="toc-printing"></a><a id="toc-printing-6"></a></h3>
+<p>Select Print in the top left menu for the best result. To save as a PDF set <strong>Save as PDF</strong> as the Destination, set the Margins to <strong>None</strong>, and enable <strong>Background graphics</strong> in the Options.</p>
+<h3>Compatability <a id="toc-compatability"></a><a id="toc-compatability-7"></a></h3>
+<p>For the best results use the <strong>Chrome</strong> web browser, or a browser that uses Chromium as a base such as <strong>Vivaldi</strong>. Other browsers may experience issues printing or rendering.</p></div></div>
+<div data-markdown="1" class="flex-even column"><div data-markdown="1" class="content"><h1>Updates <a id="toc-updates"></a><a id="toc-updates-8"></a></h1>
+<p>Sometimes this application will be updated by the developer. In such cases it's important to read the following text to understand what has changed. The fates are ever shifting.</p>
+<h2>Known Issues <a id="toc-known-issues"></a><a id="toc-known-issues-9"></a></h2>
+<ul>
+<li>Report issues to <a href="mailto:hi@pf2.tools">hi@pf2.tools</a></li>
+<li>Export to PDF has been removed.</li>
+<li>To save a PDF, print the document and set the <strong>destination</strong> to <strong>Save as PDF</strong>.</li>
+</ul>
+<h2>Version History <a id="toc-version-history"></a><a id="toc-version-history-10"></a></h2>
+<p class="hang"><strong>Version 2.4</strong> (<em>2021 / 02 / 14</em>)</p>
+<ul>
+<li>Fixed css print styles</li>
+<li>Screen now uses pt font size</li>
+<li>Page number positions fixed</li>
+</ul>
+<p class="hang"><strong>Version 2.4</strong> (<em>2021 / 01 / 17</em>)</p>
+<ul>
+<li>Page numbers now optional</li>
+<li>Fixed some css issues</li>
+<li>Fixed minor issue with new pages</li>
+</ul>
+<p class="hang"><strong>Version 2.3</strong></p>
+<ul>
+<li>Added more formatting options</li>
+<li>Added google font import support</li>
+<li>Added paragraph indenting styling</li>
+<li>Added sticky notes</li>
+</ul>
+<p class="hang"><strong>Version 2.2</strong></p>
+<ul>
+<li>Removed the direct PDF export option.</li>
+<li>Instead, Print with destination set as <strong>Save to PDF</strong>.</li>
+<li>Set the <strong>Paper Size</strong> to <strong>A4</strong>.</li>
+<li>Print styles now more accurately match screen.</li>
+<li>Fixed bug which created intermittent server issues.</li>
+</ul></div></div>
+<div class="watermark">Example of text that appears at the top of every page.</div>
+<div class="title"><h1>Example Entry</h1></div></div></div><div><div data-markdown="1" class="bg-paper page d-flex flex-wrap"><div class="page-overlay"></div>
+<div data-markdown="1" class="flex-even column">
+<div data-markdown="1" class="head d-flex flex-wrap"><div data-markdown="1" class="flex-even column"><h2>Formatting <a id="toc-formatting"></a><a id="toc-formatting-11"></a></h2>
+<p>There are a lot of ways to format your text. All of the different ways to use fancy formatting can be accessed in the menu with the pencil icon.</p>
+<hr></div></div>
+</div>
+<div class="content w-100"></div>
+<div data-markdown="1" class="flex-even column"><div data-markdown="1" class="content"><p>It's tough to write a lot of text when I don't really have anything to write about, but it's all for a good cause.</p></div>
+<div data-markdown="1" class="info d-flex flex-wrap"><div data-markdown="1" class="flex-even column"><h2>Columns <a id="toc-columns"></a><a id="toc-columns-12"></a></h2>
+<p>Often you'll want to use two columns in order to shape the text in a more compact way. This makes it easier to parse and less overwhelming to the reader.</p>
+<h2>Info Box <a id="toc-info-box"></a><a id="toc-info-box-13"></a></h2>
+<p>This is an info box that has white text on a red background. Just thought I should let you know.</p></div></div>
+<div data-markdown="1" class="content"><p>This is another plain paragraph that exists. That's right. This is a bunch of letters arranged into what are known as words.</p></div>
+<div data-markdown="1" class="rules d-flex flex-wrap"><div data-markdown="1" class="flex-even column"><h1>Something about Rules <a id="toc-rules"></a><a id="toc-rules-14"></a></h1>
+<p>Rules are very important and are a staple of any game. Always remember to include rules in the game, and this box will be useful for pointing out reminders about those rules.</p></div></div>
+<div data-markdown="1" class="content"><p>Wow this text just keeps on going doesn't it. More help on using markdown can be found in the help button in the menu on the top left.</p>
+<h2>Content Header <a id="toc-content-header"></a><a id="toc-content-header-15"></a></h2>
+<p>This is what the headers look like in just the normal content area.</p>
+<h3>Smaller Header <a id="toc-smaller-header"></a><a id="toc-smaller-header-16"></a></h3>
+<p>This header is even smaller, but it is still trying its best and that should be enough.</p>
+<h3>Another Small One</h3>
+<p>Even though they are small they are great in number which makes them just as intimidating as other headers.</p></div></div>
+<div data-markdown="1" class="flex-even column">
+<div data-markdown="1" class="note d-flex flex-wrap"><div data-markdown="1" class="flex-even column"><h1>This is a fancy note. <a id="toc-note-box"></a><a id="toc-note-box-17"></a></h1>
+<p>Sometimes when there is a bunch of text it's useful to put it into different areas around the page. Maybe someone doesn't need to read this right away but it would be useful to look at after they are finished reading other text. Or maybe they'll just read it first. Who knows!</p>
+<h2>Secondary Header</h2>
+<p>Be sure to check out what each header level has to offer in each context. There aren't styles for every header one through six, but there are usually a couple for each context.</p></div></div>
+<div data-markdown="1" class="content"><p>Well here we are again. This is some normal text that I want to type out in order to make this look more interesting. I think I'm really finding a good groove here. Writing this paragraph has been a lot easier than the ones before. You can tell by how long it's getting. The next box is usually used for math.</p></div>
+<div data-markdown="1" class="math d-flex flex-wrap"><div data-markdown="1" class="flex-even column"><p>Pizza Modifier = modifier of the dough's key taste score + cheese bonus + other bonuses + penalties</p></div></div>
+<div data-markdown="1" class="content"><p>When finalizing the pizza modifier value it's important to remember that each topping will change the modifier based on the pizza topping table.</p>
+<h5>Table 1-1: Pizza Modifiers <a id="toc-tables"></a><a id="toc-tables-18"></a></h5>
+<table>
+<thead>
+<tr>
+<th>Pizza Topping</th>
+<th style="text-align:center;">Modifier</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Onion</td>
+<td style="text-align:center;">+1</td>
+</tr>
+<tr>
+<td>Mushroom</td>
+<td style="text-align:center;">+1</td>
+</tr>
+<tr>
+<td>Pepperoni</td>
+<td style="text-align:center;">+2</td>
+</tr>
+<tr>
+<td>Sausage</td>
+<td style="text-align:center;">+2</td>
+</tr>
+<tr>
+<td>Garlic</td>
+<td style="text-align:center;">+3</td>
+</tr>
+<tr>
+<td>Pineapple</td>
+<td style="text-align:center;">?</td>
+</tr>
+</tbody>
+</table>
+<div class="tfoot">* Pineapple is too divisive to have an assigned value.</div></div></div>
+<div class="content w-100"></div>
+<div data-markdown="1" class="flex-even column"><div data-markdown="1" class="content"><h1>Column Break <a id="toc-column-break"></a><a id="toc-column-break-19"></a></h1>
+<p>You can end a section of multiple columns with the forward slash character on its own line.</p></div></div>
+<div data-markdown="1" class="flex-even column"></div>
+<div class="watermark">Example of text that appears at the top of every page.</div>
+<div class="title"><h1>Example Entry</h1></div></div></div><div><div data-markdown="1" class="bg-paper page d-flex flex-wrap"><div class="page-overlay"></div>
+<div data-markdown="1" class="flex-even column">
+<div data-markdown="1" class="left d-flex flex-wrap"><div data-markdown="1" class="flex-even column"><h1>Left Sidebar <a id="toc-left-sidebar"></a><a id="toc-left-sidebar-20"></a></h1>
+<p>Sometimes splitting the page with a sidebar that is about one third of the page wide is necessary.</p>
+<h2>Why Though</h2>
+<p>It isn't known why this practice is so widely used. At some point in history the rule of thirds was discovered and ever since then the number three has been too powerful.</p>
+<h3>Another Header</h3>
+<p>Sometimes the headers should look like this.</p></div></div>
+<div data-markdown="1" class="content"><h1>Look at This</h1>
+<p>This section is good. Look at it. Look at all the words that are here. Here you can find many words</p>
+<h2>Even More Words</h2>
+<p>One might think why not just use one of those text generators? That is a good question. One that will be answered in due time.</p>
+<h3>Specific Words</h3>
+<p>It is believed that sometimes using words can be an effective form of communication, and furthermore precisely presenting those words in a coherent manner can be beneficial in maintaining clear intent from which those words arise.</p></div></div>
+<div class="content w-100"></div>
+<div data-markdown="1" class="flex-even column"><div data-markdown="1" class="content"><hr></div></div>
+<div class="content w-100"></div>
+<div data-markdown="1" class="flex-even column">
+<div data-markdown="1" class="right d-flex flex-wrap"><div data-markdown="1" class="flex-even column"><h1>Right Sidebar <a id="toc-right-sidebar"></a><a id="toc-right-sidebar-21"></a></h1>
+<p>Sometimes splitting the page with a sidebar that is about one third of the page wide is necessary.</p>
+<h2>Why Though</h2>
+<p>It isn't known why this practice is so widely used. At some point in history the rule of thirds was discovered and ever since then the number three has been too powerful.</p>
+<h3>Another Header</h3>
+<p>Sometimes the headers should look like this.</p>
+<ul>
+<li>Sometimes you want a longer paragraph that is about a class and it should have a hanging indent, but this isn't always true so that's why it's a bullet point option.</li>
+</ul></div></div>
+<div data-markdown="1" class="content"><h1>Look at This</h1>
+<p>This section is good. Look at it. Look at all the words that are here. Here you can find many words</p></div>
+<div data-markdown="1" class="info d-flex flex-wrap"><div data-markdown="1" class="flex-even column"><h2>Something</h2>
+<p>One might think why not just use one of those text generators? That is a good question. One that will be answered in due time.</p></div>
+<div data-markdown="1" class="flex-even column"><h2>Columns</h2>
+<p>Boy howdy, columns can even be used in here, but you should be careful with them.</p></div></div>
+<div data-markdown="1" class="content"><div class="p d-flex"><h2>More Text</h2><h2 class="mr-0 my-0 ml-auto">4th</h2></div>
+<p>Notice how when using a header followed by a number with a suffix like 'th' it's automatically adjusted to be on the other side of the header. Neat! I think it's neat, anyway.</p>
+<p>Uh oh, it appears that I need a little bit more text here in order to really fill out this spot. What a pickle I've gotten myself into. At least I can rest easy that nobody will actually ever read this.</p></div></div>
+<div class="content w-100"></div>
+<div data-markdown="1" class="flex-even column"><div data-markdown="1" class="content"><h4>1st Level <a id="toc-feat-section"></a><a id="toc-feat-section-22"></a></h4></div>
+<div data-markdown="1" class="item d-flex flex-wrap"><div data-markdown="1" class="flex-even column"><h1>Something Cool <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAJAAAACQCAYAAADnRuK4AAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyZpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNi1jMTM4IDc5LjE1OTgyNCwgMjAxNi8wOS8xNC0wMTowOTowMSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIDIwMTcgKFdpbmRvd3MpIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOkE4MEZFNjc4RjU1NzExRTlBOEVFRjNBNEQ4N0E2RkMzIiB4bXBNTTpEb2N1bWVudElEPSJ4bXAuZGlkOkE4MEZFNjc5RjU1NzExRTlBOEVFRjNBNEQ4N0E2RkMzIj4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6QTgwRkU2NzZGNTU3MTFFOUE4RUVGM0E0RDg3QTZGQzMiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6QTgwRkU2NzdGNTU3MTFFOUE4RUVGM0E0RDg3QTZGQzMiLz4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz7sbzAyAAADI0lEQVR42uzd0UobQRSAYbEXmkDN62gqVR+5d8U7fRFfoPdCKdgJGAqhSjKzOzNn9vvhPECynxszuzv5cqaP2qT5keYlza80f7wlOgXPU5q3NK9pvqVZeVt0LJ7ndzxvEKkUD0QqxgORivFApGI8EKkYD0QqxgMRPMV4IIJnsoEIHojUDg9E8ECk9nggggcitccDUfCuOsADETwQwQORBsBziGjtcMFTgugWInggggcieGLigQgeiOCBCB6IBA9E8EAED0TwQKR/bRaMx7UzeCBq2SM4EJX0kOY3OO4nym0FEUQQQdS8NUQQQQQRRBBBBJEggggiiCDqGtEWIoggOlgQ3J1a72Z4URANjmiP5/X9ID9ABFEOnv2LggiibDwQQVSMByKIivFABFExHojaIbrpEVEOHoggKsYD0cIRTYEHooVeO5sSD0QLQzQHHogWgmhOPIeI1hBVRXQxAh6I2iG6nhNRTTwQDYaoBR6IBkHUEg9EwRH1gAeioIh6wgNRMEQ94oEoCKKe8UDUFtHlCHggansB9nIEPDUQ3UF0PKKIeOZGtILoOESR8UDUAaJtcDyHiOZYhb+H6P+Izs+kCf7Ctj7CnH1K/w+Kigiejr6JRUM059d4eDLXgqIgspDYGZ5IiODp9FJGBETwdHrmiYAIniB4elylhicYnp4QwRMUTw+I4AmOpyUieAbB0wIRPIPhqYkInvp4bmvgqYHI5gpt8FT/PVbbu8DTFSJ4FoZnSkTwLBTPFIjgWTieEkTwwJONCJ42u5B1i+cURPDAk41od3DvZ8DjHuZOt/OdEhE88Jx8YPc3pcEDTxGi7/DA0xtMeOCBBx54esHjN+PhgQceeOCBBx54BA888MADDzzRgufj57bgOaJHYNo89DdKmzTP4MADETwQwQMRPBAtBhE8EMEDETzDdpXmyQqzIIIHInggggeicIjggQgeiOBRIEQe+oMIHojgUSBE8EAED0T1EcEDETyqj8g6z+B9nRERPBDBo/qI4IEIHtVHBI+yEcGjbER2yVA2Io/eKBsRPMpGBI+yEcGjrHbXzn7C83l/BRgAezhEuPoii34AAAAASUVORK5CYII=" class="text-img"> <a id="toc-feats"></a><a id="toc-feats-23"></a></h1>
+<h2>Feat 3</h2>
+<hr>
+<div class="traits"><div class="pf-trait pf-trait-edge">&nbsp;</div><!----><div class="pf-trait pf-trait-uncommon">uncommon</div><!----><div class="pf-trait pf-trait-class">class</div><!----><div class="pf-trait pf-trait-feat">feat</div><!----><div class="pf-trait pf-trait-trait">trait</div><!----><div class="pf-trait pf-trait-edge">&nbsp;</div></div>
+<p class="hang"><strong>Usage</strong> Typed into the editor window.</p>
+<hr>
+<p>This feat allows you to type text into the editor and have it appear here. When starting a line with bold text make sure to put two line breaks between so the hanging indent functions properly.</p>
+<p class="hang"><strong>Critical Success</strong> You are the best.</p>
+<p class="hang"><strong>Success</strong> You are pretty good.</p>
+<p class="hang"><strong>Failure</strong> At least you tried.</p>
+<p class="hang"><strong>Critical Failure</strong> Even though your body and spirit are broken, you will heal with time.</p></div></div>
+</div>
+<div data-markdown="1" class="flex-even column"><div data-markdown="1" class="content"><h4>20th Level</h4></div>
+<div data-markdown="1" class="item d-flex flex-wrap"><div data-markdown="1" class="flex-even column"><h1>Look out behind you <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAJAAAAB2CAYAAAAnWxonAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyZpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNi1jMTM4IDc5LjE1OTgyNCwgMjAxNi8wOS8xNC0wMTowOTowMSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIDIwMTcgKFdpbmRvd3MpIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOkU4RUZFN0U2RjU1NzExRTlBOTQzQkUxNDJCNjlBODA3IiB4bXBNTTpEb2N1bWVudElEPSJ4bXAuZGlkOkU4RUZFN0U3RjU1NzExRTlBOTQzQkUxNDJCNjlBODA3Ij4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6RThFRkU3RTRGNTU3MTFFOUE5NDNCRTE0MkI2OUE4MDciIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6RThFRkU3RTVGNTU3MTFFOUE5NDNCRTE0MkI2OUE4MDciLz4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz6v4BtDAAAJpElEQVR42uyd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" class="text-img"></h1>
+<h2>Feat 6</h2>
+<hr>
+<div class="traits"><div class="pf-trait pf-trait-edge">&nbsp;</div><!----><div class="pf-trait pf-trait-rare">rare</div><!----><div class="pf-trait pf-trait-class">class</div><!----><div class="pf-trait pf-trait-feat">feat</div><!----><div class="pf-trait pf-trait-trait">trait</div><!----><div class="pf-trait pf-trait-edge">&nbsp;</div></div>
+<p class="hang"><strong>Usage</strong> Typed into the editor window.</p>
+<p class="hang"><strong>Trigger</strong> You spaced things properly in the item window for the formatting to work.</p>
+<hr>
+<p>You can put action symbols into here. Look here is a single action <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAJAAAACQCAYAAADnRuK4AAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyZpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNi1jMTM4IDc5LjE1OTgyNCwgMjAxNi8wOS8xNC0wMTowOTowMSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIDIwMTcgKFdpbmRvd3MpIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOkE4MEZFNjc4RjU1NzExRTlBOEVFRjNBNEQ4N0E2RkMzIiB4bXBNTTpEb2N1bWVudElEPSJ4bXAuZGlkOkE4MEZFNjc5RjU1NzExRTlBOEVFRjNBNEQ4N0E2RkMzIj4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6QTgwRkU2NzZGNTU3MTFFOUE4RUVGM0E0RDg3QTZGQzMiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6QTgwRkU2NzdGNTU3MTFFOUE4RUVGM0E0RDg3QTZGQzMiLz4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz7sbzAyAAADI0lEQVR42uzd0UobQRSAYbEXmkDN62gqVR+5d8U7fRFfoPdCKdgJGAqhSjKzOzNn9vvhPECynxszuzv5cqaP2qT5keYlza80f7wlOgXPU5q3NK9pvqVZeVt0LJ7ndzxvEKkUD0QqxgORivFApGI8EKkYD0QqxgMRPMV4IIJnsoEIHojUDg9E8ECk9nggggcitccDUfCuOsADETwQwQORBsBziGjtcMFTgugWInggggcieGLigQgeiOCBCB6IBA9E8EAED0TwQKR/bRaMx7UzeCBq2SM4EJX0kOY3OO4nym0FEUQQQdS8NUQQQQQRRBBBBJEggggiiCDqGtEWIoggOlgQ3J1a72Z4URANjmiP5/X9ID9ABFEOnv2LggiibDwQQVSMByKIivFABFExHojaIbrpEVEOHoggKsYD0cIRTYEHooVeO5sSD0QLQzQHHogWgmhOPIeI1hBVRXQxAh6I2iG6nhNRTTwQDYaoBR6IBkHUEg9EwRH1gAeioIh6wgNRMEQ94oEoCKKe8UDUFtHlCHggansB9nIEPDUQ3UF0PKKIeOZGtILoOESR8UDUAaJtcDyHiOZYhb+H6P+Izs+kCf7Ctj7CnH1K/w+Kigiejr6JRUM059d4eDLXgqIgspDYGZ5IiODp9FJGBETwdHrmiYAIniB4elylhicYnp4QwRMUTw+I4AmOpyUieAbB0wIRPIPhqYkInvp4bmvgqYHI5gpt8FT/PVbbu8DTFSJ4FoZnSkTwLBTPFIjgWTieEkTwwJONCJ42u5B1i+cURPDAk41od3DvZ8DjHuZOt/OdEhE88Jx8YPc3pcEDTxGi7/DA0xtMeOCBBx54esHjN+PhgQceeOCBBx54BA888MADDzzRgufj57bgOaJHYNo89DdKmzTP4MADETwQwQMRPBAtBhE8EMEDETzDdpXmyQqzIIIHInggggeicIjggQgeiOBRIEQe+oMIHojgUSBE8EAED0T1EcEDETyqj8g6z+B9nRERPBDBo/qI4IEIHtVHBI+yEcGjbER2yVA2Io/eKBsRPMpGBI+yEcGjrHbXzn7C83l/BRgAezhEuPoii34AAAAASUVORK5CYII=" class="text-img"> wow. And then here's <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAOIAAACQCAYAAAAV+rcdAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyZpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNi1jMTM4IDc5LjE1OTgyNCwgMjAxNi8wOS8xNC0wMTowOTowMSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIDIwMTcgKFdpbmRvd3MpIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOkNFOEY1QTU2RjU1NzExRTk4MDYwREFGNjFCMDlBMjVBIiB4bXBNTTpEb2N1bWVudElEPSJ4bXAuZGlkOkNFOEY1QTU3RjU1NzExRTk4MDYwREFGNjFCMDlBMjVBIj4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6Q0U4RjVBNTRGNTU3MTFFOTgwNjBEQUY2MUIwOUEyNUEiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6Q0U4RjVBNTVGNTU3MTFFOTgwNjBEQUY2MUIwOUEyNUEiLz4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz5sx5U0AAAGVUlEQVR42uzd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" class="text-img"> two actions. Now look out because we're going to <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASoAAACQCAYAAAC/HCaIAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyZpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNi1jMTM4IDc5LjE1OTgyNCwgMjAxNi8wOS8xNC0wMTowOTowMSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIDIwMTcgKFdpbmRvd3MpIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOkM3QTVGRUJFRjU1NzExRTk4OThCQ0UyMUIzRDk0RENCIiB4bXBNTTpEb2N1bWVudElEPSJ4bXAuZGlkOkM3QTVGRUJGRjU1NzExRTk4OThCQ0UyMUIzRDk0RENCIj4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6QzdBNUZFQkNGNTU3MTFFOTg5OEJDRTIxQjNEOTREQ0IiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6QzdBNUZFQkRGNTU3MTFFOTg5OEJDRTIxQjNEOTREQ0IiLz4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz7SC6DAAAAJIUlEQVR42uzd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" class="text-img"> three actions. How about a <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAJAAAAB2CAYAAAAnWxonAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyZpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNi1jMTM4IDc5LjE1OTgyNCwgMjAxNi8wOS8xNC0wMTowOTowMSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIDIwMTcgKFdpbmRvd3MpIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOkU4RUZFN0U2RjU1NzExRTlBOTQzQkUxNDJCNjlBODA3IiB4bXBNTTpEb2N1bWVudElEPSJ4bXAuZGlkOkU4RUZFN0U3RjU1NzExRTlBOTQzQkUxNDJCNjlBODA3Ij4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6RThFRkU3RTRGNTU3MTFFOUE5NDNCRTE0MkI2OUE4MDciIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6RThFRkU3RTVGNTU3MTFFOUE5NDNCRTE0MkI2OUE4MDciLz4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz6v4BtDAAAJpElEQVR42uyd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" class="text-img"> reaction? That is a <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAJAAAACQCAYAAADnRuK4AAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyZpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNi1jMTM4IDc5LjE1OTgyNCwgMjAxNi8wOS8xNC0wMTowOTowMSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIDIwMTcgKFdpbmRvd3MpIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOkQ2MjhGNUIzRjU1NzExRTlCMzNCODZERkE3MUI1NUUxIiB4bXBNTTpEb2N1bWVudElEPSJ4bXAuZGlkOkQ2MjhGNUI0RjU1NzExRTlCMzNCODZERkE3MUI1NUUxIj4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6RDYyOEY1QjFGNTU3MTFFOUIzM0I4NkRGQTcxQjU1RTEiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6RDYyOEY1QjJGNTU3MTFFOUIzM0I4NkRGQTcxQjU1RTEiLz4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz5y+C+bAAAGGklEQVR42uzd62sdRRjH8X1nTpJ6S9Lae2xqY1vSUqWGCioiIioi6Cv/Evt/9G8QFUWDqHitl4B4BS9oqqHU2qbGmN7sxSJqnGnPxmmaJtmz8+w8M/P9wZOX2ezMJ3POzuzOFgVZKgOmxk0NmrqB5iBV0m9q0tScqRlTm0FEqow8JZ45EJGqI89PC/CAiNTGAyJSGw+ISG08ZU2DiJR4DlXEAyJyOX2mJjrE4yLaCKI88fxQE8/CkaiLZs0Hz/ee8IAos9wqgAdE4AERWR7Pd8J4QAQeb3UCRODxgWgTiOLNLQHxgCiBkefbwHhAFDGeb5TgARF4vCNq0U168XztucN3Ff6WPNyrMxApy80CeOxoYRdJ+0AEnk7xlPGNaApEevB8JYxHEtFGEOWBB0QJThI2jcdFNOEZEVdnDeP5MhCeMv0givdj64vAeEAEntp4QBQhns+V4QFRRHg+E5jI8/kkBYgywyOxqCmBaAOI6uH5tIjrLkHfiI6154m64ZA+HhApyU0R4wGRAjyfFGnc3C6FiO9EGeCRRMQX6wbw2Hqm0HELqRQi4uAZL/zfQvqnqdFEER0FkSyeXBCtzxnPKlMfF/I3s5eINHxvsDvAHgKRHzwfFc09EXFREaLVIIoLD4gSw/NBEe7ZLItob8KI1qWO52AR/gG/C21EXSACTx1Ed4EoHjzvK8LjItqTKKIjqSCyeN5TiKes84kjWhsznh7leFxEu0GkD8+7EeAp6xyIdOF5JyI8IFKG5+0I8biIRgodry6QQLRGO563IsbjItoJIvDUqT9A1CyeNwU782B7VACRv3M7rAWRNJ4xUze2Z41DIDprageIZNIrjOfVNp4SKohkEK0OhecNYTyrFhntQiLaDiJ/H1tN4wFRIohsB74eCI8mRF2JIhqQxvNaYDwgkkfUnzoeDYhOg6haR40pwwMiWUSTvhD1CuMZq4HHRXR3QETDihBNaELUq3jkAdHiGdCCqAk8PQLf00CkAJHF80pkeDQgOgWiuPFoQbSt0PMYdaOIUsDjItoTCNHJhBH9eD1EFs/Lgo36YYN4ytjt4OwDhP+CyDuivoV4XhJu0PJp0CYb1IJ9IQAeF9EdChDZ4494Prd5RPa/9MWGGtQi2tfQSGSP8XxAPC6i4cB47L6KxwXOzW7NUzzXcIM2gUgLHvejLDU8s6a22IM8ZeqfhBBpxNMdEM+UIJ7L0xX2x9MBEXWDJ1487tVKqJFo1FMjgycQHhfRk6b+jhAReK7Gc0LovLYsN8seIyLw/I9nsyCeoZUu0diTfyISROBpDk+luawYEIHnajy/asHjInpcKSLwKMfjInpMGSLwRIJHy0jUAs918Uxrx+N2nB2J/gqAqFyA1YRnNiAee8zBmPC4iB4NhGgUPPN4bo8Rj4vokQCI5sAzj+e3WPHkjigknlYqeFxED2eECDxCiB7KABF4hBE9aOoSeETw2MXLmVTxpI4IPA0jeiAhRKGvtiye33PB4yK6PwFEofEM5YjHRXRfceUltzHjaQXCszVnPG5D3BshopB4WuC5FtG+iBCBRzGii+ABTx1Eo4oRgSciRBfAcw2ek+BZOaJ7FCGabXdgqKutbeDprOH2KkCUMp6tqeJxh267c9j5DPG0wOOvIUPs6wyexBA1uf0ceEAULZ5h8Mg28G5BRBrwnAaPfEPvKq68AQc84FGD6AB48kM04hnR/oYbGzwKEO2MFJE0niHwrLwjdnjuCGlE4FGIaHskiOzvvBM8IKqD5wx4dCM6pRAReEDUcbrafxN4IkLke0lgf9HZi+HAEzEiuyg567HDnq2IqMRzFjwgqooIPCDqGFGXwAQneAIjstP6Mw0gAg+IOkYEngwQDQkhAk9GiOx2KNOeEYEHRLXqEnjyQyS1hzJ4MkI0WMi8PwI8GSGSencWeEAEHlIN0RR4SB1E9iW0x8FDYkEEnkQRbTB1DDyk09i9eTYJIirfYNhDU6eNyI5Ev4CHaEEEnkwRrTd1FDykTtaZ+hk8pE7WmjoCHtIUonKXDPCQyojYYoUsi+jwMni6aSayVG5bBBF4SGVEk+AhdbLG1Dh4ls5/AgwAoVVVLITDaYYAAAAASUVORK5CYII=" class="text-img"> free action!</p>
+<p class="hang"><strong>Special</strong> This feat is very special. It is so special that it needs some text that says special at the end of it.</p></div></div>
+</div>
+<div class="watermark">Example of text that appears at the top of every page.</div>
+<div class="title"><h1>Example Entry</h1></div></div></div><div><div data-markdown="1" class="bg-paper page d-flex flex-wrap"><div class="page-overlay"></div>
+<div data-markdown="1" class="flex-even column"><div data-markdown="1" class="content"><h1>Other Formatting <a id="toc-other-formatting"></a><a id="toc-other-formatting-24"></a></h1>
+<p>Some other stuff that is helpful to know I think.</p></div></div>
+<div class="content w-100"></div>
+<div data-markdown="1" class="flex-even column"><div data-markdown="1" class="content"><h2>Text Style <a id="toc-text-style"></a><a id="toc-text-style-25"></a></h2>
+<p>Make sure to remember <strong>how to bold text</strong> and sometimes more importantly <em>how to italicize</em>.</p>
+<h2>Links <a id="toc-links"></a><a id="toc-links-26"></a></h2>
+<p>You can also use <a rel="noopener noreferrer" href="http://pf2.tools">links</a> if you so desire.</p>
+<h2>Indent <a id="toc-indent"></a><a id="toc-indent-27"></a></h2>
+<p>What happens if you have some text here and it's just fine on its own. It's just here and there isn't any formatting needed.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;But maybe this line should start indented? When you start a line with spaces it converts the spaces into the starting indent of the paragraph.</p>
+<h2>Image <a id="toc-images"></a><a id="toc-images-28"></a></h2>
+<p>What about an image? Here we go!</p>
+<p><img alt="favicon" src="/favicon.png"></p>
+<h3>Hosting</h3>
+<p>Scribe does not host images. Use <a rel="noopener noreferrer" href="http://imgur.com">imgur</a> or a similar service to host images.</p></div></div>
+<div data-markdown="1" class="flex-even column"><div data-markdown="1" class="content"><h2>Item Headers <a id="toc-item-headers"></a><a id="toc-item-headers-29"></a></h2>
+<p>Sometimes there are entries using the item format that look like this.</p></div>
+<div data-markdown="1" class="item d-flex flex-wrap"><div data-markdown="1" class="flex-even column"><h1>Jennifer Swordslasher</h1>
+<hr>
+<h3>lg female champion</h3></div></div>
+<div data-markdown="1" class="content"><p>What follows is a description of Jennifer.</p>
+<h1>Is that Everything?</h1>
+<p>I hope this covers everything that you need to know. I'm sure there will be more features and things added to this as time goes on. If you have any requests send a message to <strong>hi@pf2.tools</strong> and don't be shy about it!</p>
+<h2>Nothing Else</h2>
+<p>There's not much else to say. I'm just gonna type a little bit more to fill this out just a little bit. I hope that's alright.</p>
+<h3>Other Tools</h3>
+<p>You want to check out other tools? Check out <a rel="noopener noreferrer" href="http://monster.pf2.tools">the monster maker</a> or how about the <a rel="noopener noreferrer" href="http://character.pf2.tools">character sheet and campaign tracker</a> or maybe just a simple <a rel="noopener noreferrer" href="http://template.pf2.tools">text formatter</a>. If none of those tickle your fancy, then check out a <a rel="noopener noreferrer" href="http://pf2.tools">a big list with stuff from all over the internet</a>.</p></div></div>
+<div class="watermark">Example of text that appears at the top of every page.</div>
+<div class="title"><h1>Example Entry</h1></div></div></div><div><div data-markdown="1" class="bg-paper page d-flex flex-wrap"><div class="page-overlay"></div>
+<div data-markdown="1" class="flex-even column">
+<div data-markdown="1" class="head d-flex flex-wrap"><div data-markdown="1" class="flex-even column"><h3>Advanced Options <a id="toc-advanced"></a><a id="toc-advanced-30"></a></h3>
+<p>Only advanced users are able to use the most powerful features…</p>
+<hr></div></div>
+</div>
+<div class="content w-100"></div>
+<div data-markdown="1" class="flex-even column"><div data-markdown="1" class="content"><h2>Table of Contents <a id="toc-table-of-contents"></a><a id="toc-table-of-contents-31"></a></h2>
+<p>A table of contents will be automatically generated if there are any markdown headers that are labeled using double parentheses. Throughout this example are headers that employ this technique. Using the + character at the beginning of the label will indent the links depending on the amount of + characters used. This can organize the links for more clarity.</p>
+<h2>Label Links <a id="toc-labels"></a><a id="toc-labels-32"></a></h2>
+<p>Markdown links can point to the same labels that the table of contents uses. For example, <a data-label="other-formatting" href="#" class="pointer">this link</a> will return to the Other Formatting section.</p>
+<h2>Custom CSS <a id="toc-css"></a><a id="toc-css-33"></a></h2>
+<p>Custom styles can be defined in a css block. For example: <em>The example is only visible in the editor!</em></p>
+<p>Fonts and colors can be reset to a basic style by inserting the word <strong>reset</strong> on the first line of a document. External assets and images can not be loaded through any css styles.</p>
+<h2>Page Numbers <a id="toc-page-numbers"></a><a id="toc-page-numbers-34"></a></h2>
+<p>Page numbers can be enabled by inserting the word <strong>pagenumbers</strong> on a single line of a document. The line will not show in the rendered document.</p>
+<h2>Content Reference <a id="toc-references"></a><a id="toc-references-35"></a></h2>
+<p>Blocks of content can be stored with a key, and then included in other portions of the document. For example:</p></div>
+<div data-markdown="1" class="item d-flex flex-wrap"><div data-markdown="1" class="flex-even column"><h1>Title</h1>
+<h2>Feat 5</h2>
+<hr>
+<div class="traits"><div class="pf-trait pf-trait-edge">&nbsp;</div><!----><div class="pf-trait pf-trait-rare">rare</div><!----><div class="pf-trait pf-trait-trait">trait</div><!----><div class="pf-trait pf-trait-example">example</div><!----><div class="pf-trait pf-trait-edge">&nbsp;</div></div>
+<p class="hang"><strong>Requirements</strong> You are really cool.</p>
+<hr>
+<p>This text can be used elsewhere in the document because it's in the block labeled 'specialfeat' using curly braces. To try this out try editing the text in this feat, and watch it magically change in both spots.</p></div></div>
+<div data-markdown="1" class="content"><p>To have the text reappear elsewhere, insert the key surrounded by double curly braces. For example:</p></div>
+<div data-markdown="1" class="item d-flex flex-wrap"><div data-markdown="1" class="flex-even column"><h1>Title</h1>
+<h2>Feat 5</h2>
+<hr>
+<div class="traits"><div class="pf-trait pf-trait-edge">&nbsp;</div><!----><div class="pf-trait pf-trait-rare">rare</div><!----><div class="pf-trait pf-trait-trait">trait</div><!----><div class="pf-trait pf-trait-example">example</div><!----><div class="pf-trait pf-trait-edge">&nbsp;</div></div>
+<p class="hang"><strong>Requirements</strong> You are really cool.</p>
+<hr>
+<p>This text can be used elsewhere in the document because it's in the block labeled 'specialfeat' using curly braces. To try this out try editing the text in this feat, and watch it magically change in both spots.</p></div></div>
+<div data-markdown="1" class="content"><h2>Hidden Content <a id="toc-hidden-content"></a><a id="toc-hidden-content-36"></a></h2>
+<p>A single line with only a % character will create a hidden section at the end of the document. Everything past the line with the % will not be rendered, but can be used to store content references. For example, the following reference is stored in the hidden area.</p></div>
+<div data-markdown="1" class="note d-flex flex-wrap"><div data-markdown="1" class="flex-even column"><h1>Hidden Note from Beyond!</h1>
+<p>This note is stored in the hidden area, but appears as a reference!</p></div></div>
+<div data-markdown="1" class="content"><h3>HTML Comments <a id="toc-html-comments"></a><a id="toc-html-comments-37"></a></h3>
+<p>You can also hide content in html comments, like so:</p></div></div>
+<div class="content w-100"></div>
+<div data-markdown="1" class="flex-even column"><div data-markdown="1" class="content"><p>This text is hidden in an html comment! Edit it to watch them all change at once.</p></div></div>
+<div data-markdown="1" class="flex-even column"><div data-markdown="1" class="content"><p>This text is hidden in an html comment! Edit it to watch them all change at once.</p></div></div>
+<div data-markdown="1" class="flex-even column"><div data-markdown="1" class="content"><p>This text is hidden in an html comment! Edit it to watch them all change at once.</p></div></div>
+<div class="content w-100"></div>
+<div data-markdown="1" class="flex-even column"></div>
+<div class="watermark">Example of text that appears at the top of every page.</div>
+<div class="title"><h1>Example Entry</h1></div></div></div><div><div data-markdown="1" class="bg-paper page d-flex flex-wrap"><div class="page-overlay"></div>
+<div data-markdown="1" class="flex-even column"><div data-markdown="1" class="content"><h2>External References <a id="toc-external-references"></a><a id="toc-external-references-38"></a></h2>
+<p>Items created using <a rel="noopener noreferrer" href="http://monster.pf2.tools,">http://monster.pf2.tools,</a> <a rel="noopener noreferrer" href="http://template.pf2.tools,">http://template.pf2.tools,</a> and other scribe entries can be included dynamically by inserting the url to the specific item. The referred item must be set to public in order to be included.</p></div></div>
+<div class="content w-100"></div>
+<div data-markdown="1" class="flex-even column"><div data-markdown="1" class="content"><p>For example, the monster found <a rel="noopener noreferrer" href="https://monster.pf2.tools/v/9wLXpxm1">here</a> can be included:</p></div>
+<div data-markdown="1" class="item d-flex flex-wrap"><div data-markdown="1" class="flex-even column"><h1>Example Monster</h1>
+<h2>Creature 7</h2>
+<hr>
+<div class="traits"><div class="pf-trait pf-trait-edge">&nbsp;</div><!----><div class="pf-trait pf-trait-align">n</div><!----><div class="pf-trait pf-trait-size">medium</div><!----><div class="pf-trait pf-trait-humanoid">humanoid</div><!----><div class="pf-trait pf-trait-example">example</div><!----><div class="pf-trait pf-trait-giant">giant</div><!----><div class="pf-trait pf-trait-edge">&nbsp;</div></div>
+<p class="hang"><strong>Perception</strong> +15 Websense</p>
+<p class="hang"><strong>Languages</strong> Common, Javascript</p>
+<p class="hang"><strong>Skills</strong> Acrobatics&nbsp;+17, Athletics&nbsp;+15, Religion&nbsp;+20</p>
+<p class="hang"><strong>Str</strong>&nbsp;+7, <strong>Dex</strong>&nbsp;+4, <strong>Con</strong>&nbsp;+2, <strong>Int</strong>&nbsp;+4, <strong>Wis</strong>&nbsp;+2, <strong>Cha</strong>&nbsp;+4</p>
+<hr>
+<p class="hang"><strong>AC</strong> 24; <strong>Fort</strong>&nbsp;+12, <strong>Ref</strong>&nbsp;+18, <strong>Will</strong>&nbsp;+15</p>
+<p class="hang"><strong>HP</strong> 111; <strong>Resistance</strong>&nbsp;5 bludgeoning; <strong>Weakness</strong>&nbsp;10 fire</p>
+<p class="hang"><strong>Attack of Opportunity</strong> <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAJAAAAB2CAYAAAAnWxonAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyZpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNi1jMTM4IDc5LjE1OTgyNCwgMjAxNi8wOS8xNC0wMTowOTowMSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIDIwMTcgKFdpbmRvd3MpIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOkU4RUZFN0U2RjU1NzExRTlBOTQzQkUxNDJCNjlBODA3IiB4bXBNTTpEb2N1bWVudElEPSJ4bXAuZGlkOkU4RUZFN0U3RjU1NzExRTlBOTQzQkUxNDJCNjlBODA3Ij4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6RThFRkU3RTRGNTU3MTFFOUE5NDNCRTE0MkI2OUE4MDciIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6RThFRkU3RTVGNTU3MTFFOUE5NDNCRTE0MkI2OUE4MDciLz4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz6v4BtDAAAJpElEQVR42uyd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" class="text-img"> If the example creature is burrowed and a creature triggers an attack of opportunity, the example creature can make 2 Strikes with its claws against that creature instead of 1 Strike.</p>
+<hr>
+<p class="hang"><strong>Speed</strong> 30 feet, burrow 10 feet</p>
+<p class="hang"><strong>Melee</strong> <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAJAAAACQCAYAAADnRuK4AAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyZpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNi1jMTM4IDc5LjE1OTgyNCwgMjAxNi8wOS8xNC0wMTowOTowMSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIDIwMTcgKFdpbmRvd3MpIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOkE4MEZFNjc4RjU1NzExRTlBOEVFRjNBNEQ4N0E2RkMzIiB4bXBNTTpEb2N1bWVudElEPSJ4bXAuZGlkOkE4MEZFNjc5RjU1NzExRTlBOEVFRjNBNEQ4N0E2RkMzIj4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6QTgwRkU2NzZGNTU3MTFFOUE4RUVGM0E0RDg3QTZGQzMiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6QTgwRkU2NzdGNTU3MTFFOUE4RUVGM0E0RDg3QTZGQzMiLz4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz7sbzAyAAADI0lEQVR42uzd0UobQRSAYbEXmkDN62gqVR+5d8U7fRFfoPdCKdgJGAqhSjKzOzNn9vvhPECynxszuzv5cqaP2qT5keYlza80f7wlOgXPU5q3NK9pvqVZeVt0LJ7ndzxvEKkUD0QqxgORivFApGI8EKkYD0QqxgMRPMV4IIJnsoEIHojUDg9E8ECk9nggggcitccDUfCuOsADETwQwQORBsBziGjtcMFTgugWInggggcieGLigQgeiOCBCB6IBA9E8EAED0TwQKR/bRaMx7UzeCBq2SM4EJX0kOY3OO4nym0FEUQQQdS8NUQQQQQRRBBBBJEggggiiCDqGtEWIoggOlgQ3J1a72Z4URANjmiP5/X9ID9ABFEOnv2LggiibDwQQVSMByKIivFABFExHojaIbrpEVEOHoggKsYD0cIRTYEHooVeO5sSD0QLQzQHHogWgmhOPIeI1hBVRXQxAh6I2iG6nhNRTTwQDYaoBR6IBkHUEg9EwRH1gAeioIh6wgNRMEQ94oEoCKKe8UDUFtHlCHggansB9nIEPDUQ3UF0PKKIeOZGtILoOESR8UDUAaJtcDyHiOZYhb+H6P+Izs+kCf7Ctj7CnH1K/w+Kigiejr6JRUM059d4eDLXgqIgspDYGZ5IiODp9FJGBETwdHrmiYAIniB4elylhicYnp4QwRMUTw+I4AmOpyUieAbB0wIRPIPhqYkInvp4bmvgqYHI5gpt8FT/PVbbu8DTFSJ4FoZnSkTwLBTPFIjgWTieEkTwwJONCJ42u5B1i+cURPDAk41od3DvZ8DjHuZOt/OdEhE88Jx8YPc3pcEDTxGi7/DA0xtMeOCBBx54esHjN+PhgQceeOCBBx54BA888MADDzzRgufj57bgOaJHYNo89DdKmzTP4MADETwQwQMRPBAtBhE8EMEDETzDdpXmyQqzIIIHInggggeicIjggQgeiOBRIEQe+oMIHojgUSBE8EAED0T1EcEDETyqj8g6z+B9nRERPBDBo/qI4IEIHtVHBI+yEcGjbER2yVA2Io/eKBsRPMpGBI+yEcGjrHbXzn7C83l/BRgAezhEuPoii34AAAAASUVORK5CYII=" class="text-img"> jaws +20, <strong>Damage</strong> 2d12+12 piercing</p>
+<p class="hang"><strong>Melee</strong> <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAJAAAACQCAYAAADnRuK4AAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyZpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNi1jMTM4IDc5LjE1OTgyNCwgMjAxNi8wOS8xNC0wMTowOTowMSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIDIwMTcgKFdpbmRvd3MpIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOkE4MEZFNjc4RjU1NzExRTlBOEVFRjNBNEQ4N0E2RkMzIiB4bXBNTTpEb2N1bWVudElEPSJ4bXAuZGlkOkE4MEZFNjc5RjU1NzExRTlBOEVFRjNBNEQ4N0E2RkMzIj4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6QTgwRkU2NzZGNTU3MTFFOUE4RUVGM0E0RDg3QTZGQzMiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6QTgwRkU2NzdGNTU3MTFFOUE4RUVGM0E0RDg3QTZGQzMiLz4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz7sbzAyAAADI0lEQVR42uzd0UobQRSAYbEXmkDN62gqVR+5d8U7fRFfoPdCKdgJGAqhSjKzOzNn9vvhPECynxszuzv5cqaP2qT5keYlza80f7wlOgXPU5q3NK9pvqVZeVt0LJ7ndzxvEKkUD0QqxgORivFApGI8EKkYD0QqxgMRPMV4IIJnsoEIHojUDg9E8ECk9nggggcitccDUfCuOsADETwQwQORBsBziGjtcMFTgugWInggggcieGLigQgeiOCBCB6IBA9E8EAED0TwQKR/bRaMx7UzeCBq2SM4EJX0kOY3OO4nym0FEUQQQdS8NUQQQQQRRBBBBJEggggiiCDqGtEWIoggOlgQ3J1a72Z4URANjmiP5/X9ID9ABFEOnv2LggiibDwQQVSMByKIivFABFExHojaIbrpEVEOHoggKsYD0cIRTYEHooVeO5sSD0QLQzQHHogWgmhOPIeI1hBVRXQxAh6I2iG6nhNRTTwQDYaoBR6IBkHUEg9EwRH1gAeioIh6wgNRMEQ94oEoCKKe8UDUFtHlCHggansB9nIEPDUQ3UF0PKKIeOZGtILoOESR8UDUAaJtcDyHiOZYhb+H6P+Izs+kCf7Ctj7CnH1K/w+Kigiejr6JRUM059d4eDLXgqIgspDYGZ5IiODp9FJGBETwdHrmiYAIniB4elylhicYnp4QwRMUTw+I4AmOpyUieAbB0wIRPIPhqYkInvp4bmvgqYHI5gpt8FT/PVbbu8DTFSJ4FoZnSkTwLBTPFIjgWTieEkTwwJONCJ42u5B1i+cURPDAk41od3DvZ8DjHuZOt/OdEhE88Jx8YPc3pcEDTxGi7/DA0xtMeOCBBx54esHjN+PhgQceeOCBBx54BA888MADDzzRgufj57bgOaJHYNo89DdKmzTP4MADETwQwQMRPBAtBhE8EMEDETzDdpXmyQqzIIIHInggggeicIjggQgeiOBRIEQe+oMIHojgUSBE8EAED0T1EcEDETyqj8g6z+B9nRERPBDBo/qI4IEIHtVHBI+yEcGjbER2yVA2Io/eKBsRPMpGBI+yEcGjrHbXzn7C83l/BRgAezhEuPoii34AAAAASUVORK5CYII=" class="text-img"> claws +20 (agile), <strong>Damage</strong> 2d8+8 slashing</p>
+<p class="hang"><strong>Breath Weapon</strong> <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAOIAAACQCAYAAAAV+rcdAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyZpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNi1jMTM4IDc5LjE1OTgyNCwgMjAxNi8wOS8xNC0wMTowOTowMSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIDIwMTcgKFdpbmRvd3MpIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOkNFOEY1QTU2RjU1NzExRTk4MDYwREFGNjFCMDlBMjVBIiB4bXBNTTpEb2N1bWVudElEPSJ4bXAuZGlkOkNFOEY1QTU3RjU1NzExRTk4MDYwREFGNjFCMDlBMjVBIj4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6Q0U4RjVBNTRGNTU3MTFFOTgwNjBEQUY2MUIwOUEyNUEiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6Q0U4RjVBNTVGNTU3MTFFOTgwNjBEQUY2MUIwOUEyNUEiLz4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz5sx5U0AAAGVUlEQVR42uzd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" class="text-img"> (arcane, evocation, poison) The creature breathes euphoric gas in a 10-foot cone. Each creature in the area must succeed at a DC 24 Fortitude save or become stupefied 2 and slowed 1 for 1d4 rounds; on a critical failure, the duration is 1 minute. The example creature can't use Breath Weapon again for 1d4 rounds.</p></div></div>
+<div data-markdown="1" class="content"><p>xzcbzxcbzxc</p></div></div>
+<div data-markdown="1" class="flex-even column"><div data-markdown="1" class="content"><p>In addition, the item found <a rel="noopener noreferrer" href="http://template.pf2.tools/v/55582QvF">here</a> can be included:</p>
+<div style="padding:0.25em;border:1px dashed #0002"><div style="font-size:10px;text-align:center">loading <a href="http://template.pf2.tools/v/55582QvF">http://template.pf2.tools/v/55582QvF</a></div><div class="mx-auto lds-roller"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div></div>
+<hr>
+<p>Finally, the scribe entry found <a rel="noopener noreferrer" href="https://scribe.pf2.tools/v/wMqTjphx">here</a> can be included:</p></div>
+<div data-markdown="1" class="info d-flex flex-wrap"><div data-markdown="1" class="flex-even column"><h1>Hello!</h1>
+<p>This message is being broadcast from its own scribe document. That is pretty wild, huh? Just think of the possibilities!</p></div></div>
+<div data-markdown="1" class="content"><p>Be careful including other scribe documents as styles applied from them could override previously set styles.</p></div></div>
+<div class="content w-100"></div>
+<div data-markdown="1" class="flex-even column"><div data-markdown="1" class="content"><h2>Google Fonts <a id="toc-google-fonts"></a><a id="toc-google-fonts-39"></a></h2>
+<p>If you want to take your custom formatting to the extreme, you can import fonts from <a rel="noopener noreferrer" href="https://fonts.google.com">Google Fonts</a>. Add the fonts you want to use in your custom css using the following formatting (which is only visible in the editor.) This example imports the <a rel="noopener noreferrer" href="https://fonts.google.com/specimen/Roboto">Roboto</a> font with 4 styles. It is then available as a font-family to use in custom css. You can add multiple fonts with each specimen placed on its own line.</p>
+<h2>Sticky Note <a id="toc-sticky-note"></a><a id="toc-sticky-note-40"></a></h2>
+<p>You can add sticky notes to pages to keep track of whatever kind of things sticky notes keep track of!</p></div></div>
+<div class="watermark">Example of text that appears at the top of every page.</div>
+<div class="title"><h1>Example Entry</h1></div>
+<div class="sticky" style="position:absolute;top:218mm;left:50mm"><p>Check this out! A sticky note can<br>
+be placed using an X and Y position<br>
+which appears relative to the page.</p></div>
+<div class="sticky" style="position:absolute;top:218mm;left:120mm"><p>Think of the possibilities!</p></div></div></div><div><div data-markdown="1" class="bg-paper page d-flex flex-wrap"><div class="page-overlay"></div>
+<div data-markdown="1" class="flex-even column"><div data-markdown="1" class="content"><h1>Ancient Text</h1>
+<p>For record keeping just in case.</p>
+<h2>Older Version History</h2></div></div>
+<div class="content w-100"></div>
+<div data-markdown="1" class="flex-even column"><div data-markdown="1" class="content"><p class="hang"><strong>Version 2.1</strong></p>
+<ul>
+<li>Creations from pf2.tools can now be included in scribe documents.</li>
+<li>Support for <a rel="noopener noreferrer" href="https://monster.pf2.tools">monsters</a> or <a rel="noopener noreferrer" href="https://template.pf2.tools">items</a>.</li>
+<li>Other scribe documents can also be included.</li>
+<li>This feature is still experimental so it might break, and minor formatting errors will likely occur.</li>
+<li>See the <strong>External References</strong> section below for more info.</li>
+</ul>
+<p class="hang"><strong>Version 2.0</strong></p>
+<ul>
+<li>Adjusted styles.</li>
+<li>Added h3 style for right and left sidebars.</li>
+<li>Added watermark and title options.</li>
+<li>Improved printing styles for printing as PDF.</li>
+</ul>
+<p class="hang"><strong>Version 1.9</strong></p>
+<ul>
+<li>Adjusted margins and page size.</li>
+<li>Improved consistency with printing and printing to PDF.</li>
+<li>PDF option will be removed soon. Please use <strong>Print</strong>, and "Save as PDF" destination instead.</li>
+</ul>
+<p class="hang"><strong>Version 1.8</strong></p>
+<ul>
+<li>Fixed issues with printing css to enable better PDF printing</li>
+</ul>
+<p class="hang"><strong>Version 1.7</strong></p>
+<ul>
+<li>A4 page preference is now stored as a local option</li>
+<li>Added marker for A4 page height</li>
+</ul></div></div>
+<div data-markdown="1" class="flex-even column"><div data-markdown="1" class="content"><p class="hang"><strong>Version 1.6</strong></p>
+<ul>
+<li>Added table of contents support</li>
+<li>Added hidden areas</li>
+<li>Added content references</li>
+<li>Viewing entries now auto updates any live changes</li>
+</ul>
+<p class="hang"><strong>Version 1.5</strong></p>
+<ul>
+<li>Enabled option for A4 page height</li>
+</ul>
+<p class="hang"><strong>Version 1.4</strong></p>
+<ul>
+<li>Cosmetic fixes</li>
+</ul>
+<p class="hang"><strong>Version 1.3</strong></p>
+<ul>
+<li>Fixed parenthesis breaking things</li>
+</ul>
+<p class="hang"><strong>Version 1.2</strong></p>
+<ul>
+<li>Improved performance for large documents</li>
+<li>Fixed issues with mobile and small browser windows</li>
+</ul>
+<p class="hang"><strong>Version 1.1</strong></p>
+<ul>
+<li>Print now summons print window after loading view</li>
+<li>Printing page breaks fixed</li>
+<li>HTML download width is now correct</li>
+<li>PDF resolution and file size greatly reduced</li>
+<li>PDF download background color is now white</li>
+<li>PDF download traits font fixed</li>
+<li>PDF download page breaks fixed</li>
+</ul>
+<p class="hang"><strong>Version 1.0</strong></p>
+<ul>
+<li>First public version.</li>
+</ul></div></div>
+<div class="content w-100"></div>
+<div data-markdown="1" class="flex-even column"></div>
+<div class="watermark">Example of text that appears at the top of every page.</div>
+<div class="title"><h1>Example Entry</h1></div></div></div></div>
