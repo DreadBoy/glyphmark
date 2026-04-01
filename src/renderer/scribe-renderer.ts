@@ -338,11 +338,11 @@ function renderItemBlock(
       const traitClass = getTraitClass(t);
       return `<div class="pf-trait${traitClass}">${escapeHtml(t)}</div><!---->`;
     });
-    parts.push('<div class="traits">');
-    parts.push('<div class="pf-trait pf-trait-edge">&nbsp;</div><!---->');
-    parts.push(traitDivs.join(""));
-    parts.push('<div class="pf-trait pf-trait-edge">&nbsp;</div>');
-    parts.push("</div>");
+    parts.push('<div class="traits">' +
+      '<div class="pf-trait pf-trait-edge">&nbsp;</div><!---->' +
+      traitDivs.join("") +
+      '<div class="pf-trait pf-trait-edge">&nbsp;</div>' +
+      '</div>');
   }
 
   // Top section

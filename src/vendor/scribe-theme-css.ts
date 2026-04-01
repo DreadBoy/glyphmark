@@ -12,7 +12,7 @@ export const SCRIBE_THEME_CSS = `
 
 #result .pf-trait-edge{
     background-color: #d8c384!important;
-    width: 3px!important;
+    width: 0px!important;
     display: inline-block!important;
 }
 
