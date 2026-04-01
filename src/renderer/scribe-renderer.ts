@@ -358,9 +358,11 @@ function renderItemBlock(
     parts.push(renderBlockContent(expanded));
   }
 
-  // Second separator (if there's a body)
+  // Second separator (only if there was a top section before the body)
   if (item.body) {
-    parts.push("<hr>");
+    if (item.topSection) {
+      parts.push("<hr>");
+    }
     const expanded = expandRefs(item.body, state.contentRefs);
     parts.push(renderBlockContent(expanded));
   }
