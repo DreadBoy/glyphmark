@@ -682,7 +682,9 @@ function stripContentRefDefinitions(text: string): string {
     const line = lines[i]!;
     const match = line.match(/^(\w+)\s*\{\s*$/);
     if (match) {
-      // Skip the entire definition block
+      // Replace definition block with {{key}} so it renders inline
+      const key = match[1]!;
+      result.push(`{{${key}}}`);
       let depth = 1;
       i++;
       while (i < lines.length && depth > 0) {

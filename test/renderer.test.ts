@@ -38,7 +38,7 @@ describe("renderScribeDocument", () => {
   describe("block rendering", () => {
     it("renders head block with correct class", () => {
       const html = render("head (\n# Title\nDesc\n-\n)");
-      assert.ok(html.includes('class="head d-flex flex-wrap"'));
+      assert.ok(html.includes('class="head d-flex flex-wrap w-100"'));
     });
 
     it("renders info block with correct class", () => {
