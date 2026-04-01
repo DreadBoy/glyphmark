@@ -262,6 +262,10 @@ function renderParagraph(
   node: ScribeNode & { type: "paragraph" },
   state: RenderState,
 ): string {
+  // Check if this paragraph is a standalone content ref with block-level DSL
+  const blockRef = expandAndRenderRef(node.content, state);
+  if (blockRef !== null) return blockRef;
+
   const expanded = expandRefs(node.content, state.contentRefs);
   return `<div data-markdown="1" class="content">${renderBlockContent(expanded)}</div>`;
 }
@@ -350,6 +354,11 @@ function getTraitClass(trait: string): string {
 
 // ── Content Reference Expansion ───────────────────────────────
 
+/**
+ * Expand {{key}} references in text. For simple inline text, returns the
+ * expanded string. For content that contains scribe DSL blocks (item(), note(), etc.),
+ * parses and renders them as full HTML.
+ */
 function expandRefs(
   text: string,
   refs: Map<string, string>,
@@ -366,6 +375,43 @@ function expandRefs(
     }
     return expandRefs(content, refs, depth + 1);
   });
+}
+
+/**
+ * Expand content references that contain scribe DSL blocks.
+ * When a paragraph is just "{{key}}" and the ref contains block-level DSL,
+ * parse and render the whole thing as scribe nodes.
+ */
+function expandAndRenderRef(
+  content: string,
+  state: RenderState,
+): string | null {
+  // Check if the content is a single {{key}} reference
+  const refMatch = content.trim().match(/^\{\{(\w+)\}\}$/);
+  if (!refMatch) return null;
+
+  const key = refMatch[1]!;
+  const refContent = state.contentRefs.get(key);
+  if (refContent === undefined) {
+    console.warn(`[glyphmark] Undefined content reference: {{${key}}}`);
+    return null;
+  }
+
+  // Check if the ref contains block-level DSL (item(), note(), etc.)
+  if (/^(head|info|rules|note|math|item|left|right)\s*\(/m.test(refContent)) {
+    // Parse through full pipeline
+    const refDoc = parseScribe(refContent);
+    // Render each node
+    const parts: string[] = [];
+    for (const node of refDoc.body) {
+      const html = renderNode(node, state);
+      if (html) parts.push(html);
+    }
+    return parts.join("\n");
+  }
+
+  // Not block-level DSL, return null to use normal text expansion
+  return null;
 }
 
 // ── Utilities ─────────────────────────────────────────────────
