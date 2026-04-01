@@ -3,3 +3,13 @@ head (
 A description that goes under the heading in the head block.
 -
 )
+
+Left column content below the head block. The head block should break columns, so this column layout starts fresh after it.
+
+|
+
+Right column content below the head block. This verifies that columns work correctly after a head block resets the layout.
+
+/
+
+Full-width paragraph after the columns, below the head.

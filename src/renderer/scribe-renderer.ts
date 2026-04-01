@@ -160,8 +160,14 @@ function renderPages(nodes: ScribeNode[], state: RenderState): string[] {
       openContentDiv();
       const html = renderInlineNode(node, state);
       if (html) currentPageContent.push(html);
+    } else if (node.type === "head") {
+      // Head blocks break columns (like end-columns) and render full-width
+      closeColumn();
+      const html = renderNode(node, state);
+      if (html) currentPageContent.push(html);
+      openColumn();
     } else {
-      // Block-level nodes (head, info, rules, note, math, item, left, right)
+      // Block-level nodes (info, rules, note, math, item, left, right)
       closeContentDiv();
       const html = renderNode(node, state);
       if (html) currentPageContent.push(html);
@@ -301,7 +307,8 @@ function renderSimpleBlock(
   const inner = renderBlockContent(expanded, { tocState });
   state.tocCounter = tocState.counter;
 
-  return `<div data-markdown="1" class="${cssClass} d-flex flex-wrap"><div data-markdown="1" class="flex-even column">${inner}</div></div>`;
+  const widthClass = cssClass === "head" ? " w-100" : "";
+  return `<div data-markdown="1" class="${cssClass} d-flex flex-wrap${widthClass}"><div data-markdown="1" class="flex-even column">${inner}</div></div>`;
 }
 
 function renderItemBlock(
