@@ -5,10 +5,10 @@ interface ConvertOptions {
   devScript?: string;
 }
 
-export async function convertMarkdown(
+export function convert(
   input: string,
   opts?: ConvertOptions,
-): Promise<string> {
+): string {
   const doc = parseScribe(input);
   return renderScribeDocument(doc, { devScript: opts?.devScript });
 }
