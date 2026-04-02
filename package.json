@@ -1,36 +1,37 @@
 {
   "name": "glyphmark",
   "version": "0.1.0",
-  "description": "Convert Pathfinder 2e markdown to styled HTML",
+  "description": "Convert Pathfinder 2e scribe markup to styled HTML",
   "type": "module",
+  "main": "./dist/pipeline.js",
+  "exports": {
+    ".": "./dist/pipeline.js"
+  },
   "bin": {
     "glyphmark": "./dist/cli.js"
   },
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
-    "start": "node dist/cli.js",
-    "serve": "node dist/cli.js serve",
     "test": "node --import tsx --test test/**/*.test.ts",
-    "test:update-goldens": "UPDATE_SNAPSHOTS=1 node --import tsx --test test/visual/visual.test.ts"
+    "test:update-goldens": "UPDATE_SNAPSHOTS=1 node --import tsx --test test/visual/visual.test.ts",
+    "prepublishOnly": "tsc"
   },
   "keywords": [
     "pathfinder",
     "pf2e",
     "ttrpg",
     "markdown",
-    "html"
+    "html",
+    "scribe"
   ],
   "license": "MIT",
-  "dependencies": {
-    "chokidar": "^5.0.0",
-    "commander": "^14.0.3",
-    "ws": "^8.20.0"
-  },
   "devDependencies": {
     "@types/node": "^25.5.0",
     "@types/pngjs": "^6.0.5",
-    "@types/ws": "^8.18.1",
     "pixelmatch": "^7.1.0",
     "playwright": "^1.59.1",
     "pngjs": "^7.0.0",

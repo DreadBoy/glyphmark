@@ -1,36 +1,88 @@
 # Glyphmark
 
-Convert Pathfinder 2e Scribe DSL to styled HTML.
+Convert Pathfinder 2e Scribe markup to styled, self-contained HTML. Zero runtime dependencies.
+
+## Install
+
+```bash
+npm install -g glyphmark
+```
+
+Or use directly with npx:
+
+```bash
+npx glyphmark input.scribe output.html
+```
+
+## Usage
+
+```bash
+glyphmark <input.scribe> <output.html>
+```
+
+Reads a `.scribe` file and writes a single self-contained HTML file with all styles embedded.
+
+## Recipes
+
+### Batch processing
+
+```bash
+for f in *.scribe; do glyphmark "$f" "${f%.scribe}.html"; done
+```
+
+### Watch mode
+
+Use any file watcher. With [watchexec](https://github.com/watchexec/watchexec):
+
+```bash
+watchexec -w myfile.scribe -- glyphmark myfile.scribe output.html
+```
+
+With [entr](https://eradman.com/entrproject/):
+
+```bash
+echo myfile.scribe | entr glyphmark myfile.scribe output.html
+```
+
+### Live reload
+
+Pair with any static file server that supports live reload. With [browser-sync](https://browsersync.io/):
+
+```bash
+browser-sync start --server --files output.html
+```
+
+Or use the VS Code [Live Preview](https://marketplace.visualstudio.com/items?itemName=ms-vscode.live-server) extension to open the output HTML.
+
+## Programmatic API
+
+```js
+import { convert } from "glyphmark";
+
+const html = convert(scribeSource);
+```
 
 ## Scribe DSL Reference
 
 ### Metadata Blocks
 
 ```
-watermark (
-DRAFT
-)
+watermark (DRAFT)
 ```
 Adds text overlay at the top of every page.
 
 ```
-title (
-My Document Title
-)
+title (My Document Title)
 ```
 Adds a document title to every page header.
 
 ```
-css (
-.custom { color: red; }
-)
+css (.custom { color: red; })
 ```
 Injects custom CSS. Multiple `css()` blocks are concatenated.
 
 ```
-fonts (
-Roboto:ital,wght@0,400;0,700;1,400;1,700
-)
+fonts (Roboto:ital,wght@0,400;0,700;1,400;1,700)
 ```
 Imports Google Fonts. One font spec per line.
 
@@ -125,8 +177,8 @@ Structure:
 | Syntax | Effect |
 |--------|--------|
 | `=` | Page break |
-| `/` | Toggle columns on/off (start or end column layout) |
-| `\|` | Break to next column within column layout |
+| `/` | Toggle columns on/off |
+| `\|` | Break to next column |
 | `-` | Horizontal rule |
 
 ### Inline Formatting
@@ -149,8 +201,6 @@ Structure:
 | `:r:` | Reaction |
 | `:f:` | Free action |
 
-Rendered as inline PNG icons.
-
 ### Headings & Table of Contents
 
 ```
@@ -162,8 +212,6 @@ Rendered as inline PNG icons.
 - `((label))` — TOC entry at indent 0
 - `((+label))` — TOC entry at indent 1
 - `((++label))` — TOC entry at indent 2
-
-H2 headings with ordinal suffixes auto-split: `## Spells 1st` renders the ordinal separately.
 
 ### Tables
 
@@ -191,9 +239,7 @@ Hello from a content reference!
 }
 ```
 
-Expand with `{{greeting}}`. References can contain block DSL (`item()`, `note()`, etc.) and are fully parsed when expanded.
-
-Nested expansion supported (up to 10 levels deep).
+Expand with `{{greeting}}`. References can contain block DSL and are fully parsed when expanded. Nested expansion supported (up to 10 levels deep).
 
 ### Hidden Content
 
@@ -208,11 +254,6 @@ note(# Hidden Note)
 ```
 
 Everything after `%` is hidden from output but content refs defined there can still be expanded with `{{key}}`.
-
-HTML comments also support ref definitions:
-```
-<!-- myref { content here } -->
-```
 
 ### Trait System (Item Blocks)
 
@@ -230,14 +271,8 @@ Special styling:
 
 ### Hanging Indents
 
-Paragraphs starting with `**bold text**` get a hanging indent style — the bold label stays left while continuation text indents.
+Paragraphs starting with `**bold text**` get a hanging indent style.
 
-## CLI Usage
+## License
 
-```bash
-glyphmark build [file|dir]     # Convert .scribe to HTML
-glyphmark watch [file|dir]     # Watch and rebuild on changes
-glyphmark serve [file|dir]     # Dev server with live reload
-```
-
-Options: `-o, --out <dir>` output directory, `-p, --port <port>` server port (default 3000).
+MIT

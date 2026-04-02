@@ -19,15 +19,10 @@ interface RenderState {
   contentRefs: Map<string, string>;
 }
 
-interface ConvertOptions {
-  devScript?: string;
-}
-
 // ── Main Renderer ─────────────────────────────────────────────
 
 export function renderScribeDocument(
   doc: ScribeDocument,
-  opts?: ConvertOptions,
 ): string {
   const state: RenderState = {
     inColumns: false,
@@ -67,11 +62,6 @@ export function renderScribeDocument(
   }
 
   parts.push("</div>"); // #result
-
-  if (opts?.devScript) {
-    parts.push(opts.devScript);
-  }
-
   parts.push("</body>");
   parts.push("</html>");
 
