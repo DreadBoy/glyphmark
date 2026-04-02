@@ -1,6 +1,6 @@
 /**
  * Scribe DSL parser.
- * Parses the scribe.pf2.tools format into an intermediate representation.
+ * Parses the Scribe DSL format into an intermediate representation.
  */
 
 import { renderInlineMarkdown } from "../renderer/inline-markdown.js";

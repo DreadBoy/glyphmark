@@ -11,9 +11,8 @@
     "dev": "tsc --watch",
     "start": "node dist/cli.js",
     "serve": "node dist/cli.js serve",
-    "test": "node --import tsx --test test/*.test.ts",
-    "test:visual": "node --import tsx --test test/visual/visual.test.ts",
-    "test:visual:update": "UPDATE_SNAPSHOTS=1 node --import tsx --test test/visual/visual.test.ts"
+    "test": "node --import tsx --test test/**/*.test.ts",
+    "test:update-goldens": "UPDATE_SNAPSHOTS=1 node --import tsx --test test/visual/visual.test.ts"
   },
   "keywords": [
     "pathfinder",

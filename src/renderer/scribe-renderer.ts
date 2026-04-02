@@ -1,6 +1,6 @@
 /**
  * Scribe-compatible HTML renderer.
- * Outputs HTML with scribe.pf2.tools CSS class names for visual parity.
+ * Renders a ScribeDocument into a complete HTML page.
  */
 
 import type { ScribeDocument, ScribeNode, TocEntry } from "../parser/scribe-parser.js";

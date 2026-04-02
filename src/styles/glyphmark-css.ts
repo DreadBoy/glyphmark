@@ -1,6 +1,6 @@
 /**
  * Glyphmark CSS — original authored styles for PF2e-style document rendering.
- * Replaces vendor scribe-layout-css.ts and scribe-theme-css.ts.
+ * Layout, typography, and theme styles for document rendering.
  */
 
 export const GLYPHMARK_CSS = `
