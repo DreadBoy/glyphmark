@@ -7,18 +7,21 @@ import { InfoBlock, NoteBlock, RulesBlock, MathBlock, HeadBlock, LeftSidebar, Ri
 import { ItemBlock } from './ItemBlock';
 import { TraitList } from './TraitList';
 import { ActionSymbol } from './ActionSymbol';
-import { PageBreak } from './PageBreak';
 import { TableFooter } from './TableFooter';
+import { DocNode } from './DocNode';
+import { PageNode } from './PageNode';
 import { SlashCommands } from './SlashCommands';
 
 export const scribeExtensions = [
+  DocNode,
   StarterKit.configure({
-    // We keep heading, paragraph, bold, italic, bulletList, listItem, horizontalRule
-    // Disable codeBlock since we don't use it
+    // Disable the default doc since we provide our own
+    document: false,
     codeBlock: false,
     code: false,
     blockquote: false,
   }),
+  PageNode,
   Table.configure({ resizable: false }),
   TableRow,
   TableHeader,
@@ -33,7 +36,6 @@ export const scribeExtensions = [
   ItemBlock,
   TraitList,
   ActionSymbol,
-  PageBreak,
   TableFooter,
   SlashCommands,
 ];

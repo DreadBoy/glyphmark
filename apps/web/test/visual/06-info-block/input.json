@@ -2,16 +2,33 @@
   "type": "doc",
   "content": [
     {
-      "type": "infoBlock",
+      "type": "page",
       "content": [
         {
-          "type": "heading",
-          "attrs": { "level": 2 },
-          "content": [{ "type": "text", "text": "Important Information" }]
-        },
-        {
-          "type": "paragraph",
-          "content": [{ "type": "text", "text": "This is an info box with white text on a colored background." }]
+          "type": "infoBlock",
+          "content": [
+            {
+              "type": "heading",
+              "attrs": {
+                "level": 2
+              },
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Important Information"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "This is an info box with white text on a colored background."
+                }
+              ]
+            }
+          ]
         }
       ]
     }

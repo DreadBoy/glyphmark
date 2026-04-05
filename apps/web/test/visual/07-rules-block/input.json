@@ -2,17 +2,35 @@
   "type": "doc",
   "content": [
     {
-      "type": "rulesBlock",
+      "type": "page",
       "content": [
         {
-          "type": "paragraph",
+          "type": "rulesBlock",
           "content": [
-            { "type": "text", "marks": [{ "type": "bold" }], "text": "Rule Reminder" }
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "marks": [
+                    {
+                      "type": "bold"
+                    }
+                  ],
+                  "text": "Rule Reminder"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Always remember to follow the rules. This box highlights them."
+                }
+              ]
+            }
           ]
-        },
-        {
-          "type": "paragraph",
-          "content": [{ "type": "text", "text": "Always remember to follow the rules. This box highlights them." }]
         }
       ]
     }

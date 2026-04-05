@@ -2,14 +2,65 @@
   "type": "doc",
   "content": [
     {
-      "type": "leftSidebar",
+      "type": "page",
       "content": [
-        { "type": "heading", "attrs": { "level": 1 }, "content": [{ "type": "text", "text": "Left Sidebar" }] },
-        { "type": "paragraph", "content": [{ "type": "text", "text": "Content inside the left sidebar area." }] },
-        { "type": "heading", "attrs": { "level": 2 }, "content": [{ "type": "text", "text": "Sub-section" }] },
-        { "type": "paragraph", "content": [{ "type": "text", "text": "More sidebar content." }] }
+        {
+          "type": "leftSidebar",
+          "content": [
+            {
+              "type": "heading",
+              "attrs": {
+                "level": 1
+              },
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Left Sidebar"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Content inside the left sidebar area."
+                }
+              ]
+            },
+            {
+              "type": "heading",
+              "attrs": {
+                "level": 2
+              },
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Sub-section"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "More sidebar content."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "Main body text beside the sidebar."
+            }
+          ]
+        }
       ]
-    },
-    { "type": "paragraph", "content": [{ "type": "text", "text": "Main body text beside the sidebar." }] }
+    }
   ]
 }

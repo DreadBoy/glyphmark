@@ -2,25 +2,54 @@
   "type": "doc",
   "content": [
     {
-      "type": "noteBlock",
+      "type": "page",
       "content": [
         {
-          "type": "heading",
-          "attrs": { "level": 1 },
-          "content": [{ "type": "text", "text": "Sidebar Note" }]
-        },
-        {
-          "type": "paragraph",
-          "content": [{ "type": "text", "text": "This is a note block for supplementary information." }]
-        },
-        {
-          "type": "heading",
-          "attrs": { "level": 2 },
-          "content": [{ "type": "text", "text": "Sub-heading" }]
-        },
-        {
-          "type": "paragraph",
-          "content": [{ "type": "text", "text": "Additional details here." }]
+          "type": "noteBlock",
+          "content": [
+            {
+              "type": "heading",
+              "attrs": {
+                "level": 1
+              },
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Sidebar Note"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "This is a note block for supplementary information."
+                }
+              ]
+            },
+            {
+              "type": "heading",
+              "attrs": {
+                "level": 2
+              },
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Sub-heading"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Additional details here."
+                }
+              ]
+            }
+          ]
         }
       ]
     }

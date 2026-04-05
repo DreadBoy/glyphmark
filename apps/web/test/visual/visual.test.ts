@@ -78,13 +78,11 @@ function comparePngs(
   };
 }
 
-describe("editor golden snapshots", { timeout: 120_000 }, () => {
+describe("editor golden snapshots", { timeout: 120_000, concurrent: true }, () => {
   let browser: Browser;
-  let page: Page;
   let server: PreviewServer;
 
   beforeAll(async () => {
-    // Start Vite preview server on the built app
     server = await preview({
       root: path.resolve(VISUAL_DIR, "../../../.."),
       build: { outDir: "dist/apps/web" },
@@ -92,8 +90,6 @@ describe("editor golden snapshots", { timeout: 120_000 }, () => {
     });
 
     browser = await chromium.launch();
-    page = await browser.newPage();
-    await page.setViewportSize(VIEWPORT);
   });
 
   afterAll(async () => {
@@ -109,57 +105,61 @@ describe("editor golden snapshots", { timeout: 120_000 }, () => {
         fs.readFileSync(path.join(fixtureDir, "input.json"), "utf-8"),
       );
 
-      // Navigate to the editor
-      await page.goto(`http://localhost:${PREVIEW_PORT}/`, {
-        waitUntil: "networkidle",
-      });
+      // Each test gets its own tab
+      const page = await browser.newPage();
+      await page.setViewportSize(VIEWPORT);
 
-      // Wait for TipTap editor to be ready
-      await page.waitForFunction(
-        () => (window as any).__glyphmark_editor?.isEditable,
-        null,
-        { timeout: 10_000 },
-      );
+      try {
+        await page.goto(`http://localhost:${PREVIEW_PORT}/`, {
+          waitUntil: "networkidle",
+        });
 
-      // Inject test content
-      await page.evaluate((json) => {
-        (window as any).__glyphmark_editor.commands.setContent(json);
-      }, inputJson);
-
-      // Wait for fonts and rendering to settle
-      await page.waitForFunction(() =>
-        (document as any).fonts.ready.then(() => true),
-      );
-      await page.waitForTimeout(500);
-
-      const pngPath = path.join(fixtureDir, "output.png");
-      await page.screenshot({ path: pngPath });
-
-      assert.ok(
-        fs.statSync(pngPath).size > 0,
-        `PNG should be non-empty for ${dir}`,
-      );
-
-      const goldenPath = path.join(fixtureDir, "golden.png");
-      const diffPath = path.join(fixtureDir, "diff.png");
-
-      if (UPDATE_SNAPSHOTS) {
-        fs.copyFileSync(pngPath, goldenPath);
-      } else {
-        assert.ok(
-          fs.existsSync(goldenPath),
-          `Golden snapshot missing for ${dir}. Run nx run web:test:update-goldens first.`,
+        await page.waitForFunction(
+          () => (window as any).__glyphmark_editor?.isEditable,
+          null,
+          { timeout: 10_000 },
         );
 
-        const result = comparePngs(pngPath, goldenPath, diffPath);
+        await page.evaluate((json) => {
+          (window as any).__glyphmark_editor.commands.setContent(json);
+        }, inputJson);
+
+        await page.waitForFunction(() =>
+          (document as any).fonts.ready.then(() => true),
+        );
+        await page.waitForTimeout(500);
+
+        const pngPath = path.join(fixtureDir, "output.png");
+        await page.screenshot({ path: pngPath, fullPage: true });
+
         assert.ok(
-          result.match,
-          `Visual regression in ${dir}: ${result.diffPixels}/${result.totalPixels} pixels differ. See ${diffPath}`,
+          fs.statSync(pngPath).size > 0,
+          `PNG should be non-empty for ${dir}`,
         );
 
-        if (fs.existsSync(diffPath)) {
-          fs.unlinkSync(diffPath);
+        const goldenPath = path.join(fixtureDir, "golden.png");
+        const diffPath = path.join(fixtureDir, "diff.png");
+
+        if (UPDATE_SNAPSHOTS) {
+          fs.copyFileSync(pngPath, goldenPath);
+        } else {
+          assert.ok(
+            fs.existsSync(goldenPath),
+            `Golden snapshot missing for ${dir}. Run nx run web:test:update-goldens first.`,
+          );
+
+          const result = comparePngs(pngPath, goldenPath, diffPath);
+          assert.ok(
+            result.match,
+            `Visual regression in ${dir}: ${result.diffPixels}/${result.totalPixels} pixels differ. See ${diffPath}`,
+          );
+
+          if (fs.existsSync(diffPath)) {
+            fs.unlinkSync(diffPath);
+          }
         }
+      } finally {
+        await page.close();
       }
     });
   }

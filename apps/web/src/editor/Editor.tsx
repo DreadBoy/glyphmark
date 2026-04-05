@@ -4,10 +4,16 @@ import {useScribeCSS} from './useScribeCSS';
 import {scribeExtensions} from './extensions';
 import {loadDocument, saveDocument} from './storage';
 
-const INITIAL_CONTENT = `
-<h1>Welcome to Glyphmark</h1>
-<p>Start typing, or use <strong>/</strong> to insert blocks.</p>
-`;
+const INITIAL_CONTENT = {
+  type: 'doc',
+  content: [{
+    type: 'page',
+    content: [
+      { type: 'heading', attrs: { level: 1 }, content: [{ type: 'text', text: 'Welcome to Glyphmark' }] },
+      { type: 'paragraph', content: [{ type: 'text', text: 'Start typing, or use ' }, { type: 'text', marks: [{ type: 'bold' }], text: '/' }, { type: 'text', text: ' to insert blocks.' }] },
+    ],
+  }],
+};
 
 const SAVE_DELAY = 500;
 
@@ -60,11 +66,7 @@ export function Editor() {
   return (
     <div className="editor-shell">
       <div id="result">
-        <div data-markdown="1" className="bg-paper page d-flex flex-wrap">
-          <div data-markdown="1" className="flex-even column">
-            <EditorContent editor={editor} />
-          </div>
-        </div>
+        <EditorContent editor={editor} />
       </div>
     </div>
   );

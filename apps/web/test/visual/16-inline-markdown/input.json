@@ -2,33 +2,119 @@
   "type": "doc",
   "content": [
     {
-      "type": "paragraph",
+      "type": "page",
       "content": [
-        { "type": "text", "text": "This has " },
-        { "type": "text", "marks": [{ "type": "bold" }], "text": "bold text" },
-        { "type": "text", "text": " and " },
-        { "type": "text", "marks": [{ "type": "italic" }], "text": "italic text" },
-        { "type": "text", "text": " in it." }
-      ]
-    },
-    {
-      "type": "paragraph",
-      "content": [
-        { "type": "text", "text": "Here is a " },
-        { "type": "text", "marks": [{ "type": "link", "attrs": { "href": "http://example.com" } }], "text": "link to example" },
-        { "type": "text", "text": " and a " },
-        { "type": "text", "marks": [{ "type": "link", "attrs": { "href": "#some-section" } }], "text": "label link" },
-        { "type": "text", "text": "." }
-      ]
-    },
-    {
-      "type": "paragraph",
-      "content": [
-        { "type": "text", "text": "A paragraph with both " },
-        { "type": "text", "marks": [{ "type": "bold" }], "text": "bold" },
-        { "type": "text", "text": " and " },
-        { "type": "text", "marks": [{ "type": "italic" }], "text": "italic" },
-        { "type": "text", "text": " mixed together." }
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "This has "
+            },
+            {
+              "type": "text",
+              "marks": [
+                {
+                  "type": "bold"
+                }
+              ],
+              "text": "bold text"
+            },
+            {
+              "type": "text",
+              "text": " and "
+            },
+            {
+              "type": "text",
+              "marks": [
+                {
+                  "type": "italic"
+                }
+              ],
+              "text": "italic text"
+            },
+            {
+              "type": "text",
+              "text": " in it."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "Here is a "
+            },
+            {
+              "type": "text",
+              "marks": [
+                {
+                  "type": "link",
+                  "attrs": {
+                    "href": "http://example.com"
+                  }
+                }
+              ],
+              "text": "link to example"
+            },
+            {
+              "type": "text",
+              "text": " and a "
+            },
+            {
+              "type": "text",
+              "marks": [
+                {
+                  "type": "link",
+                  "attrs": {
+                    "href": "#some-section"
+                  }
+                }
+              ],
+              "text": "label link"
+            },
+            {
+              "type": "text",
+              "text": "."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "A paragraph with both "
+            },
+            {
+              "type": "text",
+              "marks": [
+                {
+                  "type": "bold"
+                }
+              ],
+              "text": "bold"
+            },
+            {
+              "type": "text",
+              "text": " and "
+            },
+            {
+              "type": "text",
+              "marks": [
+                {
+                  "type": "italic"
+                }
+              ],
+              "text": "italic"
+            },
+            {
+              "type": "text",
+              "text": " mixed together."
+            }
+          ]
+        }
       ]
     }
   ]

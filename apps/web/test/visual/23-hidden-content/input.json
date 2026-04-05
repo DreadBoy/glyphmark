@@ -1,12 +1,44 @@
 {
   "type": "doc",
   "content": [
-    { "type": "paragraph", "content": [{ "type": "text", "text": "This text is visible." }] },
     {
-      "type": "noteBlock",
+      "type": "page",
       "content": [
-        { "type": "heading", "attrs": { "level": 1 }, "content": [{ "type": "text", "text": "Hidden Note" }] },
-        { "type": "paragraph", "content": [{ "type": "text", "text": "This note is defined in the hidden section but appears via reference." }] }
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "This text is visible."
+            }
+          ]
+        },
+        {
+          "type": "noteBlock",
+          "content": [
+            {
+              "type": "heading",
+              "attrs": {
+                "level": 1
+              },
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Hidden Note"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "This note is defined in the hidden section but appears via reference."
+                }
+              ]
+            }
+          ]
+        }
       ]
     }
   ]

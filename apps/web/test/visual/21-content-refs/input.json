@@ -1,12 +1,37 @@
 {
   "type": "doc",
   "content": [
-    { "type": "paragraph", "content": [{ "type": "text", "text": "Hello from a content reference!" }] },
-    { "type": "paragraph", "content": [
-      { "type": "text", "text": "The greeting says: Hello from a content reference!" }
-    ]},
-    { "type": "paragraph", "content": [
-      { "type": "text", "text": "And again: Hello from a content reference!" }
-    ]}
+    {
+      "type": "page",
+      "content": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "Hello from a content reference!"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "The greeting says: Hello from a content reference!"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "And again: Hello from a content reference!"
+            }
+          ]
+        }
+      ]
+    }
   ]
 }

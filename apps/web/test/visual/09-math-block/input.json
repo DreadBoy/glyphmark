@@ -2,12 +2,25 @@
   "type": "doc",
   "content": [
     {
-      "type": "mathBlock",
+      "type": "page",
       "content": [
         {
-          "type": "paragraph",
+          "type": "mathBlock",
           "content": [
-            { "type": "text", "marks": [{ "type": "bold" }], "text": "Total = base value + modifier + bonuses - penalties" }
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "marks": [
+                    {
+                      "type": "bold"
+                    }
+                  ],
+                  "text": "Total = base value + modifier + bonuses - penalties"
+                }
+              ]
+            }
           ]
         }
       ]
