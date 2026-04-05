@@ -1,4 +1,4 @@
-import { describe, it, before, after } from "node:test";
+import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
@@ -77,13 +77,13 @@ describe("golden snapshots", { timeout: 120_000 }, () => {
   let browser: Browser;
   let page: Page;
 
-  before(async () => {
+  beforeAll(async () => {
     browser = await chromium.launch();
     page = await browser.newPage();
     await page.setViewportSize(VIEWPORT);
   });
 
-  after(async () => {
+  afterAll(async () => {
     await browser?.close();
   });
 

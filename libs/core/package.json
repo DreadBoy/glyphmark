@@ -1,0 +1,12 @@
+{
+  "name": "@glyphmark/core",
+  "version": "0.1.0",
+  "description": "Core parser and renderer for Pathfinder 2e scribe markup",
+  "type": "module",
+  "main": "./dist/index.js",
+  "exports": {
+    ".": "./dist/index.js"
+  },
+  "files": ["dist"],
+  "license": "MIT"
+}

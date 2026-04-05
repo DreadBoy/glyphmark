@@ -1,44 +1,43 @@
-import { describe, it } from "node:test";
-import assert from "node:assert/strict";
+import { describe, it, expect } from "vitest";
 import { parseScribe } from "../src/parser/scribe-parser.js";
 
 describe("parseScribe", () => {
   describe("metadata extraction", () => {
     it("extracts watermark", () => {
       const doc = parseScribe("watermark (\nHello World\n)\n\nSome text");
-      assert.equal(doc.watermark, "Hello World");
+      expect(doc.watermark).toBe("Hello World");
     });
 
     it("extracts title", () => {
       const doc = parseScribe("title (\nMy Title\n)\n\nSome text");
-      assert.equal(doc.title, "My Title");
+      expect(doc.title).toBe("My Title");
     });
 
     it("extracts custom CSS", () => {
       const doc = parseScribe("css (\n.foo { color: red; }\n)\n\nSome text");
-      assert.equal(doc.customCss, ".foo { color: red; }");
+      expect(doc.customCss).toBe(".foo { color: red; }");
     });
 
     it("extracts fonts", () => {
       const doc = parseScribe("fonts(\nRoboto:wght@400;700\nOpen Sans:wght@300\n)\n\nSome text");
-      assert.deepEqual(doc.fonts, ["Roboto:wght@400;700", "Open Sans:wght@300"]);
+      expect(doc.fonts).toEqual(["Roboto:wght@400;700", "Open Sans:wght@300"]);
     });
 
     it("detects pagenumbers", () => {
       const doc = parseScribe("pagenumbers\n\nSome text");
-      assert.equal(doc.pageNumbers, true);
+      expect(doc.pageNumbers).toBe(true);
     });
 
     it("defaults pagenumbers to false", () => {
       const doc = parseScribe("Some text");
-      assert.equal(doc.pageNumbers, false);
+      expect(doc.pageNumbers).toBe(false);
     });
   });
 
   describe("content references", () => {
     it("extracts content ref definitions", () => {
       const doc = parseScribe("myref {\nHello world\n}\n\nSome text");
-      assert.equal(doc.contentRefs.get("myref"), "Hello world");
+      expect(doc.contentRefs.get("myref")).toBe("Hello world");
     });
 
     it("strips definitions from body", () => {
@@ -46,17 +45,17 @@ describe("parseScribe", () => {
       const hasRef = doc.body.some(
         (n) => n.type === "paragraph" && n.content.includes("myref {"),
       );
-      assert.equal(hasRef, false);
+      expect(hasRef).toBe(false);
     });
 
     it("extracts refs from hidden section", () => {
       const doc = parseScribe("Visible\n\n%\n\nsecret {\nnote(\n# Hidden\nContent here\n)\n}");
-      assert.ok(doc.contentRefs.has("secret"));
+      expect(doc.contentRefs.has("secret")).toBe(true);
     });
 
     it("extracts refs from HTML comments", () => {
       const doc = parseScribe("<!--\ncommented {\nInside comment\n}\n-->\n\nVisible");
-      assert.ok(doc.contentRefs.has("commented"));
+      expect(doc.contentRefs.has("commented")).toBe(true);
     });
 
     it("preserves {{key}} in body for rendering", () => {
@@ -64,46 +63,46 @@ describe("parseScribe", () => {
       const hasMustache = doc.body.some(
         (n) => n.type === "paragraph" && n.content.includes("{{myref}}"),
       );
-      assert.equal(hasMustache, true);
+      expect(hasMustache).toBe(true);
     });
   });
 
   describe("block parsing", () => {
     it("parses page breaks", () => {
       const doc = parseScribe("Text\n\n=\n\nMore text");
-      assert.ok(doc.body.some((n) => n.type === "page-break"));
+      expect(doc.body.some((n) => n.type === "page-break")).toBe(true);
     });
 
     it("parses column breaks", () => {
       const doc = parseScribe("Text\n\n|\n\nMore text");
-      assert.ok(doc.body.some((n) => n.type === "column-break"));
+      expect(doc.body.some((n) => n.type === "column-break")).toBe(true);
     });
 
     it("parses end columns", () => {
       const doc = parseScribe("Text\n\n/\n\nMore text");
-      assert.ok(doc.body.some((n) => n.type === "end-columns"));
+      expect(doc.body.some((n) => n.type === "end-columns")).toBe(true);
     });
 
     it("parses head block", () => {
-      const doc = parseScribe("head (\n# Title\nDescription\n-\n)");
+      const doc = parseScribe("head (\n# Title\nDesc\n-\n)");
       const head = doc.body.find((n) => n.type === "head");
-      assert.ok(head);
+      expect(head).toBeDefined();
     });
 
     it("parses info block", () => {
       const doc = parseScribe("info (\n## Info Title\nContent\n)");
       const info = doc.body.find((n) => n.type === "info");
-      assert.ok(info);
+      expect(info).toBeDefined();
     });
 
     it("parses headings with TOC labels", () => {
       const doc = parseScribe("# My Section ((+Section Label))");
       const heading = doc.body.find((n) => n.type === "heading");
-      assert.ok(heading);
+      expect(heading).toBeDefined();
       if (heading?.type === "heading") {
-        assert.equal(heading.text, "My Section");
-        assert.equal(heading.tocLabel, "Section Label");
-        assert.equal(heading.tocIndent, 1);
+        expect(heading.text).toBe("My Section");
+        expect(heading.tocLabel).toBe("Section Label");
+        expect(heading.tocIndent).toBe(1);
       }
     });
   });
@@ -112,23 +111,23 @@ describe("parseScribe", () => {
     it("parses item with name and action", () => {
       const doc = parseScribe("item(\n# Cool Feat :a: ((+Feats))\n## Feat 3\n-\n; uncommon,class\nContent\n-\nBody text\n)");
       const item = doc.body.find((n) => n.type === "item");
-      assert.ok(item);
+      expect(item).toBeDefined();
       if (item?.type === "item") {
-        assert.equal(item.name, "Cool Feat");
-        assert.equal(item.nameActions, ":a:");
-        assert.equal(item.subtitle, "Feat 3");
-        assert.deepEqual(item.traits, ["uncommon", "class"]);
-        assert.equal(item.tocLabel, "Feats");
+        expect(item.name).toBe("Cool Feat");
+        expect(item.nameActions).toBe(":a:");
+        expect(item.subtitle).toBe("Feat 3");
+        expect(item.traits).toEqual(["uncommon", "class"]);
+        expect(item.tocLabel).toBe("Feats");
       }
     });
 
     it("parses item without traits", () => {
       const doc = parseScribe("item(\n# Jennifer\n-\n### lg female champion\n)");
       const item = doc.body.find((n) => n.type === "item");
-      assert.ok(item);
+      expect(item).toBeDefined();
       if (item?.type === "item") {
-        assert.equal(item.name, "Jennifer");
-        assert.deepEqual(item.traits, []);
+        expect(item.name).toBe("Jennifer");
+        expect(item.traits).toEqual([]);
       }
     });
   });
@@ -137,21 +136,21 @@ describe("parseScribe", () => {
     it("parses basic table", () => {
       const doc = parseScribe("Header 1 | Header 2\n--- | :---:\nCell 1 | Cell 2");
       const table = doc.body.find((n) => n.type === "table");
-      assert.ok(table);
+      expect(table).toBeDefined();
       if (table?.type === "table") {
-        assert.deepEqual(table.headers, ["Header 1", "Header 2"]);
-        assert.deepEqual(table.alignments, ["left", "center"]);
-        assert.equal(table.rows.length, 1);
+        expect(table.headers).toEqual(["Header 1", "Header 2"]);
+        expect(table.alignments).toEqual(["left", "center"]);
+        expect(table.rows).toHaveLength(1);
       }
     });
 
     it("parses table footnotes", () => {
       const doc = parseScribe("A | B\n--- | ---\n1 | 2\n. * This is a footnote");
       const table = doc.body.find((n) => n.type === "table");
-      assert.ok(table);
+      expect(table).toBeDefined();
       if (table?.type === "table") {
-        assert.equal(table.footnotes.length, 1);
-        assert.equal(table.footnotes[0], "This is a footnote");
+        expect(table.footnotes).toHaveLength(1);
+        expect(table.footnotes[0]).toBe("This is a footnote");
       }
     });
   });

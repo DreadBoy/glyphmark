@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import fs from "node:fs";
-import { convert } from "./pipeline.js";
+import { convert } from "@glyphmark/core";
 
 const [input, output] = process.argv.slice(2);
 

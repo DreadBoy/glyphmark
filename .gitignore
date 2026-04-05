@@ -1,8 +1,16 @@
 node_modules/
 dist/
-*.html
-!reference/*.html
-!test/visual/**/*.html
 .idea/
 .obsidian/
 .gstack/
+
+# NX
+.nx/cache
+.nx/workspace-data
+
+# Vite
+vite.config.*.timestamp*
+
+.nx/polygraph
+.claude/worktrees
+.claude/settings.local.json

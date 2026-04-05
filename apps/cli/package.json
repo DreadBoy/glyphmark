@@ -1,0 +1,14 @@
+{
+  "name": "@glyphmark/cli",
+  "version": "0.1.0",
+  "description": "CLI tool for converting Pathfinder 2e scribe markup to HTML",
+  "type": "module",
+  "bin": {
+    "glyphmark": "./dist/cli.js"
+  },
+  "files": ["dist"],
+  "license": "MIT",
+  "dependencies": {
+    "@glyphmark/core": "*"
+  }
+}
