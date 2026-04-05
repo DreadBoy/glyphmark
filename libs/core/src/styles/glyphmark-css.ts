@@ -62,6 +62,7 @@ export const GLYPHMARK_CSS = `
 }
 
 p { margin: 0; }
+h1, h2, h3, h4, h5, h6 { margin: 0; }
 
 img { filter: none; }
 
@@ -90,12 +91,12 @@ a:hover { color: var(--gm-link-hover); }
 .w-100 { width: 100%; }
 .mr-0 { margin-right: 0; }
 .my-0 { margin-top: 0; margin-bottom: 0; }
-.ml-auto { margin-left: auto !important; }
+.ml-auto { margin-left: auto; }
 
 .text-img {
   max-height: 0.85em;
   margin-top: -0.25em;
-  filter: none !important;
+  filter: none;
 }
 
 .pointer {
@@ -107,21 +108,21 @@ a:hover { color: var(--gm-link-hover); }
 
 /* ── Spacing ───────────────────────────────────────────────── */
 
-*+p, *+h1, *+h2, *+h3, *+h4, *+h5, *+h6,
-*+table, *+hr,
-h1+ul, h2+ul, h3+ul, h4+ul, h5+ul, h6+ul,
-*+.content, *+.item, *+.note, *+.rules, *+.info, *+.math,
-*+.right, *+.left, *+.p {
-  margin-top: 0.5rem !important;
+.page *+p, .page *+h1, .page *+h2, .page *+h3, .page *+h4, .page *+h5, .page *+h6,
+.page *+table, .page *+hr,
+.page h1+ul, .page h2+ul, .page h3+ul, .page h4+ul, .page h5+ul, .page h6+ul,
+.page *+.content, .page *+.item, .page *+.note, .page *+.rules, .page *+.info, .page *+.math,
+.page *+.right, .page *+.left, .page *+.p {
+  margin-top: 0.5rem;
 }
 
-*+ul { margin-top: 0 !important; }
+.page *+ul { margin-top: 0; }
 
 .right+.info, .right+.rules, .right+.math, .right+.note {
-  margin-top: 0 !important;
+  margin-top: 0;
 }
 
-h5+table { margin-top: 0 !important; }
+.page h5+table { margin-top: 0; }
 
 /* ── Page ──────────────────────────────────────────────────── */
 
@@ -169,7 +170,6 @@ body { counter-reset: pages; }
   font-weight: normal;
   font-size: 1rem;
   line-height: 1;
-  margin: 0;
 }
 
 .page p, .page li {
@@ -269,12 +269,12 @@ body { counter-reset: pages; }
 }
 
 .title h1 {
-  font-family: var(--font-display) !important;
+  font-family: var(--font-display);
   font-weight: normal;
   width: 50%;
   text-align: right;
   padding: 0.25rem 0.5rem;
-  margin-bottom: -0.5rem !important;
+  margin-bottom: -0.5rem;
   border: 0.33rem solid #000;
   font-size: 1rem;
   border-left-width: 0;
@@ -303,7 +303,7 @@ body { counter-reset: pages; }
 .head h2 {
   font-family: var(--font-display);
   font-size: 2.5rem;
-  margin-bottom: -0.5rem !important;
+  margin-bottom: -0.5rem;
 }
 
 .head h3 {
@@ -318,7 +318,7 @@ body { counter-reset: pages; }
   font-family: var(--font-display);
   font-size: 2.5rem;
   color: var(--gm-blue);
-  margin-bottom: -0.5rem !important;
+  margin-bottom: -0.5rem;
   color: var(--gm-blue);
 }
 
@@ -488,7 +488,7 @@ body { counter-reset: pages; }
 .item h2 {
   text-align: right;
   float: right;
-  margin-top: -1.45rem !important;
+  margin-top: -1.45rem;
 }
 
 .item h3 {
@@ -509,13 +509,13 @@ body { counter-reset: pages; }
   white-space: nowrap;
 }
 
-.item h3 { margin-top: 0.25rem !important; }
+.item h3 { margin-top: 0.25rem; }
 
-.item hr { margin: 0 !important; clear: both; }
+.item hr { margin: 0; clear: both; }
 
-.item *+p { margin: 0 !important; }
-.item p.hang+p.hang { margin: 0 !important; }
-.item p+p { margin-top: 1rem !important; }
+.item *+p { margin: 0; }
+.item p.hang+p.hang { margin: 0; }
+.item p+p { margin-top: 1rem; }
 
 /* ── Traits ────────────────────────────────────────────────── */
 
@@ -546,9 +546,9 @@ body { counter-reset: pages; }
   min-width: 0;
   overflow: hidden;
   vertical-align: top;
-  background-color: var(--gm-trait-edge) !important;
-  width: 0px !important;
-  display: inline-block !important;
+  background-color: var(--gm-trait-edge);
+  width: 0px;
+  display: inline-block;
 }
 
 .pf-trait-uncommon { background: var(--gm-trait-uncommon); }
@@ -630,7 +630,7 @@ body { counter-reset: pages; }
 
 .right h2, .right *+h2, .right h3, .right *+h3,
 .left h2, .left *+h2, .left h3, .left *+h3 {
-  margin-top: 0 !important;
+  margin-top: 0;
   padding-top: 0.2em;
 }
 
@@ -638,12 +638,12 @@ body { counter-reset: pages; }
 
 .right *+p, .right *+ul, .right *+h1,
 .left *+p, .left *+ul, .left *+h1 {
-  margin-top: 0 !important;
+  margin-top: 0;
 }
 
 .right p+h1, .right p+h3, .left p+h1, .left p+h3,
 .right ul+h1, .right ul+h3, .left ul+h1, .left ul+h3 {
-  margin-top: 1em !important;
+  margin-top: 1em;
 }
 
 /* ── Tables ────────────────────────────────────────────────── */
@@ -677,7 +677,7 @@ body { counter-reset: pages; }
   background: var(--gm-table-foot);
   padding: 0.25rem;
   font-size: 0.9rem;
-  margin-top: 0 !important;
+  margin-top: 0;
 }
 
 /* ── Hanging Indent ────────────────────────────────────────── */
@@ -690,27 +690,27 @@ body { counter-reset: pages; }
 /* ── Print ─────────────────────────────────────────────────── */
 
 @page {
-  margin: 0 !important;
-  padding: 0 !important;
-  size: auto !important;
+  margin: 0;
+  padding: 0;
+  size: auto;
 }
 
 @media print {
   .page-overlay { display: none; }
 
-  a { color: inherit !important; text-decoration: none !important; }
+  a { color: inherit; text-decoration: none; }
 
   .page {
-    position: relative !important;
-    max-width: 210mm !important;
-    height: 296.5mm !important;
-    border-radius: 0 !important;
-    border: 0 !important;
-    margin: 0 !important;
-    padding-bottom: 0 !important;
-    box-shadow: none !important;
-    box-sizing: border-box !important;
-    page-break-after: always !important;
+    position: relative;
+    max-width: 210mm;
+    height: 296.5mm;
+    border-radius: 0;
+    border: 0;
+    margin: 0;
+    padding-bottom: 0;
+    box-shadow: none;
+    box-sizing: border-box;
+    page-break-after: always;
     justify-content: start;
     align-items: flex-start;
     align-content: flex-start;
