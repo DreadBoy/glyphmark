@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GlyphMark Proto B — Minimal Block Editor</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #191919;
+    --surface: #202020;
+    --surface-raised: #252525;
+    --surface-hover: #2c2c2c;
+    --border: #333;
+    --text: #e0ddd5;
+    --text-muted: #7a756b;
+    --text-faint: #4a4640;
+    --accent: #c9a96e;
+    --accent-dim: rgba(201,169,110,.15);
+    --pf-red: #a84040;
+    --pf-red-deep: #5e0000;
+    --pf-tan: #f5efe0;
+    --pf-dark: #1c1712;
+    --pf-border: #d4c9a8;
+    --pf-trait: #522e2c;
+    --pf-trait-uncommon: #98513d;
+    --pf-trait-rare: #002664;
+  }
+
+  body {
+    font-family: -apple-system, 'Segoe UI', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  /* ── Sidebar ───────────────────────────────────────── */
+  .sidebar {
+    width: 260px;
+    background: var(--surface);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    border-right: 1px solid var(--border);
+  }
+
+  .sidebar-brand {
+    padding: 20px 18px 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .sidebar-brand .glyph {
+    width: 28px;
+    height: 28px;
+    background: var(--accent);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 14px;
+    color: var(--bg);
+  }
+  .sidebar-brand .wordmark {
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: .3px;
+  }
+
+  .sidebar-section {
+    padding: 4px 8px;
+  }
+  .sidebar-section-title {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--text-faint);
+    padding: 16px 10px 6px;
+    font-weight: 600;
+  }
+
+  .sb-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    color: var(--text-muted);
+    transition: background .1s;
+  }
+  .sb-item:hover { background: var(--surface-hover); color: var(--text); }
+  .sb-item.active { background: var(--accent-dim); color: var(--accent); }
+  .sb-item .emoji { font-size: 16px; width: 22px; text-align: center; }
+  .sb-item .label { flex: 1; }
+  .sb-item .shortcut {
+    font-size: 10px;
+    color: var(--text-faint);
+    background: var(--surface-hover);
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-family: monospace;
+  }
+  .sb-item .count {
+    font-size: 10px;
+    color: var(--text-faint);
+  }
+
+  .sb-divider {
+    height: 1px;
+    background: var(--border);
+    margin: 8px 18px;
+  }
+
+  /* File tree */
+  .file-tree { flex: 1; overflow-y: auto; }
+  .ft-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 10px 5px 18px;
+    cursor: pointer;
+    font-size: 13px;
+    color: var(--text-muted);
+    border-radius: 4px;
+    margin: 0 8px;
+  }
+  .ft-item:hover { background: var(--surface-hover); color: var(--text); }
+  .ft-item.active { background: var(--accent-dim); color: var(--accent); }
+  .ft-item .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .ft-item .name { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ft-item .date { font-size: 10px; color: var(--text-faint); }
+  .ft-nested { padding-left: 14px; }
+
+  .new-doc-btn {
+    margin: 8px 16px 16px;
+    padding: 7px 0;
+    border: 1px dashed var(--border);
+    border-radius: 6px;
+    background: none;
+    color: var(--text-muted);
+    font-size: 12px;
+    cursor: pointer;
+    text-align: center;
+    transition: all .15s;
+  }
+  .new-doc-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* ── Main content ──────────────────────────────────── */
+  .main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* Top bar */
+  .topbar {
+    height: 44px;
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+    gap: 12px;
+    flex-shrink: 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .breadcrumb {
+    font-size: 12px;
+    color: var(--text-faint);
+  }
+  .breadcrumb span { cursor: pointer; }
+  .breadcrumb span:hover { color: var(--text-muted); }
+  .breadcrumb .sep { margin: 0 6px; }
+  .breadcrumb .current { color: var(--text-muted); }
+  .topbar .spacer { flex: 1; }
+  .topbar-btn {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .topbar-btn:hover { border-color: var(--text-muted); color: var(--text); }
+  .topbar-btn.primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--bg);
+    font-weight: 600;
+  }
+  .topbar-btn.primary:hover { opacity: .9; }
+  .avatar {
+    width: 24px; height: 24px; border-radius: 50%;
+    background: var(--accent);
+    color: var(--bg);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 11px;
+  }
+
+  /* ── Content area ──────────────────────────────────── */
+  .content-scroll {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    justify-content: center;
+    padding: 48px 0 120px;
+  }
+  .content {
+    width: 760px;
+    max-width: 100%;
+    padding: 0 40px;
+  }
+
+  /* Cover / title area */
+  .doc-cover {
+    margin-bottom: 32px;
+  }
+  .doc-cover .icon { font-size: 48px; margin-bottom: 8px; }
+  .doc-cover h1 {
+    font-size: 38px;
+    font-weight: 700;
+    line-height: 1.15;
+    color: var(--text);
+    border: none;
+    outline: none;
+    margin-bottom: 4px;
+  }
+  .doc-cover .subtitle {
+    font-size: 16px;
+    color: var(--text-muted);
+  }
+  .doc-meta {
+    display: flex;
+    gap: 16px;
+    margin-top: 12px;
+    font-size: 12px;
+    color: var(--text-faint);
+  }
+  .doc-meta span { display: flex; align-items: center; gap: 4px; }
+
+  /* Block system */
+  .block {
+    position: relative;
+    padding: 3px 0;
+    margin: 1px 0;
+    border-radius: 4px;
+    transition: background .1s;
+  }
+  .block:hover { background: rgba(255,255,255,.02); }
+  .block:hover .block-handle { opacity: 1; }
+
+  .block-handle {
+    position: absolute;
+    left: -28px;
+    top: 50%;
+    transform: translateY(-50%);
+    opacity: 0;
+    cursor: grab;
+    color: var(--text-faint);
+    font-size: 14px;
+    transition: opacity .15s;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+  }
+  .block-handle .drag { cursor: grab; }
+  .block-handle .plus {
+    cursor: pointer;
+    width: 18px; height: 18px;
+    border-radius: 4px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+  }
+  .block-handle .plus:hover { background: var(--surface-hover); color: var(--accent); }
+
+  .block p {
+    font-size: 15px;
+    line-height: 1.65;
+    color: var(--text);
+  }
+  .block h2 {
+    font-size: 22px;
+    font-weight: 600;
+    margin-top: 28px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+  }
+  .block h3 {
+    font-size: 17px;
+    font-weight: 600;
+    margin-top: 20px;
+    color: var(--text);
+  }
+  .block .placeholder {
+    color: var(--text-faint);
+    font-size: 15px;
+  }
+
+  /* PF2e styled blocks (rendered inline, dark-mode adapted) */
+  .pf-stat-block {
+    background: rgba(245,239,224,.06);
+    border: 1px solid rgba(201,169,110,.2);
+    border-top: 3px solid var(--pf-red);
+    border-radius: 4px;
+    padding: 14px 18px;
+    margin: 12px 0;
+    font-size: 14px;
+  }
+  .pf-stat-block .name-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+  .pf-stat-block .name-row h3 {
+    font-size: 18px;
+    color: var(--pf-red);
+    margin: 0;
+    font-weight: 700;
+  }
+  .pf-stat-block .actions-display {
+    color: var(--text-muted);
+    font-size: 14px;
+  }
+  .pf-stat-block .level-tag {
+    font-size: 11px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    margin-bottom: 6px;
+  }
+  .pf-stat-block .traits {
+    display: flex;
+    gap: 4px;
+    margin: 8px 0;
+    flex-wrap: wrap;
+  }
+  .trait-tag {
+    background: var(--pf-trait);
+    color: #e8ddd0;
+    font-size: 10px;
+    padding: 2px 8px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .3px;
+    border-radius: 2px;
+  }
+  .trait-tag.uncommon { background: var(--pf-trait-uncommon); }
+  .trait-tag.rare { background: var(--pf-trait-rare); }
+  .pf-stat-block .stat-line {
+    font-size: 13px;
+    margin: 3px 0;
+    color: var(--text);
+    line-height: 1.5;
+  }
+  .pf-stat-block .stat-line b { color: var(--accent); }
+  .pf-stat-block .divider {
+    border: none;
+    border-top: 1px solid rgba(201,169,110,.15);
+    margin: 8px 0;
+  }
+
+  .pf-info-block {
+    background: rgba(168,64,64,.08);
+    border: 1px solid rgba(168,64,64,.2);
+    border-left: 3px solid var(--pf-red);
+    border-radius: 4px;
+    padding: 12px 16px;
+    margin: 12px 0;
+  }
+  .pf-info-block .title {
+    font-weight: 700;
+    color: var(--pf-red);
+    font-size: 14px;
+    margin-bottom: 4px;
+  }
+  .pf-info-block p { font-size: 13px; line-height: 1.6; }
+
+  .pf-rules-block {
+    background: rgba(201,169,110,.06);
+    border: 1px solid rgba(201,169,110,.15);
+    border-radius: 4px;
+    padding: 12px 16px;
+    margin: 12px 0;
+  }
+  .pf-rules-block .title {
+    font-weight: 700;
+    color: var(--accent);
+    font-size: 14px;
+    margin-bottom: 4px;
+  }
+  .pf-rules-block p { font-size: 13px; line-height: 1.6; }
+
+  /* Floating toolbar (appears on text selection) */
+  .float-toolbar {
+    position: fixed;
+    top: 220px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--surface-raised);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    box-shadow: 0 4px 16px rgba(0,0,0,.4);
+    display: flex;
+    padding: 4px;
+    gap: 2px;
+    z-index: 100;
+  }
+  .ft-btn {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    padding: 5px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+  }
+  .ft-btn:hover { background: var(--surface-hover); color: var(--text); }
+  .ft-btn.active { color: var(--accent); }
+  .ft-sep { width: 1px; background: var(--border); margin: 2px 4px; }
+
+  /* Slash command menu */
+  .slash-menu {
+    position: fixed;
+    bottom: 160px;
+    left: 50%;
+    margin-left: -60px;
+    background: var(--surface-raised);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    box-shadow: 0 8px 32px rgba(0,0,0,.5);
+    width: 280px;
+    padding: 6px;
+    z-index: 100;
+  }
+  .slash-menu .sm-header {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-faint);
+    padding: 6px 10px 4px;
+  }
+  .sm-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 7px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+  }
+  .sm-item:hover { background: var(--surface-hover); }
+  .sm-item.highlighted { background: var(--accent-dim); }
+  .sm-item .sm-icon {
+    width: 32px; height: 32px;
+    background: var(--surface-hover);
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+  .sm-item .sm-label .name { font-weight: 500; }
+  .sm-item .sm-label .desc { font-size: 11px; color: var(--text-faint); }
+
+  /* Command palette overlay */
+  .cmd-palette-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,.6);
+    display: flex;
+    justify-content: center;
+    padding-top: 18vh;
+    z-index: 200;
+  }
+  .cmd-palette {
+    width: 540px;
+    background: var(--surface-raised);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    box-shadow: 0 16px 48px rgba(0,0,0,.6);
+    overflow: hidden;
+    height: fit-content;
+  }
+  .cmd-palette input {
+    width: 100%;
+    padding: 14px 18px;
+    background: none;
+    border: none;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+    font-size: 15px;
+    outline: none;
+  }
+  .cmd-palette input::placeholder { color: var(--text-faint); }
+  .cmd-results {
+    max-height: 320px;
+    overflow-y: auto;
+    padding: 6px;
+  }
+  .cmd-results .group-title {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-faint);
+    padding: 8px 12px 4px;
+  }
+  .cmd-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+  .cmd-item:hover { background: var(--surface-hover); color: var(--text); }
+  .cmd-item.highlighted { background: var(--accent-dim); color: var(--accent); }
+  .cmd-item .cmd-icon { width: 20px; text-align: center; font-size: 14px; }
+  .cmd-item .cmd-label { flex: 1; }
+  .cmd-item .cmd-short {
+    font-size: 10px;
+    color: var(--text-faint);
+    font-family: monospace;
+  }
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<div class="sidebar">
+  <div class="sidebar-brand">
+    <div class="glyph">G</div>
+    <span class="wordmark">GlyphMark</span>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sb-item">
+      <span class="emoji">&#128269;</span>
+      <span class="label">Search</span>
+      <span class="shortcut">&#8984;K</span>
+    </div>
+    <div class="sb-item">
+      <span class="emoji">&#9889;</span>
+      <span class="label">Quick actions</span>
+      <span class="shortcut">&#8984;P</span>
+    </div>
+    <div class="sb-item">
+      <span class="emoji">&#128338;</span>
+      <span class="label">Recent</span>
+    </div>
+    <div class="sb-item">
+      <span class="emoji">&#11088;</span>
+      <span class="label">Favorites</span>
+      <span class="count">3</span>
+    </div>
+  </div>
+
+  <div class="sb-divider"></div>
+
+  <div class="sidebar-section-title">Workspace</div>
+  <div class="file-tree">
+    <div class="ft-item">
+      <span class="dot" style="background:#c9a96e"></span>
+      <span class="name">&#128194; Abomination Vaults</span>
+    </div>
+    <div class="ft-nested">
+      <div class="ft-item active">
+        <span class="dot" style="background:#a84040"></span>
+        <span class="name">Chapter 3 — The Gauntlight</span>
+        <span class="date">2m</span>
+      </div>
+      <div class="ft-item">
+        <span class="dot" style="background:var(--text-faint)"></span>
+        <span class="name">Chapter 2 — Below the Stones</span>
+        <span class="date">1d</span>
+      </div>
+      <div class="ft-item">
+        <span class="dot" style="background:var(--text-faint)"></span>
+        <span class="name">Chapter 1 — Ruins of Gauntlight</span>
+        <span class="date">3d</span>
+      </div>
+      <div class="ft-item">
+        <span class="dot" style="background:var(--text-faint)"></span>
+        <span class="name">NPC Appendix</span>
+        <span class="date">5d</span>
+      </div>
+    </div>
+    <div class="ft-item">
+      <span class="dot" style="background:#c9a96e"></span>
+      <span class="name">&#128194; Homebrew</span>
+    </div>
+    <div class="ft-nested">
+      <div class="ft-item">
+        <span class="dot" style="background:var(--text-faint)"></span>
+        <span class="name">Custom Ancestry: Grippli</span>
+        <span class="date">1w</span>
+      </div>
+      <div class="ft-item">
+        <span class="dot" style="background:var(--text-faint)"></span>
+        <span class="name">Homebrew Spells v2</span>
+        <span class="date">2w</span>
+      </div>
+    </div>
+    <div class="ft-item">
+      <span class="dot" style="background:var(--accent)"></span>
+      <span class="name">&#128220; Session 14 Handout</span>
+      <span class="date">1w</span>
+    </div>
+    <div class="ft-item">
+      <span class="dot" style="background:var(--text-faint)"></span>
+      <span class="name">&#128220; Quick Reference Card</span>
+      <span class="date">3w</span>
+    </div>
+  </div>
+
+  <button class="new-doc-btn">+ New document</button>
+</div>
+
+<!-- Main -->
+<div class="main">
+
+  <!-- Top bar -->
+  <div class="topbar">
+    <div class="breadcrumb">
+      <span>Abomination Vaults</span>
+      <span class="sep">/</span>
+      <span class="current">Chapter 3 — The Gauntlight</span>
+    </div>
+    <span class="spacer"></span>
+    <button class="topbar-btn">&#9776; ToC</button>
+    <button class="topbar-btn">&#8634; History</button>
+    <button class="topbar-btn primary">Export &#9662;</button>
+    <div class="avatar">ML</div>
+  </div>
+
+  <!-- Content -->
+  <div class="content-scroll">
+    <div class="content">
+
+      <!-- Cover -->
+      <div class="doc-cover">
+        <div class="icon">&#9876;</div>
+        <h1 contenteditable="true">The Gauntlight</h1>
+        <div class="subtitle">Abomination Vaults — Chapter 3</div>
+        <div class="doc-meta">
+          <span>&#128336; Edited 2 min ago</span>
+          <span>&#128196; 2,847 words</span>
+          <span>&#128278; Auto-saved</span>
+        </div>
+      </div>
+
+      <!-- Blocks -->
+      <div class="block">
+        <div class="block-handle">
+          <span class="plus">+</span>
+          <span class="drag">&#8942;&#8942;</span>
+        </div>
+        <p>The crumbling lighthouse known as the Gauntlight has long been a source of dread for the people of Otari. Now, strange lights have begun emanating from its peak once more, and eerie sounds echo from beneath its foundation.</p>
+      </div>
+
+      <div class="block">
+        <div class="block-handle">
+          <span class="plus">+</span>
+          <span class="drag">&#8942;&#8942;</span>
+        </div>
+        <h2>Part 1: Unlikely Heroes</h2>
+      </div>
+
+      <div class="block">
+        <div class="block-handle">
+          <span class="plus">+</span>
+          <span class="drag">&#8942;&#8942;</span>
+        </div>
+        <p>The adventure begins when the player characters learn about disturbances near the Gauntlight. Mayor Oseph Menhemes has posted notices seeking adventurers willing to investigate.</p>
+      </div>
+
+      <!-- Stat block -->
+      <div class="block">
+        <div class="block-handle">
+          <span class="plus">+</span>
+          <span class="drag">&#8942;&#8942;</span>
+        </div>
+        <div class="pf-stat-block">
+          <div class="name-row">
+            <h3>Corpselight</h3>
+            <span class="actions-display">&#9673;&#9673;</span>
+          </div>
+          <div class="level-tag">Creature 2</div>
+          <div class="traits">
+            <span class="trait-tag uncommon">Uncommon</span>
+            <span class="trait-tag">Undead</span>
+            <span class="trait-tag">Incorporeal</span>
+          </div>
+          <div class="stat-line"><b>Perception</b> +8; darkvision</div>
+          <div class="stat-line"><b>Languages</b> Common (can't speak any language)</div>
+          <hr class="divider">
+          <div class="stat-line"><b>AC</b> 17; <b>Fort</b> +5, <b>Ref</b> +9, <b>Will</b> +8</div>
+          <div class="stat-line"><b>HP</b> 30; <b>Immunities</b> death effects, disease, paralyzed, poison, precision, unconscious</div>
+          <hr class="divider">
+          <div class="stat-line"><b>Speed</b> fly 30 feet</div>
+          <div class="stat-line"><b>Melee</b> &#9673; ghostly touch +10, <b>Damage</b> 1d8+3 negative</div>
+          <hr class="divider">
+          <div class="stat-line"><b>Phosphorescent Lure</b> &#9673;&#9673; (mental, visual) The corpselight flares with sickly light. All creatures within 30 feet must attempt a DC 18 Will save or become fascinated.</div>
+        </div>
+      </div>
+
+      <div class="block">
+        <div class="block-handle">
+          <span class="plus">+</span>
+          <span class="drag">&#8942;&#8942;</span>
+        </div>
+        <h3>Encounter: Graveyard Approach</h3>
+      </div>
+
+      <div class="block">
+        <div class="block-handle">
+          <span class="plus">+</span>
+          <span class="drag">&#8942;&#8942;</span>
+        </div>
+        <p>As the heroes approach the lighthouse grounds, they pass through an overgrown graveyard. Perception DC 18 to notice disturbed graves.</p>
+      </div>
+
+      <!-- Info block -->
+      <div class="block">
+        <div class="block-handle">
+          <span class="plus">+</span>
+          <span class="drag">&#8942;&#8942;</span>
+        </div>
+        <div class="pf-info-block">
+          <div class="title">GM Note</div>
+          <p>If the players attempt to rest in the graveyard, have 1d4 corpselights emerge from the disturbed graves at midnight. This encounter can be avoided entirely by succeeding at a DC 20 Survival check to find a safe campsite.</p>
+        </div>
+      </div>
+
+      <!-- Rules block -->
+      <div class="block">
+        <div class="block-handle">
+          <span class="plus">+</span>
+          <span class="drag">&#8942;&#8942;</span>
+        </div>
+        <div class="pf-rules-block">
+          <div class="title">Haunted Graveyard</div>
+          <p>While within the graveyard, characters take a &minus;1 status penalty to saves against fear effects. Characters with the Undead Lore skill can attempt a DC 16 check to negate this penalty for themselves.</p>
+        </div>
+      </div>
+
+      <div class="block">
+        <div class="block-handle">
+          <span class="plus">+</span>
+          <span class="drag">&#8942;&#8942;</span>
+        </div>
+        <p>The path continues north through twisted oak trees before reaching the lighthouse foundation. A heavy iron door — rusted but intact — blocks the entrance.</p>
+      </div>
+
+      <!-- Empty block with placeholder -->
+      <div class="block">
+        <div class="block-handle">
+          <span class="plus">+</span>
+          <span class="drag">&#8942;&#8942;</span>
+        </div>
+        <p class="placeholder">Type / for commands...</p>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<!-- Floating format toolbar (shown on text select) -->
+<div class="float-toolbar">
+  <button class="ft-btn"><b>B</b></button>
+  <button class="ft-btn"><i>I</i></button>
+  <button class="ft-btn"><u>U</u></button>
+  <button class="ft-btn">S&#822;</button>
+  <span class="ft-sep"></span>
+  <button class="ft-btn">&#128279;</button>
+  <button class="ft-btn" style="color:var(--pf-red)">&#9673;</button>
+  <span class="ft-sep"></span>
+  <button class="ft-btn">H2</button>
+  <button class="ft-btn">H3</button>
+  <span class="ft-sep"></span>
+  <button class="ft-btn">&#8220; &#8221;</button>
+  <button class="ft-btn">&#8226;</button>
+</div>
+
+<!-- Slash command menu (shown when typing /) -->
+<div class="slash-menu">
+  <div class="sm-header">PF2e Blocks</div>
+  <div class="sm-item highlighted">
+    <div class="sm-icon">&#9876;</div>
+    <div class="sm-label">
+      <div class="name">Stat Block</div>
+      <div class="desc">Creature, item, or feat block</div>
+    </div>
+  </div>
+  <div class="sm-item">
+    <div class="sm-icon" style="color:var(--pf-red)">&#9888;</div>
+    <div class="sm-label">
+      <div class="name">Info Block</div>
+      <div class="desc">GM notes, warnings, sidebars</div>
+    </div>
+  </div>
+  <div class="sm-item">
+    <div class="sm-icon" style="color:var(--accent)">&#9782;</div>
+    <div class="sm-label">
+      <div class="name">Rules Block</div>
+      <div class="desc">Rules text, environmental effects</div>
+    </div>
+  </div>
+  <div class="sm-item">
+    <div class="sm-icon">&#9638;</div>
+    <div class="sm-label">
+      <div class="name">Table</div>
+      <div class="desc">Data table with headers</div>
+    </div>
+  </div>
+  <div class="sm-item">
+    <div class="sm-icon">&#9135;</div>
+    <div class="sm-label">
+      <div class="name">Divider</div>
+      <div class="desc">Horizontal separator line</div>
+    </div>
+  </div>
+</div>
+
+<!-- Command palette (Cmd+K) -->
+<div class="cmd-palette-overlay">
+  <div class="cmd-palette">
+    <input placeholder="Search documents, blocks, AoN..." value="corpse" autofocus />
+    <div class="cmd-results">
+      <div class="group-title">In this document</div>
+      <div class="cmd-item highlighted">
+        <span class="cmd-icon">&#9876;</span>
+        <span class="cmd-label">Corpselight — Creature 2</span>
+        <span class="cmd-short">stat block</span>
+      </div>
+      <div class="group-title">Archives of Nethys</div>
+      <div class="cmd-item">
+        <span class="cmd-icon">&#128279;</span>
+        <span class="cmd-label">Corpselight (Bestiary 3)</span>
+        <span class="cmd-short">aon</span>
+      </div>
+      <div class="cmd-item">
+        <span class="cmd-icon">&#128279;</span>
+        <span class="cmd-label">Corpse Fleet</span>
+        <span class="cmd-short">aon</span>
+      </div>
+      <div class="group-title">Other documents</div>
+      <div class="cmd-item">
+        <span class="cmd-icon">&#128220;</span>
+        <span class="cmd-label">NPC Appendix — Corpse collector note</span>
+        <span class="cmd-short">mention</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

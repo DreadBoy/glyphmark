@@ -1,0 +1,1273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GlyphMark — TipTap Block Editor Prototype</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --pf-red: #5e0000;
+    --pf-tan: #f5efe0;
+    --pf-gold: #c9a96e;
+    --pf-dark: #1c1712;
+    --pf-border: #d4c9a8;
+    --pf-sidebar-bg: #e8dcc8;
+    --pf-note-bg: #fdf6e3;
+    --ui-bg: #1e1b18;
+    --ui-surface: #2a2622;
+    --ui-hover: #38342f;
+    --ui-text: #d4cfc7;
+    --ui-muted: #8a8478;
+  }
+  body {
+    font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, serif;
+    background: var(--ui-bg);
+    color: var(--pf-dark);
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  /* ── Left panel: ToC ──────────────────────────────────── */
+  #toc-panel {
+    width: 240px;
+    background: var(--ui-surface);
+    padding: 16px 12px;
+    overflow-y: auto;
+    flex-shrink: 0;
+    font-family: system-ui, sans-serif;
+    font-size: 13px;
+    color: var(--ui-text);
+    border-right: 1px solid #333;
+  }
+  #toc-panel h3 {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--ui-muted);
+    margin-bottom: 12px;
+  }
+  .toc-item {
+    padding: 4px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .toc-item:hover { background: var(--ui-hover); }
+  .toc-item[data-depth="2"] { padding-left: 20px; font-size: 12px; }
+  .toc-item[data-depth="3"] { padding-left: 32px; font-size: 11px; color: var(--ui-muted); }
+
+  /* ── Center: Page ─────────────────────────────────────── */
+  #page-scroll {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    justify-content: center;
+    padding: 48px 32px;
+  }
+  #editor-mount {
+    width: 780px;
+    background: var(--pf-tan);
+    padding: 64px 96px 80px;
+    box-shadow: 0 4px 32px rgba(0,0,0,.5);
+    min-height: 900px;
+    position: relative;
+  }
+
+  /* ── TipTap / ProseMirror core ────────────────────────── */
+  .ProseMirror {
+    outline: none;
+    line-height: 1.55;
+    font-size: 15px;
+    min-height: 200px;
+  }
+  .ProseMirror > * + * { margin-top: 0; }
+
+  /* placeholder for empty paragraphs */
+  .ProseMirror p.is-editor-empty:first-child::before,
+  .ProseMirror p.is-empty::before {
+    content: attr(data-placeholder);
+    color: #b0a890;
+    float: left;
+    pointer-events: none;
+    height: 0;
+  }
+
+  /* ── Notion-style block hover highlight ───────────────── */
+  .ProseMirror > * {
+    position: relative;
+    border-radius: 3px;
+    transition: background .08s;
+  }
+  .ProseMirror > .block-hovered {
+    background: rgba(92, 78, 56, .045);
+  }
+
+  /* ── Block handle (floating) ──────────────────────────── */
+  #block-handle {
+    position: fixed;
+    display: none;
+    z-index: 50;
+    flex-direction: row;
+    align-items: center;
+    gap: 2px;
+    pointer-events: auto;
+    user-select: none;
+  }
+  #block-handle button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border: none;
+    border-radius: 4px;
+    background: transparent;
+    color: #b0a890;
+    cursor: pointer;
+    font-size: 16px;
+    font-family: system-ui, sans-serif;
+    padding: 0;
+    transition: background .1s, color .1s;
+  }
+  #block-handle button:hover {
+    background: rgba(92,78,56,.12);
+    color: var(--pf-red);
+  }
+  #block-handle .handle-add { font-size: 18px; font-weight: 300; }
+  #block-handle .handle-drag {
+    cursor: grab;
+    font-size: 12px;
+    letter-spacing: -1px;
+  }
+  #block-handle .handle-drag:active { cursor: grabbing; }
+
+  /* ── PF2e Typography ──────────────────────────────────── */
+  .ProseMirror h1 {
+    font-size: 28px; font-weight: 700; color: var(--pf-red);
+    text-transform: uppercase; letter-spacing: 1px;
+    border-bottom: 3px solid var(--pf-red); padding-bottom: 4px;
+    margin: 24px 0 12px;
+  }
+  .ProseMirror h2 {
+    font-size: 20px; font-weight: 700; color: var(--pf-red);
+    border-bottom: 1px solid var(--pf-border); padding-bottom: 2px;
+    margin: 20px 0 8px;
+  }
+  .ProseMirror h3 {
+    font-size: 16px; font-weight: 700; color: var(--pf-red);
+    margin: 16px 0 6px;
+  }
+  .ProseMirror p { margin: 0 0 8px; }
+  .ProseMirror ul, .ProseMirror ol { margin: 0 0 8px 24px; }
+  .ProseMirror hr {
+    border: none; border-top: 1px solid var(--pf-border); margin: 6px 0;
+  }
+  .ProseMirror strong { font-weight: 700; }
+  .ProseMirror em { font-style: italic; }
+
+  /* ── Sidebar block ────────────────────────────────────── */
+  .pf-sidebar {
+    background: var(--pf-sidebar-bg);
+    border: 2px solid var(--pf-border);
+    border-radius: 4px;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 14px;
+  }
+  .pf-sidebar-title {
+    font-weight: 700; color: var(--pf-red); font-size: 15px;
+    text-transform: uppercase; margin-bottom: 6px;
+    outline: none; border-bottom: 1px dashed transparent;
+    cursor: text;
+  }
+  .pf-sidebar-title:hover { border-bottom-color: var(--pf-border); }
+  .pf-sidebar-title:focus { border-bottom-color: var(--pf-gold); }
+
+  /* ── Note block ───────────────────────────────────────── */
+  .pf-note {
+    background: var(--pf-note-bg);
+    border-left: 4px solid var(--pf-gold);
+    padding: 10px 14px;
+    margin: 12px 0;
+    font-size: 14px;
+    font-style: italic;
+  }
+
+  /* ── Columns block ────────────────────────────────────── */
+  .pf-columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin: 12px 0;
+  }
+  .pf-col {
+    min-height: 40px;
+    border: 1px dashed transparent;
+    border-radius: 4px;
+    padding: 4px;
+  }
+  .pf-col:focus-within { border-color: var(--pf-border); }
+
+  /* ── Stat block ───────────────────────────────────────── */
+  .pf-statblock {
+    border: 2px solid var(--pf-red);
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 16px 0;
+    font-size: 13px;
+  }
+  .pf-statblock-header {
+    background: var(--pf-red);
+    color: #fff;
+    padding: 6px 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+  .pf-statblock-header .sb-name {
+    font-size: 16px; font-weight: 700; text-transform: uppercase;
+    outline: none; min-width: 60px;
+    border-bottom: 1px dashed transparent;
+  }
+  .pf-statblock-header .sb-name:hover { border-bottom-color: rgba(255,255,255,.3); }
+  .pf-statblock-header .sb-name:focus { border-bottom-color: rgba(255,255,255,.6); }
+  .pf-statblock-header .sb-level {
+    font-size: 14px; font-weight: 700;
+    outline: none; min-width: 40px; text-align: right;
+    border-bottom: 1px dashed transparent;
+  }
+  .pf-statblock-header .sb-level:hover { border-bottom-color: rgba(255,255,255,.3); }
+  .pf-statblock-header .sb-level:focus { border-bottom-color: rgba(255,255,255,.6); }
+  .pf-statblock-traits {
+    display: flex; gap: 6px; flex-wrap: wrap;
+    padding: 8px 12px 4px;
+    cursor: pointer;
+  }
+  .pf-statblock-traits:hover { opacity: .85; }
+  .pf-trait {
+    background: var(--pf-red); color: #fff; font-size: 11px;
+    padding: 1px 8px; border-radius: 2px; text-transform: uppercase;
+    font-weight: 700; letter-spacing: .5px;
+  }
+  .pf-trait.green { background: #478c42; }
+  .pf-trait.brown { background: #98513d; }
+  .pf-statblock-body {
+    padding: 8px 12px 10px;
+  }
+  .pf-statblock-body p { margin: 2px 0; line-height: 1.45; }
+  .pf-statblock-body strong { color: var(--pf-red); }
+  .pf-statblock-body hr { margin: 6px 0; }
+
+  /* ── Slash command menu ───────────────────────────────── */
+  #slash-menu {
+    display: none;
+    position: fixed;
+    z-index: 100;
+    background: var(--ui-surface);
+    border: 1px solid #444;
+    border-radius: 8px;
+    padding: 6px 0;
+    width: 280px;
+    box-shadow: 0 8px 24px rgba(0,0,0,.4);
+    font-family: system-ui, sans-serif;
+    font-size: 13px;
+    color: var(--ui-text);
+    max-height: 400px;
+    overflow-y: auto;
+  }
+  .slash-section {
+    padding: 8px 14px 4px;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--ui-muted);
+    margin-top: 4px;
+  }
+  .slash-item {
+    padding: 7px 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-radius: 4px;
+    margin: 0 4px;
+  }
+  .slash-item:hover, .slash-item.selected { background: var(--ui-hover); }
+  .slash-icon {
+    width: 36px; height: 36px;
+    background: #3a3530;
+    border: 1px solid #4a4540;
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; flex-shrink: 0;
+    color: var(--ui-text);
+  }
+  .slash-label strong { display: block; font-size: 13px; }
+  .slash-label span { font-size: 11px; color: var(--ui-muted); }
+  .slash-shortcut {
+    margin-left: auto;
+    font-size: 11px;
+    color: var(--ui-muted);
+    font-family: monospace;
+  }
+
+  /* ── Floating format bar ──────────────────────────────── */
+  #format-bar {
+    display: none;
+    position: fixed;
+    z-index: 99;
+    background: var(--ui-surface);
+    border: 1px solid #444;
+    border-radius: 8px;
+    padding: 4px;
+    box-shadow: 0 4px 16px rgba(0,0,0,.3);
+    gap: 2px;
+    font-family: system-ui, sans-serif;
+  }
+  #format-bar button {
+    background: none; border: none; color: var(--ui-text);
+    padding: 5px 10px; border-radius: 4px; cursor: pointer;
+    font-size: 13px;
+  }
+  #format-bar button:hover { background: var(--ui-hover); }
+  #format-bar button.active { color: var(--pf-gold); background: rgba(201,169,110,.1); }
+  .format-sep { width: 1px; height: 20px; background: #444; margin: 0 2px; align-self: center; }
+
+  /* ── Block type label ─────────────────────────────────── */
+  .pf-sidebar::after,
+  .pf-note::after,
+  .pf-columns::after,
+  .pf-statblock::after {
+    content: attr(data-block-label);
+    position: absolute;
+    top: -10px;
+    right: 8px;
+    font-size: 9px;
+    font-family: system-ui, sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: transparent;
+    background: var(--pf-tan);
+    padding: 0 6px;
+    transition: color .15s;
+  }
+  .pf-sidebar:hover::after,
+  .pf-note:hover::after,
+  .pf-columns:hover::after,
+  .pf-statblock:hover::after {
+    color: var(--ui-muted);
+  }
+
+  /* ── Selection ring on focused complex blocks ─────────── */
+  .pf-sidebar:focus-within,
+  .pf-note:focus-within,
+  .pf-columns:focus-within {
+    outline: 2px solid rgba(201,169,110,.3);
+    outline-offset: 2px;
+  }
+  .pf-statblock:focus-within {
+    outline: 2px solid rgba(94,0,0,.3);
+    outline-offset: 2px;
+  }
+</style>
+</head>
+<body>
+
+<div id="toc-panel">
+  <h3>Document Outline</h3>
+  <div id="toc-entries"></div>
+</div>
+
+<div id="page-scroll">
+  <div id="editor-mount"></div>
+</div>
+
+<!-- Notion-style floating block handle -->
+<div id="block-handle">
+  <button class="handle-add" title="Click to add block below">+</button>
+  <button class="handle-drag" title="Drag to move &#10;Click for block menu">&#x2801;&#x2801;&#x2801;</button>
+</div>
+
+<div id="slash-menu"></div>
+<div id="format-bar">
+  <button data-mark="bold" title="Bold (Ctrl+B)"><b>B</b></button>
+  <button data-mark="italic" title="Italic (Ctrl+I)"><i>I</i></button>
+  <button data-mark="underline" title="Underline (Ctrl+U)"><u>U</u></button>
+  <button data-mark="strike" title="Strikethrough">S̶</button>
+  <div class="format-sep"></div>
+  <button data-action="turnH1" title="Heading 1">H1</button>
+  <button data-action="turnH2" title="Heading 2">H2</button>
+  <button data-action="turnH3" title="Heading 3">H3</button>
+</div>
+
+<script type="importmap">
+{
+  "imports": {
+    "@tiptap/core": "https://esm.sh/@tiptap/core@2.12.0",
+    "@tiptap/starter-kit": "https://esm.sh/@tiptap/starter-kit@2.12.0",
+    "@tiptap/extension-underline": "https://esm.sh/@tiptap/extension-underline@2.12.0",
+    "@tiptap/extension-placeholder": "https://esm.sh/@tiptap/extension-placeholder@2.12.0",
+    "@tiptap/pm/state": "https://esm.sh/@tiptap/pm@2.12.0/state",
+    "@tiptap/pm/view": "https://esm.sh/@tiptap/pm@2.12.0/view"
+  }
+}
+</script>
+
+<script type="module">
+import { Editor, Node, Extension, mergeAttributes } from '@tiptap/core'
+import StarterKit from '@tiptap/starter-kit'
+import Underline from '@tiptap/extension-underline'
+import Placeholder from '@tiptap/extension-placeholder'
+import { Plugin, PluginKey } from '@tiptap/pm/state'
+
+// ═══════════════════════════════════════════════════════════
+// Custom Nodes
+// ═══════════════════════════════════════════════════════════
+
+const PfSidebar = Node.create({
+  name: 'pfSidebar',
+  group: 'block',
+  content: 'block+',
+  defining: true,
+  attrs: { title: { default: 'Sidebar' } },
+  parseHTML() {
+    return [{ tag: 'div.pf-sidebar', getAttrs: el => ({ title: el.getAttribute('data-title') || 'Sidebar' }) }]
+  },
+  renderHTML({ node, HTMLAttributes }) {
+    return ['div', mergeAttributes(HTMLAttributes, { class: 'pf-sidebar', 'data-title': node.attrs.title }), 0]
+  },
+  addNodeView() {
+    return ({ node, editor, getPos }) => {
+      const dom = document.createElement('div')
+      dom.className = 'pf-sidebar'
+      dom.setAttribute('data-block-label', 'Sidebar')
+
+      const titleEl = document.createElement('div')
+      titleEl.className = 'pf-sidebar-title'
+      titleEl.contentEditable = 'true'
+      titleEl.textContent = node.attrs.title
+      titleEl.setAttribute('spellcheck', 'false')
+      titleEl.addEventListener('blur', () => {
+        if (typeof getPos === 'function') {
+          editor.chain().command(({ tr }) => {
+            tr.setNodeMarkup(getPos(), undefined, { ...node.attrs, title: titleEl.textContent.trim() || 'Sidebar' })
+            return true
+          }).run()
+        }
+      })
+      titleEl.addEventListener('keydown', e => {
+        if (e.key === 'Enter') { e.preventDefault(); contentDOM.querySelector('p, div')?.focus() }
+      })
+
+      const contentDOM = document.createElement('div')
+      dom.append(titleEl, contentDOM)
+      return { dom, contentDOM }
+    }
+  },
+})
+
+const PfNote = Node.create({
+  name: 'pfNote',
+  group: 'block',
+  content: 'block+',
+  defining: true,
+  parseHTML() { return [{ tag: 'div.pf-note' }] },
+  renderHTML({ HTMLAttributes }) {
+    return ['div', mergeAttributes(HTMLAttributes, { class: 'pf-note' }), 0]
+  },
+  addNodeView() {
+    return () => {
+      const dom = document.createElement('div')
+      dom.className = 'pf-note'
+      dom.setAttribute('data-block-label', 'Note')
+      const contentDOM = document.createElement('div')
+      dom.appendChild(contentDOM)
+      return { dom, contentDOM }
+    }
+  },
+})
+
+const PfColumn = Node.create({
+  name: 'pfColumn',
+  content: 'block+',
+  defining: true,
+  parseHTML() { return [{ tag: 'div.pf-col' }] },
+  renderHTML({ HTMLAttributes }) {
+    return ['div', mergeAttributes(HTMLAttributes, { class: 'pf-col' }), 0]
+  },
+})
+
+const PfColumns = Node.create({
+  name: 'pfColumns',
+  group: 'block',
+  content: 'pfColumn{2}',
+  parseHTML() { return [{ tag: 'div.pf-columns' }] },
+  renderHTML({ HTMLAttributes }) {
+    return ['div', mergeAttributes(HTMLAttributes, { class: 'pf-columns' }), 0]
+  },
+  addNodeView() {
+    return () => {
+      const dom = document.createElement('div')
+      dom.className = 'pf-columns'
+      dom.setAttribute('data-block-label', 'Columns')
+      const contentDOM = document.createElement('div')
+      contentDOM.style.display = 'contents'
+      dom.appendChild(contentDOM)
+      return { dom, contentDOM }
+    }
+  },
+})
+
+const PfStatblock = Node.create({
+  name: 'pfStatblock',
+  group: 'block',
+  content: 'block+',
+  defining: true,
+  attrs: {
+    name: { default: 'Creature' },
+    level: { default: 'Creature 1' },
+    traits: { default: '' },
+  },
+  parseHTML() {
+    return [{
+      tag: 'div.pf-statblock',
+      getAttrs: el => ({
+        name: el.querySelector('.sb-name')?.textContent || 'Creature',
+        level: el.querySelector('.sb-level')?.textContent || 'Creature 1',
+        traits: el.getAttribute('data-traits') || '',
+      })
+    }]
+  },
+  renderHTML({ node, HTMLAttributes }) {
+    return ['div', mergeAttributes(HTMLAttributes, {
+      class: 'pf-statblock', 'data-traits': node.attrs.traits,
+    }), 0]
+  },
+  addNodeView() {
+    return ({ node, editor, getPos }) => {
+      const dom = document.createElement('div')
+      dom.className = 'pf-statblock'
+      dom.setAttribute('data-block-label', 'Stat Block')
+
+      // Header
+      const header = document.createElement('div')
+      header.className = 'pf-statblock-header'
+      header.contentEditable = 'false'
+
+      const nameEl = document.createElement('span')
+      nameEl.className = 'sb-name'
+      nameEl.contentEditable = 'true'
+      nameEl.textContent = node.attrs.name
+      nameEl.setAttribute('spellcheck', 'false')
+      const syncName = () => {
+        if (typeof getPos === 'function') {
+          editor.chain().command(({ tr }) => {
+            tr.setNodeMarkup(getPos(), undefined, { ...node.attrs, name: nameEl.textContent.trim() || 'Creature' })
+            return true
+          }).run()
+        }
+      }
+      nameEl.addEventListener('blur', syncName)
+      nameEl.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); nameEl.blur() } })
+
+      const levelEl = document.createElement('span')
+      levelEl.className = 'sb-level'
+      levelEl.contentEditable = 'true'
+      levelEl.textContent = node.attrs.level
+      levelEl.setAttribute('spellcheck', 'false')
+      const syncLevel = () => {
+        if (typeof getPos === 'function') {
+          editor.chain().command(({ tr }) => {
+            tr.setNodeMarkup(getPos(), undefined, { ...node.attrs, level: levelEl.textContent.trim() || 'Creature 1' })
+            return true
+          }).run()
+        }
+      }
+      levelEl.addEventListener('blur', syncLevel)
+      levelEl.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); levelEl.blur() } })
+
+      header.append(nameEl, levelEl)
+      dom.appendChild(header)
+
+      // Traits row
+      const buildTraits = (traitsStr) => {
+        const row = document.createElement('div')
+        row.className = 'pf-statblock-traits'
+        row.contentEditable = 'false'
+        row.title = 'Click to edit traits'
+        const sizeWords = ['tiny','small','medium','large','huge','gargantuan']
+        const rarityWords = ['uncommon','rare','unique']
+        if (traitsStr) {
+          traitsStr.split(',').map(t => t.trim()).filter(Boolean).forEach(t => {
+            const span = document.createElement('span')
+            span.className = 'pf-trait'
+            if (sizeWords.includes(t.toLowerCase())) span.classList.add('green')
+            if (rarityWords.includes(t.toLowerCase())) span.classList.add('brown')
+            span.textContent = t
+            row.appendChild(span)
+          })
+        } else {
+          row.innerHTML = '<span style="color:#999;font-size:11px;font-family:system-ui">+ Add traits</span>'
+        }
+        row.addEventListener('click', () => {
+          const current = typeof getPos === 'function'
+            ? editor.state.doc.nodeAt(getPos())?.attrs.traits ?? traitsStr
+            : traitsStr
+          const newTraits = prompt('Traits (comma-separated):', current)
+          if (newTraits !== null && typeof getPos === 'function') {
+            editor.chain().command(({ tr }) => {
+              tr.setNodeMarkup(getPos(), undefined, { ...editor.state.doc.nodeAt(getPos()).attrs, traits: newTraits })
+              return true
+            }).run()
+          }
+        })
+        return row
+      }
+      dom.appendChild(buildTraits(node.attrs.traits))
+
+      // Body
+      const contentDOM = document.createElement('div')
+      contentDOM.className = 'pf-statblock-body'
+      dom.appendChild(contentDOM)
+
+      return { dom, contentDOM }
+    }
+  },
+})
+
+
+// ═══════════════════════════════════════════════════════════
+// Notion-style Block Handle
+// ═══════════════════════════════════════════════════════════
+
+const blockHandleEl = document.getElementById('block-handle')
+const handleAddBtn = blockHandleEl.querySelector('.handle-add')
+const handleDragBtn = blockHandleEl.querySelector('.handle-drag')
+let hoveredBlockEl = null
+let hoveredBlockPos = null
+
+function findTopLevelBlock(domEl) {
+  // Walk up from domEl to find the direct child of .ProseMirror
+  const pm = document.querySelector('.ProseMirror')
+  if (!pm || !pm.contains(domEl)) return null
+  let el = domEl
+  while (el && el.parentElement !== pm) {
+    el = el.parentElement
+  }
+  return el
+}
+
+function positionBlockHandle(blockEl) {
+  if (!blockEl) { blockHandleEl.style.display = 'none'; return }
+  const rect = blockEl.getBoundingClientRect()
+  blockHandleEl.style.display = 'flex'
+  blockHandleEl.style.left = (rect.left - 52) + 'px'
+  // Vertically center on first line
+  blockHandleEl.style.top = (rect.top + 2) + 'px'
+}
+
+// Track mouse over editor to show block handle
+const pageScroll = document.getElementById('page-scroll')
+pageScroll.addEventListener('mousemove', (e) => {
+  const blockEl = findTopLevelBlock(e.target)
+  if (blockEl === hoveredBlockEl) return
+
+  // Remove old highlight
+  if (hoveredBlockEl) hoveredBlockEl.classList.remove('block-hovered')
+
+  hoveredBlockEl = blockEl
+  if (blockEl) {
+    blockEl.classList.add('block-hovered')
+    positionBlockHandle(blockEl)
+
+    // Resolve ProseMirror position for this block
+    const view = editorInstance.view
+    hoveredBlockPos = view.posAtDOM(blockEl, 0)
+  } else {
+    blockHandleEl.style.display = 'none'
+    hoveredBlockPos = null
+  }
+})
+
+pageScroll.addEventListener('mouseleave', () => {
+  if (hoveredBlockEl) hoveredBlockEl.classList.remove('block-hovered')
+  hoveredBlockEl = null
+  blockHandleEl.style.display = 'none'
+})
+
+// Keep handle visible when hovering the handle itself
+blockHandleEl.addEventListener('mouseenter', () => {
+  if (hoveredBlockEl) hoveredBlockEl.classList.add('block-hovered')
+})
+blockHandleEl.addEventListener('mouseleave', (e) => {
+  // Only hide if we're not moving back to the block
+  const related = e.relatedTarget
+  if (hoveredBlockEl && hoveredBlockEl.contains(related)) return
+  if (hoveredBlockEl) hoveredBlockEl.classList.remove('block-hovered')
+  blockHandleEl.style.display = 'none'
+})
+
+// Reposition handle on scroll
+pageScroll.addEventListener('scroll', () => {
+  if (hoveredBlockEl) positionBlockHandle(hoveredBlockEl)
+}, { passive: true })
+
+// + button: insert empty paragraph after this block, focus it
+handleAddBtn.addEventListener('click', () => {
+  if (hoveredBlockPos == null) return
+  const view = editorInstance.view
+  const $pos = view.state.doc.resolve(hoveredBlockPos)
+  // Find the end of this top-level block
+  const depth = $pos.depth
+  const blockStart = $pos.before(1)
+  const blockNode = view.state.doc.nodeAt(blockStart)
+  if (!blockNode) return
+  const insertPos = blockStart + blockNode.nodeSize
+
+  editorInstance.chain()
+    .focus()
+    .insertContentAt(insertPos, { type: 'paragraph' })
+    .setTextSelection(insertPos + 1)
+    .run()
+
+  // Show slash menu in the new empty block
+  setTimeout(() => {
+    const newView = editorInstance.view
+    const coords = newView.coordsAtPos(newView.state.selection.from)
+    slashActive = true
+    slashQuery = ''
+    slashSelectedIdx = 0
+    slashRange = null // no text to delete, we're in a fresh block
+    slashMenuEl.style.left = coords.left + 'px'
+    slashMenuEl.style.top = (coords.bottom + 4) + 'px'
+    renderSlashMenu()
+    // Override: when selecting from the + button, just insert (don't delete slash text)
+    slashInsertMode = 'add-button'
+  }, 50)
+})
+
+// Drag button click: show block-level context menu (turn into)
+handleDragBtn.addEventListener('click', () => {
+  if (hoveredBlockPos == null) return
+  // For prototype: show slash menu as a "turn into" menu at handle position
+  const rect = handleDragBtn.getBoundingClientRect()
+  showBlockMenu(rect.left, rect.bottom + 4)
+})
+
+function showBlockMenu(x, y) {
+  slashActive = true
+  slashQuery = ''
+  slashSelectedIdx = 0
+  slashRange = null
+  slashInsertMode = 'turn-into'
+  slashMenuEl.style.left = x + 'px'
+  slashMenuEl.style.top = y + 'px'
+  renderSlashMenu()
+}
+
+let slashInsertMode = 'inline' // 'inline' | 'add-button' | 'turn-into'
+
+
+// ═══════════════════════════════════════════════════════════
+// Slash Commands
+// ═══════════════════════════════════════════════════════════
+
+const SLASH_COMMANDS = [
+  { section: 'Basic Blocks' },
+  { id: 'p', icon: 'T', label: 'Text', desc: 'Plain paragraph', shortcut: '',
+    action: (ed) => ed.chain().focus().setParagraph().run() },
+  { id: 'h1', icon: 'H1', label: 'Heading 1', desc: 'Large section heading', shortcut: '# ',
+    action: (ed) => ed.chain().focus().toggleHeading({ level: 1 }).run() },
+  { id: 'h2', icon: 'H2', label: 'Heading 2', desc: 'Medium section heading', shortcut: '## ',
+    action: (ed) => ed.chain().focus().toggleHeading({ level: 2 }).run() },
+  { id: 'h3', icon: 'H3', label: 'Heading 3', desc: 'Small section heading', shortcut: '### ',
+    action: (ed) => ed.chain().focus().toggleHeading({ level: 3 }).run() },
+  { id: 'bullet', icon: '•', label: 'Bullet List', desc: 'Unordered list', shortcut: '- ',
+    action: (ed) => ed.chain().focus().toggleBulletList().run() },
+  { id: 'ordered', icon: '1.', label: 'Numbered List', desc: 'Ordered list', shortcut: '1. ',
+    action: (ed) => ed.chain().focus().toggleOrderedList().run() },
+  { id: 'hr', icon: '—', label: 'Divider', desc: 'Horizontal rule', shortcut: '---',
+    action: (ed) => ed.chain().focus().setHorizontalRule().run() },
+  { section: 'Layout' },
+  { id: 'columns', icon: '▥', label: 'Columns', desc: 'Two-column layout', shortcut: '',
+    action: (ed) => insertColumns(ed) },
+  { id: 'sidebar', icon: '☐', label: 'Sidebar', desc: 'Highlighted callout box', shortcut: '',
+    action: (ed) => insertSidebar(ed) },
+  { id: 'note', icon: '✎', label: 'Note', desc: 'GM note / aside', shortcut: '',
+    action: (ed) => insertNote(ed) },
+  { section: 'PF2e Stat Blocks' },
+  { id: 'creature', icon: '⚔', label: 'Creature', desc: 'Monster stat block', shortcut: '',
+    action: (ed) => insertStatblock(ed, 'creature') },
+  { id: 'item', icon: '◆', label: 'Item', desc: 'Item stat block', shortcut: '',
+    action: (ed) => insertStatblock(ed, 'item') },
+]
+
+function insertColumns(editor) {
+  editor.chain().focus().insertContent({
+    type: 'pfColumns',
+    content: [
+      { type: 'pfColumn', content: [{ type: 'paragraph', content: [{ type: 'text', text: 'Column 1…' }] }] },
+      { type: 'pfColumn', content: [{ type: 'paragraph', content: [{ type: 'text', text: 'Column 2…' }] }] },
+    ],
+  }).run()
+}
+
+function insertSidebar(editor) {
+  editor.chain().focus().insertContent({
+    type: 'pfSidebar',
+    attrs: { title: 'Sidebar Title' },
+    content: [{ type: 'paragraph', content: [{ type: 'text', text: 'Sidebar content…' }] }],
+  }).run()
+}
+
+function insertNote(editor) {
+  editor.chain().focus().insertContent({
+    type: 'pfNote',
+    content: [{ type: 'paragraph', content: [
+      { type: 'text', marks: [{ type: 'bold' }], text: 'GM Note: ' },
+      { type: 'text', text: 'Note content…' },
+    ] }],
+  }).run()
+}
+
+function insertStatblock(editor, kind) {
+  const isCreature = kind === 'creature'
+  const boldText = (label, value) => ({
+    type: 'paragraph',
+    content: [
+      { type: 'text', marks: [{ type: 'bold' }], text: label + ' ' },
+      { type: 'text', text: value },
+    ],
+  })
+  const hr = { type: 'horizontalRule' }
+
+  const content = isCreature ? [
+    boldText('Perception', '+0; darkvision'),
+    boldText('Skills', 'Athletics +0'),
+    { type: 'paragraph', content: [
+      { type: 'text', marks: [{ type: 'bold' }], text: 'Str ' }, { type: 'text', text: '+0, ' },
+      { type: 'text', marks: [{ type: 'bold' }], text: 'Dex ' }, { type: 'text', text: '+0, ' },
+      { type: 'text', marks: [{ type: 'bold' }], text: 'Con ' }, { type: 'text', text: '+0, ' },
+      { type: 'text', marks: [{ type: 'bold' }], text: 'Int ' }, { type: 'text', text: '+0, ' },
+      { type: 'text', marks: [{ type: 'bold' }], text: 'Wis ' }, { type: 'text', text: '+0, ' },
+      { type: 'text', marks: [{ type: 'bold' }], text: 'Cha ' }, { type: 'text', text: '+0' },
+    ]},
+    hr,
+    { type: 'paragraph', content: [
+      { type: 'text', marks: [{ type: 'bold' }], text: 'AC ' }, { type: 'text', text: '10; ' },
+      { type: 'text', marks: [{ type: 'bold' }], text: 'Fort ' }, { type: 'text', text: '+0, ' },
+      { type: 'text', marks: [{ type: 'bold' }], text: 'Ref ' }, { type: 'text', text: '+0, ' },
+      { type: 'text', marks: [{ type: 'bold' }], text: 'Will ' }, { type: 'text', text: '+0' },
+    ]},
+    boldText('HP', '10'),
+    hr,
+    boldText('Speed', '25 feet'),
+    boldText('Melee', '★ attack +0, Damage 1d6'),
+  ] : [
+    boldText('Price', '0 gp'),
+    boldText('Usage', 'held in 1 hand; Bulk L'),
+    hr,
+    { type: 'paragraph', content: [{ type: 'text', text: 'Item description…' }] },
+  ]
+
+  editor.chain().focus().insertContent({
+    type: 'pfStatblock',
+    attrs: {
+      name: isCreature ? 'Creature Name' : 'Item Name',
+      level: `${isCreature ? 'Creature' : 'Item'} 1`,
+      traits: isCreature ? 'N, Medium' : 'Magical',
+    },
+    content,
+  }).run()
+}
+
+
+// ═══════════════════════════════════════════════════════════
+// Slash Menu UI
+// ═══════════════════════════════════════════════════════════
+
+const slashMenuEl = document.getElementById('slash-menu')
+let slashActive = false
+let slashQuery = ''
+let slashSelectedIdx = 0
+let slashRange = null
+
+function getFilteredCommands() {
+  const q = slashQuery.toLowerCase()
+  const items = SLASH_COMMANDS.filter(c => !c.section)
+  if (!q) return items
+  return items.filter(c => c.label.toLowerCase().includes(q) || c.id.includes(q) || c.desc.toLowerCase().includes(q))
+}
+
+function renderSlashMenu() {
+  const filtered = getFilteredCommands()
+  if (filtered.length === 0) { hideSlashMenu(); return }
+  slashSelectedIdx = Math.min(slashSelectedIdx, filtered.length - 1)
+
+  let html = ''
+  const filteredIds = new Set(filtered.map(c => c.id))
+
+  if (!slashQuery) {
+    let visIdx = 0
+    for (const c of SLASH_COMMANDS) {
+      if (c.section) {
+        html += `<div class="slash-section">${c.section}</div>`
+      } else if (filteredIds.has(c.id)) {
+        html += slashItemHTML(c, visIdx)
+        visIdx++
+      }
+    }
+  } else {
+    filtered.forEach((c, i) => { html += slashItemHTML(c, i) })
+  }
+
+  slashMenuEl.innerHTML = html
+  slashMenuEl.style.display = 'block'
+
+  slashMenuEl.querySelectorAll('.slash-item').forEach(el => {
+    el.addEventListener('mousedown', e => {
+      e.preventDefault()
+      selectSlashCommand(filtered[+el.dataset.idx])
+    })
+  })
+
+  // Scroll selected into view
+  const sel = slashMenuEl.querySelector('.slash-item.selected')
+  if (sel) sel.scrollIntoView({ block: 'nearest' })
+}
+
+function slashItemHTML(c, idx) {
+  return `<div class="slash-item ${idx === slashSelectedIdx ? 'selected' : ''}" data-idx="${idx}">
+    <div class="slash-icon">${c.icon}</div>
+    <div class="slash-label"><strong>${c.label}</strong><span>${c.desc}</span></div>
+    ${c.shortcut ? `<span class="slash-shortcut">${c.shortcut}</span>` : ''}
+  </div>`
+}
+
+function showSlashMenu(view) {
+  slashActive = true
+  slashQuery = ''
+  slashSelectedIdx = 0
+  slashInsertMode = 'inline'
+
+  const coords = view.coordsAtPos(view.state.selection.from)
+  slashMenuEl.style.left = coords.left + 'px'
+  slashMenuEl.style.top = (coords.bottom + 4) + 'px'
+
+  slashRange = { from: view.state.selection.from - 1, to: view.state.selection.from }
+  renderSlashMenu()
+}
+
+function hideSlashMenu() {
+  slashActive = false
+  slashMenuEl.style.display = 'none'
+  slashRange = null
+  slashInsertMode = 'inline'
+}
+
+function selectSlashCommand(cmd) {
+  if (!cmd) return
+
+  if (slashInsertMode === 'inline' && slashRange) {
+    // Delete the /query text first
+    const { from } = slashRange
+    const to = editorInstance.state.selection.from
+    editorInstance.chain().focus().deleteRange({ from, to }).run()
+  } else if (slashInsertMode === 'add-button') {
+    // Already in a fresh empty paragraph, just run the action
+  } else if (slashInsertMode === 'turn-into') {
+    // Select the hovered block first, then apply
+    if (hoveredBlockPos != null) {
+      const view = editorInstance.view
+      const $pos = view.state.doc.resolve(hoveredBlockPos)
+      const blockStart = $pos.before(1)
+      const blockNode = view.state.doc.nodeAt(blockStart)
+      if (blockNode) {
+        editorInstance.chain().focus().setTextSelection(blockStart + 1).run()
+      }
+    }
+  }
+
+  hideSlashMenu()
+  cmd.action(editorInstance)
+}
+
+
+// ═══════════════════════════════════════════════════════════
+// Slash Commands Extension
+// ═══════════════════════════════════════════════════════════
+
+const SlashCommandsExtension = Extension.create({
+  name: 'slashCommands',
+  addProseMirrorPlugins() {
+    return [
+      new Plugin({
+        key: new PluginKey('slashCommands'),
+        props: {
+          handleKeyDown(view, event) {
+            if (slashActive) {
+              if (event.key === 'ArrowDown') {
+                event.preventDefault()
+                slashSelectedIdx = Math.min(slashSelectedIdx + 1, getFilteredCommands().length - 1)
+                renderSlashMenu()
+                return true
+              }
+              if (event.key === 'ArrowUp') {
+                event.preventDefault()
+                slashSelectedIdx = Math.max(slashSelectedIdx - 1, 0)
+                renderSlashMenu()
+                return true
+              }
+              if (event.key === 'Enter' || event.key === 'Tab') {
+                event.preventDefault()
+                selectSlashCommand(getFilteredCommands()[slashSelectedIdx])
+                return true
+              }
+              if (event.key === 'Escape') {
+                event.preventDefault()
+                hideSlashMenu()
+                return true
+              }
+              return false
+            }
+            return false
+          },
+          handleTextInput(view, from, to, text) {
+            if (text === '/' && !slashActive) {
+              const $from = view.state.doc.resolve(from)
+              const textBefore = $from.parent.textContent.slice(0, $from.parentOffset)
+              if (textBefore.trim() === '') {
+                setTimeout(() => showSlashMenu(view), 0)
+              }
+            } else if (slashActive && slashInsertMode === 'inline') {
+              setTimeout(() => {
+                if (slashRange) {
+                  const $from = view.state.doc.resolve(slashRange.from)
+                  const textAfterSlash = $from.parent.textContent.slice($from.parentOffset)
+                  slashQuery = textAfterSlash.slice(1)
+                  slashSelectedIdx = 0
+                  renderSlashMenu()
+                }
+              }, 0)
+            }
+            return false
+          },
+        },
+      }),
+    ]
+  },
+})
+
+
+// ═══════════════════════════════════════════════════════════
+// Format Bar
+// ═══════════════════════════════════════════════════════════
+
+const formatBar = document.getElementById('format-bar')
+
+function updateFormatBar() {
+  const { from, to, empty } = editorInstance.state.selection
+  if (empty || slashActive) { formatBar.style.display = 'none'; return }
+
+  const view = editorInstance.view
+  const start = view.coordsAtPos(from)
+  const end = view.coordsAtPos(to)
+  const left = (start.left + end.left) / 2 - 80
+  const top = Math.min(start.top, end.top) - 44
+
+  formatBar.style.display = 'flex'
+  formatBar.style.left = Math.max(4, left) + 'px'
+  formatBar.style.top = top + 'px'
+
+  formatBar.querySelectorAll('button[data-mark]').forEach(btn => {
+    btn.classList.toggle('active', editorInstance.isActive(btn.dataset.mark))
+  })
+  formatBar.querySelectorAll('button[data-action]').forEach(btn => {
+    const level = +btn.dataset.action.slice(5)
+    btn.classList.toggle('active', editorInstance.isActive('heading', { level }))
+  })
+}
+
+formatBar.querySelectorAll('button').forEach(btn => {
+  btn.addEventListener('mousedown', e => e.preventDefault())
+  btn.addEventListener('click', () => {
+    const mark = btn.dataset.mark
+    const action = btn.dataset.action
+    if (mark === 'bold') editorInstance.chain().focus().toggleBold().run()
+    else if (mark === 'italic') editorInstance.chain().focus().toggleItalic().run()
+    else if (mark === 'underline') editorInstance.chain().focus().toggleUnderline().run()
+    else if (mark === 'strike') editorInstance.chain().focus().toggleStrike().run()
+    else if (action === 'turnH1') editorInstance.chain().focus().toggleHeading({ level: 1 }).run()
+    else if (action === 'turnH2') editorInstance.chain().focus().toggleHeading({ level: 2 }).run()
+    else if (action === 'turnH3') editorInstance.chain().focus().toggleHeading({ level: 3 }).run()
+    updateFormatBar()
+  })
+})
+
+
+// ═══════════════════════════════════════════════════════════
+// ToC
+// ═══════════════════════════════════════════════════════════
+
+const tocEntries = document.getElementById('toc-entries')
+
+function refreshToc() {
+  tocEntries.innerHTML = ''
+  editorInstance.state.doc.descendants((node, pos) => {
+    if (node.type.name === 'heading') {
+      const text = node.textContent
+      if (!text.trim()) return
+      const div = document.createElement('div')
+      div.className = 'toc-item'
+      div.dataset.depth = node.attrs.level
+      div.textContent = text
+      div.addEventListener('click', () => {
+        editorInstance.commands.focus()
+        editorInstance.commands.setTextSelection(pos + 1)
+        const domNode = editorInstance.view.nodeDOM(pos)
+        if (domNode) domNode.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      })
+      tocEntries.appendChild(div)
+    }
+  })
+}
+
+
+// ═══════════════════════════════════════════════════════════
+// Initial Content
+// ═══════════════════════════════════════════════════════════
+
+const INITIAL_CONTENT = `
+<h1>The Darkwood Sanctum</h1>
+<p>Deep within the Verduran Forest lies a forgotten temple, its halls now home to creatures twisted by centuries of unchecked primal magic. Adventurers brave enough to explore its depths may find treasures—or their doom.</p>
+
+<h2>Chapter 1: The Approach</h2>
+<p>The trail narrows as ancient oaks give way to darkwood trees, their bark almost black. A faint hum of magical energy sets the party's teeth on edge.</p>
+
+<div class="pf-sidebar" data-title="Darkwood Forest Lore">
+  <p><strong>Recall Knowledge (Nature, DC 18):</strong> The darkwood trees here have absorbed ambient primal energy for centuries, making them semi-aware of intruders.</p>
+  <p><strong>Critical Success:</strong> The character also knows the trees communicate through root networks, potentially alerting deeper guardians.</p>
+</div>
+
+<div class="pf-columns">
+  <div class="pf-col">
+    <h3>Western Path</h3>
+    <p>A crumbling stone path winds through thick undergrowth. Perception DC 20 reveals old trip wires connected to a mechanical bell system.</p>
+  </div>
+  <div class="pf-col">
+    <h3>Eastern Path</h3>
+    <p>The eastern route follows a dry creek bed. The footing is treacherous (DC 16 Acrobatics to avoid falling prone) but avoids the trapped western path.</p>
+  </div>
+</div>
+
+<h2>Chapter 2: The Sanctum</h2>
+<p>The entrance is flanked by two moss-covered statues of druids, their hands raised as if in warning.</p>
+
+<div class="pf-note">
+  <p><strong>GM Note:</strong> If the players attempt to enter during a full moon, the statues animate and must be defeated or appeased before entry is granted.</p>
+</div>
+
+<h3>Guardian of the Gate</h3>
+<p>A twisted plant creature lurches from the shadows, vines writhing with malevolent intent.</p>
+
+<div class="pf-statblock" data-traits="Uncommon, NE, Large, Plant">
+  <p><strong>Perception</strong> +13; low-light vision, tremorsense 30 feet</p>
+  <p><strong>Languages</strong> Arboreal (can't speak any language)</p>
+  <p><strong>Skills</strong> Athletics +14, Stealth +11 (+15 in forests)</p>
+  <p><strong>Str</strong> +5, <strong>Dex</strong> +2, <strong>Con</strong> +4, <strong>Int</strong> -3, <strong>Wis</strong> +3, <strong>Cha</strong> -1</p>
+  <hr>
+  <p><strong>AC</strong> 22; <strong>Fort</strong> +15, <strong>Ref</strong> +9, <strong>Will</strong> +12</p>
+  <p><strong>HP</strong> 85; <strong>Weaknesses</strong> fire 5, slashing 5</p>
+  <hr>
+  <p><strong>Speed</strong> 20 feet</p>
+  <p><strong>Melee</strong> ★ vine lash +14 (reach 10 feet), <strong>Damage</strong> 2d8+5 bludgeoning plus Grab</p>
+  <p><strong>Constrict</strong> ★ 1d8+5 bludgeoning, DC 22</p>
+</div>
+
+<h2>Treasure</h2>
+<p>Among the roots of the sanctum's central tree, the party discovers a magical weapon.</p>
+
+<div class="pf-statblock" data-traits="Uncommon, Primal, Transmutation">
+  <p><strong>Price</strong> 250 gp</p>
+  <p><strong>Usage</strong> held in 1 hand; <strong>Bulk</strong> 1</p>
+  <hr>
+  <p>This <em>+1 striking scimitar</em> has a blade of living darkwood that sprouts tiny leaves. It deals an additional 1d4 vitality damage to undead.</p>
+  <hr>
+  <p><strong>Activate</strong> ★ command; <strong>Frequency</strong> once per day</p>
+  <p><strong>Effect</strong> The blade extends thorny vines in a 15-foot cone. Creatures in the area take 4d6 piercing damage (DC 20 basic Reflex).</p>
+</div>
+`
+
+// ═══════════════════════════════════════════════════════════
+// Editor Init
+// ═══════════════════════════════════════════════════════════
+
+let editorInstance
+
+const parseStatblockAttrs = () => {
+  const doc = editorInstance.state.doc
+  const updates = []
+  doc.descendants((node, pos) => {
+    if (node.type.name === 'pfStatblock') {
+      const text = node.textContent
+      if (text.includes('vine lash') || text.includes('Athletics +14')) {
+        updates.push({ pos, attrs: { ...node.attrs, name: 'Blightvine Guardian', level: 'Creature 5' } })
+      } else if (text.includes('striking scimitar') || text.includes('250 gp')) {
+        updates.push({ pos, attrs: { ...node.attrs, name: 'Verdant Edge', level: 'Item 6' } })
+      }
+    }
+  })
+  if (updates.length) {
+    editorInstance.chain().command(({ tr }) => {
+      updates.forEach(u => tr.setNodeMarkup(u.pos, undefined, u.attrs))
+      return true
+    }).run()
+  }
+}
+
+editorInstance = new Editor({
+  element: document.getElementById('editor-mount'),
+  extensions: [
+    StarterKit.configure({ heading: { levels: [1, 2, 3] } }),
+    Underline,
+    Placeholder.configure({
+      placeholder: ({ node }) => {
+        if (node.type.name === 'heading') return `Heading ${node.attrs.level}`
+        return 'Type / for commands…'
+      },
+    }),
+    PfSidebar,
+    PfNote,
+    PfColumn,
+    PfColumns,
+    PfStatblock,
+    SlashCommandsExtension,
+  ],
+  content: INITIAL_CONTENT,
+  onUpdate: () => refreshToc(),
+  onSelectionUpdate: () => {
+    updateFormatBar()
+    if (slashActive && slashRange) {
+      const $pos = editorInstance.state.doc.resolve(editorInstance.state.selection.from)
+      if (!$pos.parent.textContent.includes('/')) hideSlashMenu()
+    }
+  },
+  onCreate: () => {
+    parseStatblockAttrs()
+    refreshToc()
+  },
+})
+
+// Close slash menu on outside click
+document.addEventListener('click', (e) => {
+  if (slashActive && !slashMenuEl.contains(e.target) && !blockHandleEl.contains(e.target)) {
+    hideSlashMenu()
+  }
+})
+</script>
+</body>
+</html>
