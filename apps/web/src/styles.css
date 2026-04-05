@@ -1,0 +1,56 @@
+html, body, #root {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background: #ddd;
+}
+
+/* TipTap editor removes outline by default, but ensure it */
+.tiptap:focus {
+  outline: none;
+}
+
+.tiptap {
+  height: 100%;
+}
+
+/* Slash command menu */
+.slash-menu {
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  padding: 0.25rem;
+  display: flex;
+  flex-direction: column;
+  min-width: 180px;
+  z-index: 1000;
+}
+
+.slash-menu button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.75rem;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-family: system-ui, sans-serif;
+  border-radius: 0.25rem;
+  text-align: left;
+}
+
+.slash-menu button:hover,
+.slash-menu button.active {
+  background: #f0f0f0;
+}
+
+.slash-menu button .label {
+  font-weight: 500;
+}
+
+.slash-menu button .description {
+  color: #888;
+  font-size: 0.75rem;
+}
