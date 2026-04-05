@@ -1,0 +1,62 @@
+{
+  "type": "doc",
+  "content": [
+    { "type": "heading", "attrs": { "level": 2 }, "content": [{ "type": "text", "text": "Scenario 1: Full-width to two columns and back" }] },
+    { "type": "paragraph", "content": [{ "type": "text", "text": "This paragraph is full-width, spanning the entire page before the column break." }] },
+    { "type": "columnBreak" },
+    { "type": "paragraph", "content": [{ "type": "text", "text": "This is the left column with some content. It should take up roughly half the page width and sit beside the right column." }] },
+    { "type": "columnSplit" },
+    { "type": "paragraph", "content": [{ "type": "text", "text": "This is the right column with some content. It should appear next to the left column at roughly the same vertical position." }] },
+    { "type": "columnBreak" },
+    { "type": "paragraph", "content": [{ "type": "text", "text": "This paragraph returns to full-width after the columns end. It should span the entire page width again." }] },
+    { "type": "heading", "attrs": { "level": 2 }, "content": [{ "type": "text", "text": "Scenario 2: Columns with substantial content" }] },
+    { "type": "columnBreak" },
+    {
+      "type": "itemBlock",
+      "content": [
+        { "type": "heading", "attrs": { "level": 1 }, "content": [{ "type": "text", "text": "Column Item Left" }] },
+        { "type": "heading", "attrs": { "level": 2 }, "content": [{ "type": "text", "text": "Type 1" }] },
+        { "type": "traitList", "attrs": { "traits": ["Uncommon", "Feat"] } },
+        { "type": "paragraph", "content": [
+          { "type": "text", "marks": [{ "type": "bold" }], "text": "Requirements " },
+          { "type": "text", "text": "You need a free hand." }
+        ]},
+        { "type": "horizontalRule" },
+        { "type": "paragraph", "content": [{ "type": "text", "text": "This item sits in the left column and has traits, requirements, and body text to verify that complex content renders correctly inside a column." }] }
+      ]
+    },
+    { "type": "columnSplit" },
+    {
+      "type": "itemBlock",
+      "content": [
+        { "type": "heading", "attrs": { "level": 1 }, "content": [{ "type": "text", "text": "Column Item Right" }] },
+        { "type": "heading", "attrs": { "level": 2 }, "content": [{ "type": "text", "text": "Type 2" }] },
+        { "type": "traitList", "attrs": { "traits": ["Rare", "Spell"] } },
+        { "type": "paragraph", "content": [
+          { "type": "text", "marks": [{ "type": "bold" }], "text": "Trigger " },
+          { "type": "text", "text": "An enemy targets you with a Strike." }
+        ]},
+        { "type": "horizontalRule" },
+        { "type": "paragraph", "content": [{ "type": "text", "text": "This item sits in the right column. It should be visually aligned with the left column item and maintain proper styling within the narrower column width." }] }
+      ]
+    },
+    { "type": "columnBreak" },
+    { "type": "paragraph", "content": [{ "type": "text", "text": "Full-width content after the second column scenario." }] },
+    { "type": "heading", "attrs": { "level": 2 }, "content": [{ "type": "text", "text": "Scenario 3: Columns inside a sidebar layout" }] },
+    {
+      "type": "rightSidebar",
+      "content": [
+        { "type": "heading", "attrs": { "level": 1 }, "content": [{ "type": "text", "text": "Sidebar" }] },
+        { "type": "paragraph", "content": [{ "type": "text", "text": "This sidebar takes about one-third of the page width." }] }
+      ]
+    },
+    {
+      "type": "infoBlock",
+      "content": [
+        { "type": "paragraph", "content": [{ "type": "text", "text": "Left info column content. This info block takes up the remaining two-thirds of the page. The column break below should create two sub-columns within this info block." }] },
+        { "type": "columnSplit" },
+        { "type": "paragraph", "content": [{ "type": "text", "text": "Right info column content. This text should appear in the second sub-column of the info block, demonstrating that column breaks work inside content blocks." }] }
+      ]
+    }
+  ]
+}

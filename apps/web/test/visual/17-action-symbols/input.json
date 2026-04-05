@@ -1,0 +1,30 @@
+{
+  "type": "doc",
+  "content": [
+    { "type": "paragraph", "content": [
+      { "type": "text", "text": "Single action " },
+      { "type": "actionSymbol", "attrs": { "type": "action" } },
+      { "type": "text", "text": " appears inline." }
+    ]},
+    { "type": "paragraph", "content": [
+      { "type": "text", "text": "Two actions " },
+      { "type": "actionSymbol", "attrs": { "type": "two-actions" } },
+      { "type": "text", "text": " appears inline." }
+    ]},
+    { "type": "paragraph", "content": [
+      { "type": "text", "text": "Three actions " },
+      { "type": "actionSymbol", "attrs": { "type": "three-actions" } },
+      { "type": "text", "text": " appears inline." }
+    ]},
+    { "type": "paragraph", "content": [
+      { "type": "text", "text": "Reaction " },
+      { "type": "actionSymbol", "attrs": { "type": "reaction" } },
+      { "type": "text", "text": " appears inline." }
+    ]},
+    { "type": "paragraph", "content": [
+      { "type": "text", "text": "Free action " },
+      { "type": "actionSymbol", "attrs": { "type": "free-action" } },
+      { "type": "text", "text": " appears inline." }
+    ]}
+  ]
+}

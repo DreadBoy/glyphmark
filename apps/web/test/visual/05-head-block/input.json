@@ -1,0 +1,25 @@
+{
+  "type": "doc",
+  "content": [
+    {
+      "type": "headBlock",
+      "content": [
+        { "type": "heading", "attrs": { "level": 1 }, "content": [{ "type": "text", "text": "Document Heading" }] },
+        { "type": "paragraph", "content": [{ "type": "text", "text": "A description that goes under the heading in the head block." }] },
+        { "type": "horizontalRule" }
+      ]
+    },
+    {
+      "type": "headBlock",
+      "content": [
+        { "type": "heading", "attrs": { "level": 2 }, "content": [{ "type": "text", "text": "Large Subtitle" }] },
+        { "type": "heading", "attrs": { "level": 3 }, "content": [{ "type": "text", "text": "Centered Subheading" }] },
+        { "type": "heading", "attrs": { "level": 4 }, "content": [{ "type": "text", "text": "Another Large Subtitle" }] },
+        { "type": "horizontalRule" }
+      ]
+    },
+    { "type": "paragraph", "content": [{ "type": "text", "text": "Left column content below the head blocks." }] },
+    { "type": "paragraph", "content": [{ "type": "text", "text": "Right column content below the head blocks." }] },
+    { "type": "paragraph", "content": [{ "type": "text", "text": "Full-width paragraph after the columns." }] }
+  ]
+}

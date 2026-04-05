@@ -1,0 +1,33 @@
+{
+  "type": "doc",
+  "content": [
+    {
+      "type": "itemBlock",
+      "content": [
+        { "type": "heading", "attrs": { "level": 1 }, "content": [{ "type": "text", "text": "Referenced Item" }] },
+        { "type": "heading", "attrs": { "level": 2 }, "content": [{ "type": "text", "text": "Type 1" }] },
+        { "type": "traitList", "attrs": { "traits": ["Rare", "Example"] } },
+        { "type": "paragraph", "content": [
+          { "type": "text", "marks": [{ "type": "bold" }], "text": "Source " },
+          { "type": "text", "text": "Content Reference" }
+        ]},
+        { "type": "horizontalRule" },
+        { "type": "paragraph", "content": [{ "type": "text", "text": "This item was defined in a content reference block." }] }
+      ]
+    },
+    {
+      "type": "itemBlock",
+      "content": [
+        { "type": "heading", "attrs": { "level": 1 }, "content": [{ "type": "text", "text": "Referenced Item" }] },
+        { "type": "heading", "attrs": { "level": 2 }, "content": [{ "type": "text", "text": "Type 1" }] },
+        { "type": "traitList", "attrs": { "traits": ["Rare", "Example"] } },
+        { "type": "paragraph", "content": [
+          { "type": "text", "marks": [{ "type": "bold" }], "text": "Source " },
+          { "type": "text", "text": "Content Reference" }
+        ]},
+        { "type": "horizontalRule" },
+        { "type": "paragraph", "content": [{ "type": "text", "text": "This item was defined in a content reference block." }] }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "type": "doc",
+  "attrs": { "customCss": ".column > p { color: darkblue; border-left: 3px solid red; padding-left: 8px; }" },
+  "content": [
+    { "type": "paragraph", "content": [{ "type": "text", "text": "This paragraph should have blue text and a red left border." }] },
+    { "type": "paragraph", "content": [{ "type": "text", "text": "Another paragraph to confirm the style applies consistently." }] }
+  ]
+}

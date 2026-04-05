@@ -1,0 +1,13 @@
+{
+  "type": "doc",
+  "content": [
+    { "type": "heading", "attrs": { "level": 1 }, "content": [{ "type": "text", "text": "Page One" }] },
+    { "type": "paragraph", "content": [{ "type": "text", "text": "Content on the first page." }] },
+    { "type": "pageBreak" },
+    { "type": "heading", "attrs": { "level": 1 }, "content": [{ "type": "text", "text": "Page Two" }] },
+    { "type": "paragraph", "content": [{ "type": "text", "text": "Content on the second page." }] },
+    { "type": "pageBreak" },
+    { "type": "heading", "attrs": { "level": 1 }, "content": [{ "type": "text", "text": "Page Three" }] },
+    { "type": "paragraph", "content": [{ "type": "text", "text": "Content on the third page." }] }
+  ]
+}
