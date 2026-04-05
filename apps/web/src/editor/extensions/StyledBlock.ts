@@ -70,3 +70,13 @@ export const HeadBlock = createStyledBlock({
   cssClass: 'head',
   extraClasses: 'w-100',
 });
+
+export const LeftSidebar = createStyledBlock({
+  name: 'leftSidebar',
+  cssClass: 'left',
+});
+
+export const RightSidebar = createStyledBlock({
+  name: 'rightSidebar',
+  cssClass: 'right',
+});

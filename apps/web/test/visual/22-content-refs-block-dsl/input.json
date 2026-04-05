@@ -6,6 +6,7 @@
       "content": [
         { "type": "heading", "attrs": { "level": 1 }, "content": [{ "type": "text", "text": "Referenced Item" }] },
         { "type": "heading", "attrs": { "level": 2 }, "content": [{ "type": "text", "text": "Type 1" }] },
+        { "type": "horizontalRule" },
         { "type": "traitList", "attrs": { "traits": ["Rare", "Example"] } },
         { "type": "paragraph", "content": [
           { "type": "text", "marks": [{ "type": "bold" }], "text": "Source " },
@@ -20,6 +21,7 @@
       "content": [
         { "type": "heading", "attrs": { "level": 1 }, "content": [{ "type": "text", "text": "Referenced Item" }] },
         { "type": "heading", "attrs": { "level": 2 }, "content": [{ "type": "text", "text": "Type 1" }] },
+        { "type": "horizontalRule" },
         { "type": "traitList", "attrs": { "traits": ["Rare", "Example"] } },
         { "type": "paragraph", "content": [
           { "type": "text", "marks": [{ "type": "bold" }], "text": "Source " },

@@ -3,9 +3,11 @@ import { Table } from '@tiptap/extension-table';
 import { TableRow } from '@tiptap/extension-table-row';
 import { TableHeader } from '@tiptap/extension-table-header';
 import { TableCell } from '@tiptap/extension-table-cell';
-import { InfoBlock, NoteBlock, RulesBlock, MathBlock, HeadBlock } from './StyledBlock';
+import { InfoBlock, NoteBlock, RulesBlock, MathBlock, HeadBlock, LeftSidebar, RightSidebar } from './StyledBlock';
 import { ItemBlock } from './ItemBlock';
 import { TraitList } from './TraitList';
+import { ActionSymbol } from './ActionSymbol';
+import { PageBreak } from './PageBreak';
 import { SlashCommands } from './SlashCommands';
 
 export const scribeExtensions = [
@@ -25,7 +27,11 @@ export const scribeExtensions = [
   RulesBlock,
   MathBlock,
   HeadBlock,
+  LeftSidebar,
+  RightSidebar,
   ItemBlock,
   TraitList,
+  ActionSymbol,
+  PageBreak,
   SlashCommands,
 ];

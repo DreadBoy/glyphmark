@@ -6,6 +6,7 @@
       "content": [
         { "type": "heading", "attrs": { "level": 1 }, "content": [{ "type": "text", "text": "Power Strike ◆" }] },
         { "type": "heading", "attrs": { "level": 2 }, "content": [{ "type": "text", "text": "Feat 4" }] },
+        { "type": "horizontalRule" },
         { "type": "traitList", "attrs": { "traits": ["Uncommon", "Class", "Feat"] } },
         { "type": "paragraph", "content": [
           { "type": "text", "marks": [{ "type": "bold" }], "text": "Requirements " },
