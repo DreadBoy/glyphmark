@@ -7,18 +7,18 @@
 - No database, no auth, no Docker
 
 ## Storage Strategy
-- [ ] IndexedDB as default (zero friction, works immediately)
+- [x] IndexedDB as default (zero friction, works immediately)
 - [ ] Export/import JSON files (manual portability)
 - [ ] File System Access API (optional, Chrome/Edge only — read/write local folder)
 - [ ] Shareable links via URL fragments (small documents encoded in URL)
 
 ## Editor Setup
-- [ ] Scaffold static site (Vite or plain, deployable to GitHub Pages)
-- [ ] Integrate TipTap editor
-- [ ] Apply existing PF2e scribe CSS so editor is true WYSIWYG
-- [ ] Define custom node types: columns, headings, item blocks, stat blocks
-- [ ] Slash commands or toolbar for inserting block types
-- [ ] Keyboard shortcuts for common formatting
+- [x] Scaffold static site (Vite or plain, deployable to GitHub Pages)
+- [x] Integrate TipTap editor
+- [x] Apply existing PF2e scribe CSS so editor is true WYSIWYG
+- [x] Define custom node types: columns, headings, item blocks, stat blocks
+- [x] Slash commands or toolbar for inserting block types
+- [x] Keyboard shortcuts for common formatting
 
 ## Export
 - [ ] PDF via jsPDF — consistent cross-browser output, custom fonts, no user config needed

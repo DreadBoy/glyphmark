@@ -5,6 +5,18 @@ html, body, #root {
   background: #ddd;
 }
 
+/* Editor shell layout */
+.editor-shell {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.editor-shell #result {
+  flex: 1;
+  overflow: auto;
+}
+
 /* TipTap editor removes outline by default, but ensure it */
 .tiptap:focus {
   outline: none;
