@@ -5,5 +5,22 @@
   "projectType": "application",
   "tags": [],
   "// targets": "to see all targets run: nx show project web --web",
-  "targets": {}
+  "targets": {
+    "test:visual": {
+      "executor": "nx:run-commands",
+      "dependsOn": ["build"],
+      "options": {
+        "command": "vitest run --config apps/web/test/visual/vitest.config.ts",
+        "cwd": "{workspaceRoot}"
+      }
+    },
+    "test:update-goldens": {
+      "executor": "nx:run-commands",
+      "dependsOn": ["build"],
+      "options": {
+        "command": "UPDATE_SNAPSHOTS=1 vitest run --config apps/web/test/visual/vitest.config.ts",
+        "cwd": "{workspaceRoot}"
+      }
+    }
+  }
 }

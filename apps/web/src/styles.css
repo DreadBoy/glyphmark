@@ -1,19 +1,12 @@
 html, body, #root {
-  margin: 0;
   padding: 0;
   height: 100%;
-  background: #ddd;
+  background: #fff;
 }
 
 /* Editor shell layout */
 .editor-shell {
-  display: flex;
-  flex-direction: column;
   height: 100%;
-}
-
-.editor-shell #result {
-  flex: 1;
   overflow: auto;
 }
 
@@ -23,7 +16,31 @@ html, body, #root {
 }
 
 .tiptap {
-  height: 100%;
+  outline: none;
+  width: 100%;
+}
+
+/* Replicate .page > .column > h* rules for TipTap's DOM structure.
+   Core renderer outputs: .page > .column > h1 (direct children)
+   TipTap outputs:        .page > .column > div > .tiptap > h1
+   These rules match the latter so top-level editor headings get the same styling. */
+.page .tiptap > h1 { font-family: var(--font-display); font-size: 1.75rem; color: var(--gm-blue); margin-bottom: -0.5rem; }
+.page .tiptap > h2 { font-family: var(--font-heading); font-size: 1.4rem; color: var(--gm-red); }
+.page .tiptap > h3 { font-family: var(--font-heading); font-variant: small-caps; font-size: 1.3rem; color: var(--gm-rust); }
+.page .tiptap > h4 { font-family: var(--font-heading); display: flex; background: var(--gm-blue); color: #EDE3C7; position: relative; font-size: 1.1rem; padding: 0.3rem 0 0.25rem 0.5rem; border-radius: 0.75rem 0.75rem 0 0; letter-spacing: 0.75px; }
+.page .tiptap > h4::after { position: absolute; content: ""; left: 0; top: 0; height: 1.9rem; background: transparent; width: 100%; display: block; border-bottom: 1px solid var(--gm-blue); }
+.page .tiptap > h5 { font-family: var(--font-ui-condensed); text-transform: uppercase; font-size: 1.4rem; padding-top: 0.1rem; font-weight: bold; }
+.page .tiptap > p, .page .tiptap > ul li, .page .tiptap > ol li { font-family: var(--font-body); font-size: 0.925rem; }
+
+/* In the core renderer, styled blocks (.info, .note, etc.) sit OUTSIDE .content,
+   so .content h* rules don't affect their headings. In the editor, TipTap renders
+   everything inside .content, so block headings incorrectly get .content h* color
+   and background. Reset only those properties — font-family and font-size are
+   already correctly overridden by block-specific rules (same specificity, later
+   source order). */
+/* Hide TipTap's trailing empty paragraph to match core renderer output */
+.tiptap > p:last-child:has(.ProseMirror-trailingBreak:only-child) {
+  display: none;
 }
 
 /* Slash command menu */
@@ -65,4 +82,33 @@ html, body, #root {
 .slash-menu button .description {
   color: #888;
   font-size: 0.75rem;
+}
+
+/* Slash menu section headers */
+.slash-menu .slash-section {
+  padding: 0.5rem 0.75rem 0.2rem;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: #999;
+  font-weight: 600;
+}
+
+.slash-menu .slash-section:first-child {
+  padding-top: 0.25rem;
+}
+
+/* Slash menu icon */
+.slash-menu button .slash-icon {
+  width: 28px;
+  height: 28px;
+  background: #f5f5f5;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  flex-shrink: 0;
+  color: #555;
 }

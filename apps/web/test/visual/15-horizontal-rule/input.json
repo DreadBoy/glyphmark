@@ -1,0 +1,14 @@
+{
+  "type": "doc",
+  "content": [
+    {
+      "type": "paragraph",
+      "content": [{ "type": "text", "text": "Text above the horizontal rule." }]
+    },
+    { "type": "horizontalRule" },
+    {
+      "type": "paragraph",
+      "content": [{ "type": "text", "text": "Text below the horizontal rule." }]
+    }
+  ]
+}

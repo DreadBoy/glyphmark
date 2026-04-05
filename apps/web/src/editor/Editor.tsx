@@ -47,6 +47,12 @@ export function Editor() {
     [initialContent],
   );
 
+  useEffect(() => {
+    if (editor) {
+      (window as any).__glyphmark_editor = editor;
+    }
+  }, [editor]);
+
   if (initialContent === undefined) {
     return null; // loading
   }
@@ -55,11 +61,8 @@ export function Editor() {
     <div className="editor-shell">
       <div id="result">
         <div data-markdown="1" className="bg-paper page d-flex flex-wrap">
-          <div className="page-overlay" />
           <div data-markdown="1" className="flex-even column">
-            <div data-markdown="1" className="content">
-              <EditorContent editor={editor} />
-            </div>
+            <EditorContent editor={editor} />
           </div>
         </div>
       </div>
