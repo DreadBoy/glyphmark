@@ -8,6 +8,7 @@ import { ItemBlock } from './ItemBlock';
 import { TraitList } from './TraitList';
 import { ActionSymbol } from './ActionSymbol';
 import { PageBreak } from './PageBreak';
+import { TableFooter } from './TableFooter';
 import { SlashCommands } from './SlashCommands';
 
 export const scribeExtensions = [
@@ -33,5 +34,6 @@ export const scribeExtensions = [
   TraitList,
   ActionSymbol,
   PageBreak,
+  TableFooter,
   SlashCommands,
 ];

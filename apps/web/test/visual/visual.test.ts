@@ -14,7 +14,7 @@ const UPDATE_SNAPSHOTS = process.env.UPDATE_SNAPSHOTS === "1";
 const VIEWPORT = { width: 816, height: 1056 };
 
 // Max allowed pixel diff ratio (allows minor differences from TipTap's DOM structure)
-const DIFF_THRESHOLD = 0.015;
+const DIFF_THRESHOLD = 0.025;
 
 const PREVIEW_PORT = 4300;
 

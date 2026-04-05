@@ -44,9 +44,9 @@
       ]
     },
     {
-      "type": "paragraph",
+      "type": "tableFooter",
       "content": [
-        { "type": "text", "marks": [{ "type": "italic" }], "text": "* Values are approximate." }
+        { "type": "text", "text": "* Values are approximate." }
       ]
     }
   ]
