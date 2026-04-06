@@ -1,17 +1,17 @@
-import { describe, it, expect, beforeAll, afterAll } from "vitest";
+import {afterAll, beforeAll, describe, it} from "vitest";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
-import { chromium, type Browser, type Page } from "playwright";
-import { PNG } from "pngjs";
+import {type Browser, chromium, type Page} from "playwright";
+import {PNG} from "pngjs";
 import pixelmatch from "pixelmatch";
-import { convert } from "../../src/pipeline.js";
+import {convert} from "../../src/pipeline.js";
 
 const VISUAL_DIR = path.resolve(import.meta.dirname, ".");
 const UPDATE_SNAPSHOTS = process.env.UPDATE_SNAPSHOTS === "1";
 
 // A4-ish at 96 DPI
-const VIEWPORT = { width: 816, height: 1056 };
+const VIEWPORT = { width: 1200, height: 1056 };
 
 // Max allowed pixel diff ratio (0 = exact match)
 const DIFF_THRESHOLD = 0;
