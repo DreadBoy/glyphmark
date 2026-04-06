@@ -73,24 +73,8 @@ export function renderScribeDocument(
 function renderPages(nodes: ScribeNode[], state: RenderState): string[] {
   const pages: string[] = [];
   let currentPageContent: string[] = [];
-  let inContentDiv = false; // Track if we're inside a <div class="content">
-
-  function closeContentDiv(): void {
-    if (inContentDiv) {
-      currentPageContent.push("</div>"); // close .content
-      inContentDiv = false;
-    }
-  }
-
-  function openContentDiv(): void {
-    if (!inContentDiv) {
-      currentPageContent.push('<div data-markdown="1" class="content">');
-      inContentDiv = true;
-    }
-  }
 
   function closeColumn(): void {
-    closeContentDiv();
     currentPageContent.push("</div>"); // close .column
   }
 
@@ -103,10 +87,6 @@ function renderPages(nodes: ScribeNode[], state: RenderState): string[] {
     pages.push(pageHtml);
     currentPageContent = [];
   }
-
-  // "Inline" node types that go inside a shared .content div
-  const isInlineNode = (type: string) =>
-    type === "heading" || type === "paragraph" || type === "table" || type === "hr";
 
   // Start with a default column
   openColumn();
@@ -127,7 +107,7 @@ function renderPages(nodes: ScribeNode[], state: RenderState): string[] {
 
     if (node.type === "end-columns") {
       closeColumn();
-      currentPageContent.push('<div class="content w-100"></div>');
+      currentPageContent.push('<div class="col-break w-100"></div>');
       openColumn();
       continue;
     }
@@ -136,29 +116,22 @@ function renderPages(nodes: ScribeNode[], state: RenderState): string[] {
       // Paragraphs might be content refs with block-level DSL
       const blockRef = expandAndRenderRef(node.content, state);
       if (blockRef !== null) {
-        // Block-level content ref: close content div, render block, continue
-        closeContentDiv();
         currentPageContent.push(blockRef);
       } else {
-        // Regular paragraph: goes inside shared .content div
-        openContentDiv();
         const expanded = expandRefs(node.content, state.contentRefs);
         currentPageContent.push(renderBlockContent(expanded));
       }
-    } else if (isInlineNode(node.type)) {
-      // Headings, tables, hrs share a .content div
-      openContentDiv();
+    } else if (node.type === "heading" || node.type === "table" || node.type === "hr") {
       const html = renderInlineNode(node, state);
       if (html) currentPageContent.push(html);
     } else if (node.type === "head") {
-      // Head blocks break columns (like end-columns) and render full-width
+      // Head blocks break columns and render full-width
       closeColumn();
       const html = renderNode(node, state);
       if (html) currentPageContent.push(html);
       openColumn();
     } else {
       // Block-level nodes (info, rules, note, math, item, left, right)
-      closeContentDiv();
       const html = renderNode(node, state);
       if (html) currentPageContent.push(html);
     }

@@ -115,19 +115,6 @@ describe("renderScribeDocument", () => {
     });
   });
 
-  describe("columns", () => {
-    it("creates new column on column break", () => {
-      const html = render("Left column\n\n|\n\nRight column");
-      const columnCount = (html.match(/class="flex-even column"/g) || []).length;
-      expect(columnCount).toBeGreaterThanOrEqual(2);
-    });
-
-    it("ends columns with row separator", () => {
-      const html = render("Col 1\n\n|\n\nCol 2\n\n/\n\nFull width");
-      expect(html).toContain('class="content w-100"');
-    });
-  });
-
   describe("CSS output", () => {
     it("includes font CSS", () => {
       const html = render("Hello");

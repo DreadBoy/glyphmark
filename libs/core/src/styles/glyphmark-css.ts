@@ -104,15 +104,14 @@ a:hover { color: var(--gm-link-hover); }
   transition: color .15s ease-in-out;
 }
 
-.content { width: 100%; }
 
 /* ── Spacing ───────────────────────────────────────────────── */
 
 .page *+p, .page *+h1, .page *+h2, .page *+h3, .page *+h4, .page *+h5, .page *+h6,
 .page *+table, .page *+hr,
 .page h1+ul, .page h2+ul, .page h3+ul, .page h4+ul, .page h5+ul, .page h6+ul,
-.page *+.content, .page *+.item, .page *+.note, .page *+.rules, .page *+.info, .page *+.math,
-.page *+.right, .page *+.left, .page *+.p {
+.page *+.item, .page *+.note, .page *+.rules, .page *+.info, .page *+.math,
+.page *+.right, .page *+.left, .page *+.p, .page *+.col-break {
   margin-top: 0.5rem;
 }
 
@@ -177,29 +176,31 @@ body { counter-reset: pages; }
   text-align: justify;
 }
 
-/* ── Content Area Headings ─────────────────────────────────── */
+/* ── Column-Level Headings ─────────────────────────────────── */
+/* Direct-child selectors prevent bleed into block-internal headings
+   (.info > .page > .column > h2 is a different .column than the page-level one) */
 
-.content h1 {
+.page > .column > h1 {
   font-family: var(--font-display);
   font-size: 1.75rem;
   color: var(--gm-blue);
   margin-bottom: -0.5rem;
 }
 
-.content h2 {
+.page > .column > h2, .page > .column > .p h2 {
   font-family: var(--font-heading);
   font-size: 1.4rem;
   color: var(--gm-red);
 }
 
-.content h3 {
+.page > .column > h3 {
   font-family: var(--font-heading);
   font-variant: small-caps;
   font-size: 1.3rem;
   color: var(--gm-rust);
 }
 
-.content h4 {
+.page > .column > h4 {
   font-family: var(--font-heading);
   display: flex;
   background: var(--gm-blue);
@@ -211,7 +212,7 @@ body { counter-reset: pages; }
   letter-spacing: 0.75px;
 }
 
-.content h4::after {
+.page > .column > h4::after {
   position: absolute;
   content: "";
   left: 0;
@@ -223,7 +224,7 @@ body { counter-reset: pages; }
   border-bottom: 1px solid var(--gm-blue);
 }
 
-.content h5 {
+.page > .column > h5 {
   font-family: var(--font-ui-condensed);
   text-transform: uppercase;
   font-size: 1.4rem;
@@ -231,7 +232,7 @@ body { counter-reset: pages; }
   font-weight: bold;
 }
 
-.content p, .content li {
+.page > .column > p, .page > .column > ul li, .page > .column > ol li {
   font-family: var(--font-body);
   font-size: 0.925rem;
 }
