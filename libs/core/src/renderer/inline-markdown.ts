@@ -140,10 +140,6 @@ export function renderBlockContent(content: string, options?: {
     // Regular paragraph
     if (inList) { parts.push("</ul>"); inList = false; }
 
-    // Hanging indent: paragraphs starting with **bold** get class="hang"
-    const isHang = trimmed.startsWith("**") && trimmed.includes("**", 2);
-    const hangClass = isHang ? ' class="hang"' : "";
-
     // Leading space indent: convert to &nbsp;
     const leadingSpaces = line.match(/^(\s+)/)?.[1]?.length ?? 0;
     if (leadingSpaces > 0 && parts.length > 0) {
@@ -160,7 +156,7 @@ export function renderBlockContent(content: string, options?: {
       }
     }
 
-    parts.push(`<p${hangClass}>${renderInlineMarkdown(trimmed)}</p>`);
+    parts.push(`<p>${renderInlineMarkdown(trimmed)}</p>`);
   }
 
   if (inList) parts.push("</ul>");

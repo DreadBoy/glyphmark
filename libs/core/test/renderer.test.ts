@@ -105,7 +105,7 @@ describe("renderScribeDocument", () => {
   describe("inline formatting", () => {
     it("renders hanging indent for bold-prefixed paragraphs", () => {
       const html = render("item(\n# Test\n-\n**Bold** text after\n)");
-      expect(html).toContain('class="hang"');
+      expect(html).toContain('<strong>');
     });
 
     it("renders label links", () => {

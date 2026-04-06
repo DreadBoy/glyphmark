@@ -412,7 +412,7 @@ body { counter-reset: pages; }
   border-bottom-color: #980000;
 }
 
-.info .hang { padding-left: 0; text-indent: 0; }
+.info p:has(> strong:first-child) { padding-left: 0; text-indent: 0; }
 
 /* ── Note Block ────────────────────────────────────────────── */
 
@@ -515,7 +515,7 @@ body { counter-reset: pages; }
 .item hr { margin: 0; clear: both; }
 
 .item *+p { margin: 0; }
-.item p.hang+p.hang { margin: 0; }
+.item p:has(> strong:first-child) + p:has(> strong:first-child) { margin: 0; }
 .item p+p { margin-top: 1rem; }
 
 /* ── Traits ────────────────────────────────────────────────── */
@@ -682,8 +682,15 @@ body { counter-reset: pages; }
 }
 
 /* ── Hanging Indent ────────────────────────────────────────── */
+/* Paragraphs starting with bold text get a hanging indent inside blocks */
 
-.hang {
+.item p:has(> strong:first-child),
+.note p:has(> strong:first-child),
+.rules p:has(> strong:first-child),
+.math p:has(> strong:first-child),
+.head p:has(> strong:first-child),
+.left p:has(> strong:first-child),
+.right p:has(> strong:first-child) {
   padding-left: 1em;
   text-indent: -1em;
 }
