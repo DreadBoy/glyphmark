@@ -3,8 +3,6 @@
  * Parses the Scribe DSL format into an intermediate representation.
  */
 
-import { renderInlineMarkdown } from "../renderer/inline-markdown.js";
-
 // ── IR Node Types ──────────────────────────────────────────────
 
 export interface ScribeDocument {
