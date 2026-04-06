@@ -104,7 +104,10 @@ describe("golden snapshots", { timeout: 120_000 }, () => {
       fs.writeFileSync(htmlPath, html, "utf-8");
 
       // Load in browser and screenshot
-      await page.goto(`file://${htmlPath}`, { waitUntil: "networkidle" });
+      // page.setContent doesn't trigger LCD antialiasing, only grayscale one. So we use page.goto()
+      // We use data URI to avoid file system access and potential issues with stale .html files
+      const dataUri = `data:text/html;charset=utf-8,${encodeURIComponent(html)}`;
+      await page.goto(dataUri, { waitUntil: "networkidle" });
       await page.waitForTimeout(300);
 
       const pngPath = path.join(fixtureDir, "output.png");
