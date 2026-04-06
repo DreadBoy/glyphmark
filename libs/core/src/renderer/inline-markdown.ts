@@ -96,7 +96,7 @@ export function renderBlockContent(content: string, options?: {
     if (trimmed === "|") {
       if (inList) { parts.push("</ul>"); inList = false; }
       // Close current inner column, start new one (inside the same block wrapper)
-      parts.push('</div><div data-markdown="1" class="flex-even column">');
+      parts.push('</div><div class="flex-even column">');
       continue;
     }
 

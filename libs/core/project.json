@@ -27,7 +27,7 @@
     "test": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "vitest run --config libs/core/vitest.config.ts --exclude 'libs/core/test/visual/**'",
+        "command": "vitest run --config libs/core/vitest.config.ts",
         "cwd": "{workspaceRoot}"
       }
     },

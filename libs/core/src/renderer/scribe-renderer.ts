@@ -79,7 +79,7 @@ function renderPages(nodes: ScribeNode[], state: RenderState): string[] {
   }
 
   function openColumn(): void {
-    currentPageContent.push('<div data-markdown="1" class="flex-even column">');
+    currentPageContent.push('<div class="flex-even column">');
   }
 
   function flushPage(): void {
@@ -192,7 +192,7 @@ function renderInlineNode(node: ScribeNode, state: RenderState): string {
 function buildPage(content: string, state: RenderState): string {
   const parts: string[] = [];
   parts.push("<div>");
-  parts.push('<div data-markdown="1" class="bg-paper page d-flex flex-wrap">');
+  parts.push('<div class="bg-paper page d-flex flex-wrap">');
   parts.push('<div class="page-overlay"></div>');
   parts.push(content);
 
@@ -237,7 +237,7 @@ function renderNode(node: ScribeNode, state: RenderState): string {
       if (blockRef !== null) return blockRef;
       // Inline paragraphs are handled by renderInlineNode
       const expanded = expandRefs(node.content, state.contentRefs);
-      return `<div data-markdown="1" class="content">${renderBlockContent(expanded)}</div>`;
+      return `<div class="content">${renderBlockContent(expanded)}</div>`;
     }
 
     case "heading": {
@@ -271,7 +271,7 @@ function renderSimpleBlock(
   state.tocCounter = tocState.counter;
 
   const widthClass = cssClass === "head" ? " w-100" : "";
-  return `<div data-markdown="1" class="${cssClass} d-flex flex-wrap${widthClass}"><div data-markdown="1" class="flex-even column">${inner}</div></div>`;
+  return `<div class="${cssClass} d-flex flex-wrap${widthClass}"><div class="flex-even column">${inner}</div></div>`;
 }
 
 function renderItemBlock(
@@ -330,7 +330,7 @@ function renderItemBlock(
     parts.push(renderBlockContent(expanded));
   }
 
-  return `<div data-markdown="1" class="item d-flex flex-wrap"><div data-markdown="1" class="flex-even column">${parts.join("\n")}</div></div>`;
+  return `<div class="item d-flex flex-wrap"><div class="flex-even column">${parts.join("\n")}</div></div>`;
 }
 
 // renderParagraph and renderHeading are now handled inline by renderPages/renderInlineNode
