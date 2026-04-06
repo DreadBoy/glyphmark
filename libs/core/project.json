@@ -4,6 +4,13 @@
   "sourceRoot": "libs/core/src",
   "projectType": "library",
   "targets": {
+    "dev": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsc -w -p libs/core/tsconfig.json"
+      },
+      "outputs": ["{projectRoot}/dist"]
+    },
     "build": {
       "executor": "nx:run-commands",
       "options": {
