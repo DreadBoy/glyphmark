@@ -191,7 +191,6 @@ function renderInlineNode(node: ScribeNode, state: RenderState): string {
 
 function buildPage(content: string, state: RenderState): string {
   const parts: string[] = [];
-  parts.push("<div>");
   parts.push('<div class="bg-paper page d-flex flex-wrap">');
   parts.push('<div class="page-overlay"></div>');
   parts.push(content);
@@ -204,7 +203,6 @@ function buildPage(content: string, state: RenderState): string {
   }
 
   parts.push("</div>"); // .page
-  parts.push("</div>");
   return parts.join("\n");
 }
 
