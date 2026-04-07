@@ -71,76 +71,73 @@ export function renderScribeDocument(
 // ── Page Rendering ────────────────────────────────────────────
 
 function renderPages(nodes: ScribeNode[], state: RenderState): string[] {
-  const pages: string[] = [];
-  let currentPageContent: string[] = [];
+  const pages = nodes.reduce((chunks, node) => {
+    if(node.type == "page-break")
+      return [...chunks, []]
+    else 
+      return [...chunks.slice(0, chunks.length - 1), [...chunks[chunks.length - 1], node]];
+  }, [[]] as ScribeNode[][]);
 
-  function closeColumn(): void {
-    currentPageContent.push("</div>"); // close .column
-  }
-
-  function openColumn(): void {
-    currentPageContent.push('<div class="flex-even column">');
-  }
-
-  function flushPage(): void {
-    const pageHtml = buildPage(currentPageContent.join("\n"), state);
-    pages.push(pageHtml);
-    currentPageContent = [];
-  }
-
-  // Start with a default column
-  openColumn();
-
-  for (const node of nodes) {
-    if (node.type === "page-break") {
-      closeColumn();
-      flushPage();
-      openColumn();
-      continue;
-    }
-
-    if (node.type === "column-break") {
-      closeColumn();
-      openColumn();
-      continue;
-    }
-
-    if (node.type === "end-columns") {
-      closeColumn();
-      currentPageContent.push('<div class="col-break w-100"></div>');
-      openColumn();
-      continue;
-    }
-
-    if (node.type === "paragraph") {
-      // Paragraphs might be content refs with block-level DSL
-      const blockRef = expandAndRenderRef(node.content, state);
-      if (blockRef !== null) {
-        currentPageContent.push(blockRef);
+  return pages.map((pageNodes) => {
+    const currentPageContent = pageNodes.reduce((chunks, node) => {
+      if(node.type == "end-columns" || node.type == "head")
+        return [...chunks, [node], []]
+      else
+        return [...chunks.slice(0, chunks.length - 1), [...chunks[chunks.length - 1], node]];
+    }, [[]] as ScribeNode[][]).reduce((blocks, fullWidthSection) => {
+      const columnBreak = fullWidthSection.findIndex((node) => node.type == "column-break");
+      if( columnBreak < 0) {
+        return [...blocks, fullWidthSection.map(renderNodeInner).join("")];
       } else {
-        const expanded = expandRefs(node.content, state.contentRefs);
-        currentPageContent.push(renderBlockContent(expanded));
+        const columns = fullWidthSection.reduce((chunks, node) => {
+          if(node.type == "column-break")
+            return [...chunks, []];
+          else
+            return [...chunks.slice(0, chunks.length - 1), [...chunks[chunks.length - 1], node]];
+        }, [[]] as ScribeNode[][]);
+        const wrapped = columns.map(column => `<div class="column">${column.map(renderNodeInner).join("")}</div>`).join("");
+        return [...blocks, `<div class='columns'>${wrapped}</div>`];
       }
-    } else if (node.type === "heading" || node.type === "table" || node.type === "hr") {
-      const html = renderInlineNode(node, state);
-      if (html) currentPageContent.push(html);
-    } else if (node.type === "head") {
-      // Head blocks break columns and render full-width
-      closeColumn();
-      const html = renderNode(node, state);
-      if (html) currentPageContent.push(html);
-      openColumn();
-    } else {
-      // Block-level nodes (info, rules, note, math, item, left, right)
-      const html = renderNode(node, state);
-      if (html) currentPageContent.push(html);
+    }, []as string[]);
+
+
+
+    function renderNodeInner(node: ScribeNode) {
+      if (node.type === "paragraph") {
+        // Paragraphs might be content refs with block-level DSL
+        const blockRef = expandAndRenderRef(node.content, state);
+        if (blockRef !== null) {
+          return blockRef;
+        } else {
+          const expanded = expandRefs(node.content, state.contentRefs);
+          return renderBlockContent(expanded);
+        }
+      } else if (node.type === "heading" || node.type === "table" || node.type === "hr") {
+        return renderInlineNode(node, state);
+      } else if (node.type === "head") {
+        return renderNode(node, state);
+      } else {
+        // Block-level nodes (info, rules, note, math, item, left, right)
+        return renderNode(node, state);
+      }
     }
-  }
 
-  closeColumn();
-  flushPage();
 
-  return pages;
+    const parts: string[] = [];
+    parts.push('<div class="bg-paper page">');
+    parts.push('<div class="page-overlay"></div>');
+    parts.push(currentPageContent.join(""));
+
+    if (state.watermark) {
+      parts.push(`<div class="watermark">${escapeHtml(state.watermark)}</div>`);
+    }
+    if (state.title) {
+      parts.push(`<div class="title"><h1>${escapeHtml(state.title)}</h1></div>`);
+    }
+
+    parts.push("</div>"); // .page
+    return parts.join("\n");
+  });
 }
 
 /**
@@ -187,23 +184,6 @@ function renderInlineNode(node: ScribeNode, state: RenderState): string {
     default:
       return "";
   }
-}
-
-function buildPage(content: string, state: RenderState): string {
-  const parts: string[] = [];
-  parts.push('<div class="bg-paper page d-flex flex-wrap">');
-  parts.push('<div class="page-overlay"></div>');
-  parts.push(content);
-
-  if (state.watermark) {
-    parts.push(`<div class="watermark">${escapeHtml(state.watermark)}</div>`);
-  }
-  if (state.title) {
-    parts.push(`<div class="title"><h1>${escapeHtml(state.title)}</h1></div>`);
-  }
-
-  parts.push("</div>"); // .page
-  return parts.join("\n");
 }
 
 // ── Node Rendering ────────────────────────────────────────────
@@ -268,8 +248,7 @@ function renderSimpleBlock(
   const inner = renderBlockContent(expanded, { tocState });
   state.tocCounter = tocState.counter;
 
-  const widthClass = cssClass === "head" ? " w-100" : "";
-  return `<div class="${cssClass} d-flex flex-wrap${widthClass}"><div class="flex-even column">${inner}</div></div>`;
+  return `<div class="${cssClass}">${inner}</div>`;
 }
 
 function renderItemBlock(
@@ -328,7 +307,7 @@ function renderItemBlock(
     parts.push(renderBlockContent(expanded));
   }
 
-  return `<div class="item d-flex flex-wrap"><div class="flex-even column">${parts.join("\n")}</div></div>`;
+  return `<div class="item">${parts.join("\n")}</div>`;
 }
 
 // renderParagraph and renderHeading are now handled inline by renderPages/renderInlineNode

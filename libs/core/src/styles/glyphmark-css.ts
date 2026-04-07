@@ -87,9 +87,6 @@ a:hover { color: var(--gm-link-hover); }
 /* ── Layout Utilities ──────────────────────────────────────── */
 
 .d-flex { display: flex; }
-.flex-wrap { flex-wrap: wrap; }
-.flex-even { flex: 1; }
-.w-100 { width: 100%; }
 .mr-0 { margin-right: 0; }
 .my-0 { margin-top: 0; margin-bottom: 0; }
 .ml-auto { margin-left: auto; }
@@ -131,10 +128,17 @@ body { counter-reset: pages; }
 .bg-paper { background: var(--gm-paper); }
 
 .page {
+  display: flow-root;
   max-width: 210mm;
   padding: 5.25rem 5.5rem;
   margin: 0 auto 0.25rem;
   position: relative;
+}
+
+/* Multi-column: adjacent .column siblings on the page float at 50% each.
+   Single .column (no adjacent column sibling) stays a normal block. */
+.columns {
+  display: flex;
 }
 
 .page::after {
@@ -249,6 +253,26 @@ body { counter-reset: pages; }
 .column .column:last-of-type { padding-right: 0; }
 .column+.column { border-left: 1px solid #F1F0EB; }
 
+/* Blocks behave as BFCs - contains floats and prevents margin collapsing */
+.info, .note, .rules, .math, .head, .item, .left, .right {
+  display: flow-root;
+}
+
+/* Blocks with internal columns (from pipe breaks): float adjacent .column children at 50%.
+   Blocks themselves are display: flow-root (above) so they contain these floats. */
+.info > .column:has(+ .column),  .info > .column + .column,
+.note > .column:has(+ .column),  .note > .column + .column,
+.rules > .column:has(+ .column), .rules > .column + .column,
+.math > .column:has(+ .column),  .math > .column + .column,
+.head > .column:has(+ .column),  .head > .column + .column,
+.item > .column:has(+ .column),  .item > .column + .column,
+.left > .column:has(+ .column),  .left > .column + .column,
+.right > .column:has(+ .column), .right > .column + .column {
+  float: left;
+  width: 50%;
+  box-sizing: border-box;
+}
+
 /* ── Watermark & Title ─────────────────────────────────────── */
 
 .watermark {
@@ -290,7 +314,7 @@ body { counter-reset: pages; }
 /* ── Head Block ────────────────────────────────────────────── */
 
 .head {
-  padding: 0;
+  padding: 0 0.6rem;
   margin-bottom: 0.5rem;
   color: var(--gm-red);
 }
