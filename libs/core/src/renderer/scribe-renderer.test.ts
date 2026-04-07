@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { parseScribe } from "../src/parser/scribe-parser.js";
-import { renderScribeDocument } from "../src/renderer/scribe-renderer.js";
+import { parseScribe } from "../parser/scribe-parser.js";
+import { renderScribeDocument } from "./scribe-renderer.js";
 
 function render(input: string): string {
   const doc = parseScribe(input);

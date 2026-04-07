@@ -204,11 +204,6 @@ export function parseScribe(input: string): ScribeDocument {
     doc.customCss = cssParts.join("\n");
   }
 
-  // Strip {{key}} placeholders from content (they'll be expanded during rendering)
-  // We keep them as literal text for now; the renderer will expand them
-  // Actually, we need to keep {{key}} in the content for the renderer to find and expand
-  // No stripping needed here
-
   const lines = content.split("\n");
   let i = 0;
 
@@ -397,8 +392,6 @@ function extractBlock(
   // The block starts with "type (" or "type(" and ends with ")"
   let depth = 0;
   let started = false;
-  const contentLines: string[] = [];
-  let endIndex = startIndex;
 
   for (let i = startIndex; i < lines.length; i++) {
     const line = lines[i]!;
@@ -423,8 +416,6 @@ function extractBlock(
         }
       }
     }
-
-    endIndex = i;
   }
 
   // No matching close found, return everything
