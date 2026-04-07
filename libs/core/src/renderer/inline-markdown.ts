@@ -48,11 +48,16 @@ export function renderInlineMarkdown(text: string): string {
     '<a rel="noopener noreferrer" href="$2">$1</a>',
   );
 
-  // Bold: **text**
+  // Bold: **text** or __text__
   html = html.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+  html = html.replace(/__(.+?)__/g, "<strong>$1</strong>");
 
-  // Italic: *text*
+  // Italic: *text* or _text_
   html = html.replace(/\*(.+?)\*/g, "<em>$1</em>");
+  html = html.replace(/(^|[^\w])_(?!_)([^_]+?)_(?!\w)/g, "$1<em>$2</em>");
+
+  // Strikethrough: ~~text~~
+  html = html.replace(/~~(.+?)~~/g, "<del>$1</del>");
 
   // Action symbols
   html = replaceActionSymbols(html);

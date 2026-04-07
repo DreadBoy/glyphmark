@@ -85,8 +85,14 @@ hr {
   opacity: 0.75;
 }
 
-a { color: var(--gm-link); }
-a:hover { color: var(--gm-link-hover); }
+a {
+  color: var(--gm-link);
+  text-decoration: none;
+}
+a:hover {
+  color: var(--gm-link-hover);
+  text-decoration: underline;
+}
 
 /* ── Layout Utilities ──────────────────────────────────────── */
 
