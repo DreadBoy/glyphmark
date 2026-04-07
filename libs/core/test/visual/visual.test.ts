@@ -9,9 +9,10 @@ import {convert} from "../../src/pipeline.js";
 
 const VISUAL_DIR = path.resolve(import.meta.dirname, ".");
 const UPDATE_SNAPSHOTS = process.env.UPDATE_SNAPSHOTS === "1";
+const IMPORT_GOLDENS = process.env.IMPORT_GOLDENS === "1";
 
 // A4-ish at 96 DPI
-const VIEWPORT = { width: 1200, height: 1056 };
+const VIEWPORT = { width: 1300, height: 1056 };
 
 // Max allowed pixel diff ratio (0 = exact match)
 const DIFF_THRESHOLD = 0;
@@ -95,6 +96,28 @@ describe("golden snapshots", { timeout: 120_000 }, () => {
         path.join(fixtureDir, "input.scribe"),
         "utf-8",
       );
+
+      if (IMPORT_GOLDENS) {
+        await page.goto("https://scribe.pf2.tools/", { waitUntil: "networkidle" });
+        // Clear Ace editor and paste input.scribe
+        const setValueScript =
+          "(() => { const editor = document.querySelector('.ace_editor').env.editor;" +
+          " editor.setValue(" + JSON.stringify(scribeInput) + ", -1); })()";
+        await page.evaluate(setValueScript);
+        await page.waitForTimeout(500);
+        // Strip chrome to isolate result
+        await page.evaluate(`(() => {
+          document.querySelectorAll(".flex-even.shadow, .m-4.small.op-50, .position-fixed.print-hide").forEach((el) => el.remove());
+          const rs = document.querySelector("#result-scroller");
+          if (rs) rs.classList.remove("overflow-scroll");
+          document.body.classList.remove("bg-img");
+          document.querySelectorAll(".bg-paper").forEach((el) => { el.style.background = "#eee"; });
+        })()`);
+        await page.waitForTimeout(200);
+        const goldenPath = path.join(fixtureDir, "golden.png");
+        await page.screenshot({ path: goldenPath, fullPage: true });
+        return;
+      }
 
       // Convert to HTML
       const html = convert(scribeInput);

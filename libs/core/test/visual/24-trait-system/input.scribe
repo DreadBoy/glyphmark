@@ -1,7 +1,7 @@
 item(
 # Creature Entry
 -
-; unique,large,chaotic evil,beast,dragon
+; unique,large,ce,beast,dragon
 -
 A unique large creature with multiple trait types.
 )

@@ -1,6 +1,6 @@
 head (
 # Document Heading
-A description that goes under the heading in the head block.
+A description that goes under the heading in the head block. A description that goes under the heading in the head block. A description that goes under the heading in the head block. A description that goes under the heading in the head block. A description that goes under the heading in the head block. A description that goes under the heading in the head block. 
 -
 )
 
@@ -11,12 +11,8 @@ head (
 -
 )
 
-Left column content below the head blocks.
+Left column content below the head blocks. Left column content below the head blocks. Left column content below the head blocks. 
 
 |
 
-Right column content below the head blocks.
-
-/
-
-Full-width paragraph after the columns.
+Right column content below the head blocks. Right column content below the head blocks. Right column content below the head blocks. 

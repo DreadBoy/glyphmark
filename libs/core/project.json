@@ -44,6 +44,13 @@
         "command": "UPDATE_SNAPSHOTS=1 vitest run --config libs/core/vitest.config.ts libs/core/test/visual/visual.test.ts",
         "cwd": "{workspaceRoot}"
       }
+    },
+    "test:import-goldens": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "IMPORT_GOLDENS=1 vitest run --config libs/core/vitest.config.ts libs/core/test/visual/visual.test.ts",
+        "cwd": "{workspaceRoot}"
+      }
     }
   }
 }

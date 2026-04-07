@@ -1,5 +1,37 @@
-This has **bold text** and *italic text* in it.
+Emphasis, aka italics, with *asterisks* or _underscores_. Strong emphasis, aka bold, with **asterisks** or __underscores__. Combined emphasis with **asterisks and _underscores_**. Strikethrough uses two tildes. ~~Scratch this.~~ [I'm an inline-style link](https://www.google.com).
 
-Here is a [link to example](http://example.com) and a [label link](#some-section).
+info (
+Emphasis, aka italics, with *asterisks* or _underscores_.
 
-A paragraph with both **bold** and *italic* mixed together.
+Strong emphasis, aka bold, with **asterisks** or __underscores__.
+
+Combined emphasis with **asterisks and _underscores_**.
+
+Strikethrough uses two tildes. ~~Scratch this.~~
+
+[I'm an inline-style link](https://www.google.com)
+)
+
+rules (
+Emphasis, aka italics, with *asterisks* or _underscores_.
+
+Strong emphasis, aka bold, with **asterisks** or __underscores__.
+
+Combined emphasis with **asterisks and _underscores_**.
+
+Strikethrough uses two tildes. ~~Scratch this.~~
+
+[I'm an inline-style link](https://www.google.com)
+)
+
+note (
+Emphasis, aka italics, with *asterisks* or _underscores_.
+
+Strong emphasis, aka bold, with **asterisks** or __underscores__.
+
+Combined emphasis with **asterisks and _underscores_**.
+
+Strikethrough uses two tildes. ~~Scratch this.~~
+
+[I'm an inline-style link](https://www.google.com)
+)

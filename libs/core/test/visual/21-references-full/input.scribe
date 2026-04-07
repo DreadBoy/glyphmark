@@ -1,3 +1,11 @@
+greeting {
+Hello from a content reference!
+}
+
+The greeting says: {{greeting}}
+
+And again: {{greeting}}
+
 specialfeat {
 item (
 # Special Feat :a:
@@ -40,7 +48,6 @@ This text is hidden in an HTML comment but appears via reference in all three co
 {{htmlcomment}}
 |
 {{htmlcomment}}
-/
 
 %
 

@@ -200,7 +200,7 @@ It isn't known why this practice is so widely used. At some point in history the
 Sometimes the headers should look like this.
 
 * Sometimes you want a longer paragraph that is about a class and it should have a hanging indent, but this isn't always true so that's why it's a bullet point option.
-  )
+)
 
 # Look at This
 
@@ -378,50 +378,6 @@ htmlcomment {
 |
 {{htmlcomment}}
 /
-
-=
-
-## External References ((+External References))
-
-Items created using http://monster.pf2.tools, http://template.pf2.tools, and other scribe entries can be included dynamically by inserting the url to the specific item. The referred item must be set to public in order to be included.
-/
-For example, the monster found [here](https://monster.pf2.tools/v/9wLXpxm1) can be included:
-
-https://monster.pf2.tools/v/9wLXpxm1
-|
-In addition, the item found [here](http://template.pf2.tools/v/55582QvF) can be included:
-
-http://template.pf2.tools/v/55582QvF
-
--
-
-Finally, the scribe entry found [here](https://scribe.pf2.tools/v/wMqTjphx) can be included:
-
-https://scribe.pf2.tools/v/wMqTjphx
-
-Be careful including other scribe documents as styles applied from them could override previously set styles.
-
-/
-
-## Google Fonts ((+Google Fonts))
-If you want to take your custom formatting to the extreme, you can import fonts from [Google Fonts](https://fonts.google.com). Add the fonts you want to use in your custom css using the following formatting (which is only visible in the editor.) This example imports the [Roboto](https://fonts.google.com/specimen/Roboto) font with 4 styles. It is then available as a font-family to use in custom css. You can add multiple fonts with each specimen placed on its own line.
-
-fonts(
-Roboto:ital,wght@0,400;0,700;1,400;1,700
-)
-
-## Sticky Note ((+Sticky Note))
-You can add sticky notes to pages to keep track of whatever kind of things sticky notes keep track of!
-sticky(50 218
-Check this out! A sticky note can
-be placed using an X and Y position
-which appears relative to the page.
-)
-
-sticky(120 218
-Think of the possibilities!
-)
-
 
 =
 

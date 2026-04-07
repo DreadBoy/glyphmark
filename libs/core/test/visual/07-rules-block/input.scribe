@@ -1,4 +1,14 @@
 rules (
-# Rule Reminder
-Always remember to follow the rules. This box highlights them.
+# First level
+## Second level
+### Third level
+Always remember to follow the rules. This box highlights them. Always remember to follow the rules. This box highlights them. Always remember to follow the rules. This box highlights them. Always remember to follow the rules. This box highlights them. Always remember to follow the rules. This box highlights them.
+)
+
+rules (
+# Important rules
+
+Always remember to follow the rules. This box highlights them. Always remember to follow the rules. This box highlights them. Always remember to follow the rules. This box highlights them. Always remember to follow the rules. This box highlights them. Always remember to follow the rules. This box highlights them.
+|
+Always remember to follow the rules. This box highlights them. Always remember to follow the rules. This box highlights them. Always remember to follow the rules. This box highlights them. Always remember to follow the rules. This box highlights them. Always remember to follow the rules. This box highlights them.
 )

@@ -1,7 +1,0 @@
-greeting {
-Hello from a content reference!
-}
-
-The greeting says: {{greeting}}
-
-And again: {{greeting}}
