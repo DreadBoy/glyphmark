@@ -17,7 +17,7 @@ function replaceActionSymbols(text: string): string {
   return text.replace(/:aaa:|:aa:|:a:|:r:|:f:/g, (m) => {
     const src = ACTION_SYMBOLS[m];
     if (src) {
-      return `<img src="${src}" class="text-img">`;
+      return `<img src="${src}" class="action-img">`;
     }
     return m;
   });
@@ -65,45 +65,48 @@ export function renderInlineMarkdown(text: string): string {
  * Handles paragraphs, headings, lists within block content.
  * Returns scribe-compatible HTML with proper classes.
  */
+type BlockItem = { type: "html"; html: string } | { type: "column-break" };
+
 export function renderBlockContent(content: string, options?: {
   /** Counter state for TOC anchors - mutated in place */
   tocState?: { counter: number; toc: Array<{ label: string; id: string; indent: number }> };
 }): string {
   const lines = content.split("\n");
-  const parts: string[] = [];
+  const items: BlockItem[] = [];
   let inList = false;
+
+  function pushHtml(html: string): void {
+    items.push({ type: "html", html });
+  }
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i]!;
     const trimmed = line.trim();
+    const isListItem = trimmed.startsWith("* ") || trimmed.startsWith("- ");
 
-    if (trimmed === "") {
-      if (inList) {
-        parts.push("</ul>");
-        inList = false;
-      }
-      continue;
+    // Any non-list-item line ends an open list.
+    if (inList && !isListItem) {
+      pushHtml("</ul>");
+      inList = false;
     }
+
+    if (trimmed === "") continue;
 
     // Horizontal rule inside blocks (lone -)
     if (trimmed === "-") {
-      if (inList) { parts.push("</ul>"); inList = false; }
-      parts.push("<hr>");
+      pushHtml("<hr>");
       continue;
     }
 
     // Column break inside blocks
     if (trimmed === "|") {
-      if (inList) { parts.push("</ul>"); inList = false; }
-      // Close current inner column, start new one (inside the same block wrapper)
-      parts.push('</div><div class="flex-even column">');
+      items.push({ type: "column-break" });
       continue;
     }
 
     // Heading inside block
     const headingMatch = trimmed.match(/^(#{1,6})\s+(.+)$/);
     if (headingMatch) {
-      if (inList) { parts.push("</ul>"); inList = false; }
       const level = headingMatch[1]!.length;
       let text = headingMatch[2]!;
 
@@ -123,42 +126,52 @@ export function renderBlockContent(content: string, options?: {
         text = text.replace(/\(\((\+*)(.*?)\)\)\s*$/, "").trim();
       }
 
-      parts.push(`<h${level}>${renderInlineMarkdown(text)}${tocAnchors}</h${level}>`);
+      pushHtml(`<h${level}>${renderInlineMarkdown(text)}${tocAnchors}</h${level}>`);
       continue;
     }
 
     // List item
     if (trimmed.startsWith("* ") || trimmed.startsWith("- ")) {
       if (!inList) {
-        parts.push("<ul>");
+        pushHtml("<ul>");
         inList = true;
       }
-      parts.push(`<li>${renderInlineMarkdown(trimmed.slice(2))}</li>`);
+      pushHtml(`<li>${renderInlineMarkdown(trimmed.slice(2))}</li>`);
       continue;
     }
 
     // Regular paragraph
-    if (inList) { parts.push("</ul>"); inList = false; }
 
     // Leading space indent: convert to &nbsp;
     const leadingSpaces = line.match(/^(\s+)/)?.[1]?.length ?? 0;
-    if (leadingSpaces > 0 && parts.length > 0) {
+    const last = items[items.length - 1];
+    if (leadingSpaces > 0 && last && last.type === "html" && last.html.startsWith("<p")) {
       // Continuation line with indent - append as <br> to previous paragraph
       const nbsp = "&nbsp;".repeat(Math.min(leadingSpaces, 8));
-      const lastPart = parts[parts.length - 1]!;
-      if (lastPart.startsWith("<p")) {
-        // Remove closing </p>, add <br> + indented line, re-close
-        parts[parts.length - 1] = lastPart.replace(
-          /<\/p>$/,
-          `<br>\n${nbsp}${renderInlineMarkdown(trimmed)}</p>`,
-        );
-        continue;
-      }
+      last.html = last.html.replace(
+        /<\/p>$/,
+        `<br>\n${nbsp}${renderInlineMarkdown(trimmed)}</p>`,
+      );
+      continue;
     }
 
-    parts.push(`<p>${renderInlineMarkdown(trimmed)}</p>`);
+    pushHtml(`<p>${renderInlineMarkdown(trimmed)}</p>`);
   }
 
-  if (inList) parts.push("</ul>");
-  return parts.join("\n");
+  if (inList) pushHtml("</ul>");
+
+  // No column breaks: simple concatenation.
+  if (!items.some((i) => i.type === "column-break")) {
+    return items.map((i) => (i as { type: "html"; html: string }).html).join("\n");
+  }
+
+  // Column breaks present: chunk into columns and wrap, mirroring renderPages.
+  const columns = items.reduce((cols, item) => {
+    if (item.type === "column-break") return [...cols, []];
+    return [...cols.slice(0, cols.length - 1), [...cols[cols.length - 1]!, item.html]];
+  }, [[]] as string[][]);
+  const wrapped = columns
+    .map((col) => `<div class="column">${col.join("\n")}</div>`)
+    .join("");
+  return `<div class="columns">${wrapped}</div>`;
 }

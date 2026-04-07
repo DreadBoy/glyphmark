@@ -61,6 +61,10 @@ export const GLYPHMARK_CSS = `
   -webkit-print-color-adjust: exact;
 }
 
+*, ::after, ::before {
+  box-sizing: border-box;
+}
+
 body { margin: 0; padding: 0; }
 p { margin: 0; }
 h1, h2, h3, h4, h5, h6 { margin: 0; }
@@ -91,10 +95,12 @@ a:hover { color: var(--gm-link-hover); }
 .my-0 { margin-top: 0; margin-bottom: 0; }
 .ml-auto { margin-left: auto; }
 
-.text-img {
+.action-img {
   max-height: 0.85em;
   margin-top: -0.25em;
   filter: none;
+  vertical-align: middle;
+  border-style: none;
 }
 
 .pointer {
@@ -105,11 +111,12 @@ a:hover { color: var(--gm-link-hover); }
 
 /* ── Spacing ───────────────────────────────────────────────── */
 
+.page *+.head,
 .page *+p, .page *+h1, .page *+h2, .page *+h3, .page *+h4, .page *+h5, .page *+h6,
-.page *+table, .page *+hr,
+.page *+table, .page *+hr, .page *+.ordinal, .page *+.hidden
 .page h1+ul, .page h2+ul, .page h3+ul, .page h4+ul, .page h5+ul, .page h6+ul,
 .page *+.item, .page *+.note, .page *+.rules, .page *+.info, .page *+.math,
-.page *+.right, .page *+.left, .page *+.p, .page *+.col-break {
+.page *+.p, .page *+.columns , .page *+.left , .page *+.right {
   margin-top: 0.5rem;
 }
 
@@ -125,20 +132,23 @@ a:hover { color: var(--gm-link-hover); }
 
 body { counter-reset: pages; }
 
-.bg-paper { background: var(--gm-paper); }
-
 .page {
-  display: flow-root;
-  max-width: 210mm;
-  padding: 5.25rem 5.5rem;
+  width: 210mm;
+  padding: 5.25rem 6.1rem;
   margin: 0 auto 0.25rem;
   position: relative;
+  color: #222;
+  background: var(--gm-paper);
+  display: flow-root;
 }
 
-/* Multi-column: adjacent .column siblings on the page float at 50% each.
-   Single .column (no adjacent column sibling) stays a normal block. */
+/* Multi-column wrapper: each .column child takes an equal share of the width. */
 .columns {
   display: flex;
+}
+
+.columns > .column {
+  flex: 1;
 }
 
 .page::after {
@@ -181,31 +191,32 @@ body { counter-reset: pages; }
   text-align: justify;
 }
 
-/* ── Column-Level Headings ─────────────────────────────────── */
-/* Direct-child selectors prevent bleed into block-internal headings
-   (.info > .page > .column > h2 is a different .column than the page-level one) */
+/* ── Page-Level Headings ───────────────────────────────────── */
+/* Top-level blocks are direct children of .page, or, inside a multi-column
+   section, of .page > .columns > .column. Block-internal headings (.info h1
+   etc.) are matched separately and unaffected by these selectors. */
 
-.page > .column > h1 {
+.page > h1, .page > .columns > .column > h1 {
   font-family: var(--font-display);
   font-size: 1.75rem;
   color: var(--gm-blue);
   margin-bottom: -0.5rem;
 }
 
-.page > .column > h2, .page > .column > .p h2 {
+.page > h2, .page > .ordinal > h2, .page > .columns > .column > h2 {
   font-family: var(--font-heading);
   font-size: 1.4rem;
   color: var(--gm-red);
 }
 
-.page > .column > h3 {
+.page > h3, .page > .columns > .column > h3 {
   font-family: var(--font-heading);
   font-variant: small-caps;
   font-size: 1.3rem;
   color: var(--gm-rust);
 }
 
-.page > .column > h4 {
+.page > h4, .page > .columns > .column > h4 {
   font-family: var(--font-heading);
   display: flex;
   background: var(--gm-blue);
@@ -217,7 +228,7 @@ body { counter-reset: pages; }
   letter-spacing: 0.75px;
 }
 
-.page > .column > h4::after {
+.page > h4::after, .page > .columns > .column > h4::after {
   position: absolute;
   content: "";
   left: 0;
@@ -229,7 +240,7 @@ body { counter-reset: pages; }
   border-bottom: 1px solid var(--gm-blue);
 }
 
-.page > .column > h5 {
+.page > h5, .page > .columns > .column > h5 {
   font-family: var(--font-ui-condensed);
   text-transform: uppercase;
   font-size: 1.4rem;
@@ -237,41 +248,19 @@ body { counter-reset: pages; }
   font-weight: bold;
 }
 
-.page > .column > p, .page > .column > ul li, .page > .column > ol li {
+.page > p, .page > ul li, .page > ol li,
+.page > .columns > .column > p,
+.page > .columns > .column > ul li,
+.page > .columns > .column > ol li {
   font-family: var(--font-body);
   font-size: 0.925rem;
 }
 
 /* ── Columns ───────────────────────────────────────────────── */
 
-.column {
-  padding-left: 0.6rem;
-  padding-right: 0.6rem;
-}
-
-.column .column:first-of-type { padding-left: 0; }
-.column .column:last-of-type { padding-right: 0; }
+.column:not(:last-of-type) { padding-right: 0.6rem; }
+.column:not(:first-of-type) { padding-left: 0.6rem; }
 .column+.column { border-left: 1px solid #F1F0EB; }
-
-/* Blocks behave as BFCs - contains floats and prevents margin collapsing */
-.info, .note, .rules, .math, .head, .item, .left, .right {
-  display: flow-root;
-}
-
-/* Blocks with internal columns (from pipe breaks): float adjacent .column children at 50%.
-   Blocks themselves are display: flow-root (above) so they contain these floats. */
-.info > .column:has(+ .column),  .info > .column + .column,
-.note > .column:has(+ .column),  .note > .column + .column,
-.rules > .column:has(+ .column), .rules > .column + .column,
-.math > .column:has(+ .column),  .math > .column + .column,
-.head > .column:has(+ .column),  .head > .column + .column,
-.item > .column:has(+ .column),  .item > .column + .column,
-.left > .column:has(+ .column),  .left > .column + .column,
-.right > .column:has(+ .column), .right > .column + .column {
-  float: left;
-  width: 50%;
-  box-sizing: border-box;
-}
 
 /* ── Watermark & Title ─────────────────────────────────────── */
 
@@ -314,8 +303,6 @@ body { counter-reset: pages; }
 /* ── Head Block ────────────────────────────────────────────── */
 
 .head {
-  padding: 0 0.6rem;
-  margin-bottom: 0.5rem;
   color: var(--gm-red);
 }
 
@@ -361,9 +348,15 @@ body { counter-reset: pages; }
   border-bottom-color: var(--gm-red);
 }
 
+/* To prevent bottom margin of <hr> from collapsing with top margin of next element */
+.head:has(hr) {
+  display: flow-root
+}
+
 /* ── Info Block ────────────────────────────────────────────── */
 
 .info {
+  display: flow-root;
   font-family: var(--font-ui);
   padding: 0.5rem;
   border-radius: 0.25rem;
@@ -387,22 +380,11 @@ body { counter-reset: pages; }
   white-space: nowrap;
 }
 
-.info h5 {
-  font-family: var(--font-ui);
-  font-weight: bold;
-  text-transform: uppercase;
-  line-height: 1.5;
-  margin-bottom: -0.5rem;
-  white-space: nowrap;
-  text-align: center;
-}
-
 .info h3 {
   font-family: var(--font-display);
   text-align: center;
   font-size: 1.25rem;
   font-kerning: none;
-  margin-top: -0.5rem;
   margin-bottom: -0.5rem;
   color: var(--gm-gold);
   font-variant-ligatures: no-common-ligatures;
@@ -412,6 +394,16 @@ body { counter-reset: pages; }
   font-family: var(--font-heading);
   font-weight: normal;
   font-size: 1.4rem;
+  text-align: center;
+}
+
+.info h5 {
+  font-family: var(--font-ui);
+  font-weight: bold;
+  text-transform: uppercase;
+  line-height: 1.5;
+  margin-bottom: -0.5rem;
+  white-space: nowrap;
   text-align: center;
 }
 
@@ -442,6 +434,7 @@ body { counter-reset: pages; }
 /* ── Note Block ────────────────────────────────────────────── */
 
 .note {
+  display: flow-root;
   font-family: var(--font-ui);
   padding: 0.5rem;
   border-radius: 0.25rem;
@@ -463,6 +456,7 @@ body { counter-reset: pages; }
 /* ── Rules Block ───────────────────────────────────────────── */
 
 .rules {
+  display: flow-root;
   padding: 0.5rem;
   border-radius: 0.25rem;
   background: var(--gm-rules-bg);
@@ -485,6 +479,7 @@ body { counter-reset: pages; }
 /* ── Math Block ────────────────────────────────────────────── */
 
 .math {
+  display: flow-root;
   padding: 0.5rem;
   background: var(--gm-math-bg);
   border-top: 2px solid var(--gm-math-border);
@@ -500,6 +495,7 @@ body { counter-reset: pages; }
 /* ── Item Block ────────────────────────────────────────────── */
 
 .item {
+  display: flow-root;
   font-family: var(--font-ui);
 }
 
@@ -546,7 +542,7 @@ body { counter-reset: pages; }
 /* ── Traits ────────────────────────────────────────────────── */
 
 .traits {
-  margin-top: 0.25rem;
+  margin-top: 0.2rem;
   margin-bottom: 0.25rem;
 }
 
@@ -569,12 +565,11 @@ body { counter-reset: pages; }
 
 .pf-trait-edge {
   padding: 0.25rem 0 0.1rem 0;
-  min-width: 0;
   overflow: hidden;
   vertical-align: top;
   background-color: var(--gm-trait-edge);
-  width: 0px;
-  display: inline-block;
+  border-right-width: 2px;
+  width: 0;
 }
 
 .pf-trait-uncommon { background: var(--gm-trait-uncommon); }
@@ -678,6 +673,7 @@ body { counter-reset: pages; }
   width: 100%;
   border-collapse: collapse;
   border-spacing: 0;
+  text-align: left;
 }
 
 .page thead tr th {
@@ -718,6 +714,20 @@ body { counter-reset: pages; }
 .right p:has(> strong:first-child) {
   padding-left: 1em;
   text-indent: -1em;
+}
+
+/* ── H2 ordinals ──────────────────────────────────────────-- */
+
+.ordinal {
+  display: flow-root;
+}
+
+.ordinal h2:first-child {
+  float: left;
+}
+.ordinal h2:last-child {
+  float: right;
+  margin: 0;
 }
 
 /* ── Print ─────────────────────────────────────────────────── */

@@ -124,8 +124,7 @@ function renderPages(nodes: ScribeNode[], state: RenderState): string[] {
 
 
     const parts: string[] = [];
-    parts.push('<div class="bg-paper page">');
-    parts.push('<div class="page-overlay"></div>');
+    parts.push('<div class="page">');
     parts.push(currentPageContent.join(""));
 
     if (state.watermark) {
@@ -135,8 +134,9 @@ function renderPages(nodes: ScribeNode[], state: RenderState): string[] {
       parts.push(`<div class="title"><h1>${escapeHtml(state.title)}</h1></div>`);
     }
 
+    parts.push('<div class="page-overlay"></div>');
     parts.push("</div>"); // .page
-    return parts.join("\n");
+    return parts.join("");
   });
 }
 
@@ -163,7 +163,7 @@ function renderInlineNode(node: ScribeNode, state: RenderState): string {
       if (node.level === 2) {
         const ordinalMatch = text.match(/^(.+?)\s+(\d+(?:st|nd|rd|th))\s*$/i);
         if (ordinalMatch) {
-          return `<div class="p d-flex"><h2>${renderInlineMarkdown(ordinalMatch[1]!)}</h2><h2 class="mr-0 my-0 ml-auto">${ordinalMatch[2]!}</h2></div>`;
+          return `<div class="ordinal"><h2>${renderInlineMarkdown(ordinalMatch[1]!)}</h2><h2>${ordinalMatch[2]!}</h2></div>`;
         }
       }
 
