@@ -279,9 +279,20 @@ function renderItemBlock(
   // First separator
   parts.push("<hr>");
 
-  // Traits
+  // Traits — sort: rarity, alignment, size, then source order
   if (item.traits.length > 0) {
-    const traitDivs = item.traits.map((t) => {
+    const categoryOrder = (t: string): number => {
+      const cls = getTraitClass(t);
+      if (cls === " pf-trait-uncommon" || cls === " pf-trait-rare" || cls === " pf-trait-unique") return 0;
+      if (cls === " pf-trait-align") return 1;
+      if (cls === " pf-trait-size") return 2;
+      return 3;
+    };
+    const sortedTraits = item.traits
+      .map((t, i) => ({ t, i, c: categoryOrder(t) }))
+      .sort((a, b) => a.c - b.c || a.i - b.i)
+      .map((x) => x.t);
+    const traitDivs = sortedTraits.map((t) => {
       const traitClass = getTraitClass(t);
       return `<div class="pf-trait${traitClass}">${escapeHtml(t)}</div><!---->`;
     });

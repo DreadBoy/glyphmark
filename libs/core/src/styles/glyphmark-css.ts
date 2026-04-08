@@ -72,7 +72,7 @@ h1, h2, h3, h4, h5, h6 { margin: 0; }
 img { filter: none; }
 
 ul {
-  margin-bottom: 0;
+  margin: 0;
   padding-left: 2rem;
 }
 
@@ -125,8 +125,6 @@ a:hover {
 .page *+.p, .page *+.columns , .page *+.left , .page *+.right {
   margin-top: 0.5rem;
 }
-
-.page *+ul { margin-top: 0; }
 
 .right+.info, .right+.rules, .right+.math, .right+.note {
   margin-top: 0;
@@ -548,7 +546,7 @@ body { counter-reset: pages; }
 /* ── Traits ────────────────────────────────────────────────── */
 
 .traits {
-  margin-top: 0.2rem;
+  margin-top: 0.25rem;
   margin-bottom: 0.25rem;
 }
 
@@ -651,8 +649,8 @@ body { counter-reset: pages; }
 }
 
 .left li, .right li {
-  padding-left: 0;
-  text-indent: 0;
+  padding-left: 0.5em;
+  text-indent: -0.5em;
 }
 
 .right h2, .right *+h2, .right h3, .right *+h3,
