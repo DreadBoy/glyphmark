@@ -651,8 +651,8 @@ body { counter-reset: pages; }
 }
 
 .left li, .right li {
-  padding-left: 0.5em;
-  text-indent: -0.5em;
+  padding-left: 0;
+  text-indent: 0;
 }
 
 .right h2, .right *+h2, .right h3, .right *+h3,
@@ -711,6 +711,7 @@ body { counter-reset: pages; }
 /* ── Hanging Indent ────────────────────────────────────────── */
 /* Paragraphs starting with bold text get a hanging indent inside blocks */
 
+.page > p:has(> strong:first-child),
 .item p:has(> strong:first-child),
 .note p:has(> strong:first-child),
 .rules p:has(> strong:first-child),

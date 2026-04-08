@@ -298,9 +298,9 @@ function renderItemBlock(
     parts.push(renderBlockContent(expanded));
   }
 
-  // Second separator (only if there was a top section before the body)
+  // Second separator (after top section or traits, before body)
   if (item.body) {
-    if (item.topSection) {
+    if (item.topSection || item.traits.length > 0) {
       parts.push("<hr>");
     }
     const expanded = expandRefs(item.body, state.contentRefs);
