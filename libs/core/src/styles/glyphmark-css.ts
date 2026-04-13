@@ -87,6 +87,7 @@ hr {
 
 a {
   color: var(--gm-link);
+  transition: color .15s ease-in-out;
   text-decoration: none;
 }
 a:hover {
@@ -96,11 +97,6 @@ a:hover {
 
 /* ── Layout Utilities ──────────────────────────────────────── */
 
-.d-flex { display: flex; }
-.mr-0 { margin-right: 0; }
-.my-0 { margin-top: 0; margin-bottom: 0; }
-.ml-auto { margin-left: auto; }
-
 .action-img {
   max-height: 0.85em;
   margin-top: -0.25em;
@@ -108,12 +104,6 @@ a:hover {
   vertical-align: middle;
   border-style: none;
 }
-
-.pointer {
-  cursor: pointer;
-  transition: color .15s ease-in-out;
-}
-
 
 /* ── Spacing ───────────────────────────────────────────────── */
 

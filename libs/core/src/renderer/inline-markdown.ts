@@ -39,7 +39,7 @@ export function renderInlineMarkdown(text: string): string {
   // Label links: [text](#label) → scribe-style anchor
   html = html.replace(
     /\[([^\]]+)\]\(#([^)]+)\)/g,
-    '<a data-label="$2" href="#" class="pointer">$1</a>',
+    '<a data-label="$2" href="#">$1</a>',
   );
 
   // Regular links: [text](url)
