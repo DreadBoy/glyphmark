@@ -19,3 +19,5 @@ right (
 )
 
 **Requirements** You must be wielding a two-handed melee weapon with which you are trained, and you must have a shield raised or be benefiting from cover. This requirement text is intentionally long so that it wraps to multiple lines, making the hanging indent visually obvious. The first line starts at the bold label, while continuation lines should be indented past the label.
+
+The editor makes use of **markdown** for a lot of the formatting. A *basic guide* is provided in the help window. Use the menu on the top left to find it.

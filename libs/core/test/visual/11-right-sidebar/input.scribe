@@ -5,4 +5,10 @@ Content inside the right sidebar area.
 More sidebar content.
 )
 
-Main body text beside the sidebar.
+Main body text beside the sidebar. This paragraph needs to be long enough to fill the space to the right of the sidebar and continue past its bottom edge, so we can see how the text reflows to the full page width once the sidebar ends. As the paragraph keeps going it should first wrap in the narrow column that sits to the right of the sidebar, and then once the sidebar has ended the remaining lines should expand to occupy the full content width of the page.
+
+Here is a second paragraph that starts well below where the sidebar ended. It should be laid out using the full page width because nothing is occupying the right column anymore.
+
+# A Heading After the Sidebar
+
+This final paragraph exists purely to add enough text to verify that multiple paragraphs after the sidebar all use the full width and none of them are still indented as if the sidebar were still present.
