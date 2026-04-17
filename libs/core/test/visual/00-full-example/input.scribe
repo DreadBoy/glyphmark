@@ -52,7 +52,7 @@ For the best results use the **Chrome** web browser, or a browser that uses Chro
 Sometimes this application will be updated by the developer. In such cases it's important to read the following text to understand what has changed. The fates are ever shifting.
 
 ## Known Issues ((++Known Issues))
-* Report issues to hi@pf2.tools
+* Report issues to [hi@pf2.tools](mailto:hi@pf2.tools)
 * Export to PDF has been removed.
 * To save a PDF, print the document and set the **destination** to **Save as PDF**.
 
@@ -282,7 +282,7 @@ But maybe this line should start indented? When you start a line with spaces it 
 ## Image ((++Images))
 What about an image? Here we go!
 
-![favicon](/favicon.png)
+![favicon](https://images.unsplash.com/photo-1612380318869-7925b91da6ba?w=120)
 
 ### Hosting
 Scribe does not host images. Use [imgur](http://imgur.com) or a similar service to host images.
