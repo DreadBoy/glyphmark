@@ -139,6 +139,7 @@ body { counter-reset: pages; }
 /* Multi-column wrapper: each .column child takes an equal share of the width. */
 .columns {
   display: flex;
+  clear: both;
 }
 
 .columns > .column {
@@ -610,6 +611,7 @@ body { counter-reset: pages; }
   float: left;
   padding-right: 0.5rem;
   margin-right: 0.5rem;
+  margin-bottom: 0.7rem;
   border-right: 1px solid var(--gm-red);
 }
 
@@ -622,6 +624,7 @@ body { counter-reset: pages; }
   float: right;
   padding-left: 0.5rem;
   margin-left: 0.5rem;
+  margin-bottom: 0.7rem;
   border-left: 1px solid var(--gm-red);
 }
 
