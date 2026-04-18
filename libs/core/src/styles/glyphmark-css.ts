@@ -489,7 +489,6 @@ body { counter-reset: pages; }
 /* ── Item Block ────────────────────────────────────────────── */
 
 .item {
-  display: flow-root;
   font-family: var(--font-ui);
 }
 
@@ -527,7 +526,7 @@ body { counter-reset: pages; }
 
 .item h3 { margin-top: 0.25rem; }
 
-.item hr { margin: 0; clear: both; }
+.item hr { margin: 0; overflow: visible; }
 
 .item *+p { margin: 0; }
 .item p.hang + p.hang { margin: 0; }
