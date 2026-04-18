@@ -146,6 +146,12 @@ body { counter-reset: pages; }
   flex: 1;
 }
 
+/* Clearing element emitted between sections so floated sidebars from the
+   preceding section don't bleed into the next one. Zero-height in flow. */
+.clear {
+  clear: both;
+}
+
 .page::after {
   position: absolute;
   bottom: 2rem;

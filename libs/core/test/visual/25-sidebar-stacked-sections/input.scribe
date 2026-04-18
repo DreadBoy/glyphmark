@@ -1,0 +1,53 @@
+left (
+# Left Sidebar
+Content on the left side.
+
+## Header Two
+More sidebar text to fill space.
+
+### Header Three
+Even more.
+)
+
+# Main Heading After Left
+
+This main content sits beside the left sidebar. It should fill the area to the right of the sidebar until the section ends. The paragraph keeps going so that the main column is taller than the sidebar, and then text reflows to the full content width once the sidebar area ends.
+
+## Sub-heading
+
+Another paragraph in the left-sidebar section to provide enough content. This paragraph also wraps over multiple lines so there is plenty of vertical space in the main column of this section.
+
+Even more text here to really push the main content down below where the sidebar ends. The sidebar has three short headings and three short paragraphs, but the main area has many long paragraphs so it will extend far past the sidebar bottom edge.
+
+Yet another paragraph to ensure the main area is clearly taller than the sidebar. This is important to expose any bug where the content fails to reflow to full width after the sidebar ends.
+
+/
+
+-
+
+/
+
+right (
+# Right Sidebar
+Content on the right side.
+
+## Header Two
+More sidebar text to fill space.
+
+### Header Three
+Even more.
+)
+
+# Main Heading After Right
+
+This main content sits beside the right sidebar.
+
+## Sub-heading
+
+Another paragraph in the right-sidebar section to provide enough content.
+
+/
+
+# Closing Heading
+
+A final paragraph after the right sidebar section to confirm the layout closes cleanly.

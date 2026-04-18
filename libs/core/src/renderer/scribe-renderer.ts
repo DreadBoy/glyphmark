@@ -193,6 +193,11 @@ function renderNode(node: ScribeNode, state: RenderState): string {
     case "hr":
       return "<hr>";
 
+    case "end-columns":
+      // Emits a clearing element so floated sidebars from the preceding
+      // section don't bleed into the next one.
+      return '<div class="clear"></div>';
+
     case "head":
     case "info":
     case "rules":
