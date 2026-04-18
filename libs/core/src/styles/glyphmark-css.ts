@@ -526,6 +526,7 @@ body { counter-reset: pages; }
 
 .item h3 { margin-top: 0.25rem; }
 
+.page > hr { clear: both; }
 .item hr { margin: 0; overflow: visible; }
 
 .item *+p { margin: 0; }
