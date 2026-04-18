@@ -129,7 +129,7 @@ export function parseScribe(input: string): ScribeDocument {
 
   // Split hidden section (everything after lone %)
   let hiddenSection = "";
-  const hiddenMatch = content.match(/^\s*%\s*$/m);
+  const hiddenMatch = content.match(/^%\s*$/m);
   if (hiddenMatch && hiddenMatch.index !== undefined) {
     hiddenSection = content.slice(hiddenMatch.index + hiddenMatch[0].length);
     content = content.slice(0, hiddenMatch.index);
@@ -217,29 +217,29 @@ export function parseScribe(input: string): ScribeDocument {
       continue;
     }
 
-    // Page break
-    if (trimmed === "=") {
+    // Page break (lone =, no leading whitespace)
+    if (line === "=") {
       doc.body.push({ type: "page-break" });
       i++;
       continue;
     }
 
-    // Column break (lone |)
-    if (trimmed === "|") {
+    // Column break (lone |, no leading whitespace)
+    if (line === "|") {
       doc.body.push({ type: "column-break" });
       i++;
       continue;
     }
 
-    // End columns (lone /)
-    if (trimmed === "/") {
+    // End columns (lone /, no leading whitespace)
+    if (line === "/") {
       doc.body.push({ type: "end-columns" });
       i++;
       continue;
     }
 
-    // Horizontal rule (lone -)
-    if (trimmed === "-") {
+    // Horizontal rule (lone -, no leading whitespace)
+    if (line === "-") {
       doc.body.push({ type: "hr" });
       i++;
       continue;
