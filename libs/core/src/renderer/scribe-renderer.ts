@@ -79,16 +79,15 @@ function renderPages(nodes: ScribeNode[], state: RenderState): string[] {
   }, [[]] as ScribeNode[][]);
 
   return pages.map((pageNodes) => {
-    const currentPageContent = pageNodes.reduce((chunks, node) => {
+    const sections = pageNodes.reduce((chunks, node) => {
       if(node.type == "end-columns" || node.type == "head")
         return [...chunks, [node], []]
       else
         return [...chunks.slice(0, chunks.length - 1), [...chunks[chunks.length - 1], node]];
-    }, [[]] as ScribeNode[][]).reduce((blocks, fullWidthSection) => {
+    }, [[]] as ScribeNode[][]);
+    const currentPageContent = sections.map((fullWidthSection, idx) => {
       const columnBreak = fullWidthSection.findIndex((node) => node.type == "column-break");
-      if( columnBreak < 0) {
-        return [...blocks, fullWidthSection.map(renderNodeInner).join("")];
-      } else {
+      if (columnBreak >= 0) {
         const columns = fullWidthSection.reduce((chunks, node) => {
           if(node.type == "column-break")
             return [...chunks, []];
@@ -96,9 +95,26 @@ function renderPages(nodes: ScribeNode[], state: RenderState): string[] {
             return [...chunks.slice(0, chunks.length - 1), [...chunks[chunks.length - 1], node]];
         }, [[]] as ScribeNode[][]);
         const wrapped = columns.map(column => `<div class="column">${column.map(renderNodeInner).join("")}</div>`).join("");
-        return [...blocks, `<div class='columns'>${wrapped}</div>`];
+        return `<div class='columns'>${wrapped}</div>`;
       }
-    }, []as string[]);
+      const inner = fullWidthSection.map(renderNodeInner).join("");
+      // Append .clear at the end of a sidebar section when the next section
+      // doesn't already clear floats on its own (hr, columns). Without this,
+      // the floated sidebar leaks into the following section and content
+      // wraps around it instead of starting full-width below.
+      const hasSidebar = fullWidthSection.some(
+        (n) => n.type == "left-sidebar" || n.type == "right-sidebar",
+      );
+      if (!hasSidebar) return inner;
+      const nextSection = sections.slice(idx + 1).find((s) =>
+        s.some((n) => n.type != "end-columns"),
+      );
+      const nextStartsWithClearer =
+        nextSection != null &&
+        nextSection[0] != null &&
+        (nextSection[0].type == "hr" || nextSection.some((n) => n.type == "column-break"));
+      return nextStartsWithClearer ? inner : inner + '<div class="clear"></div>';
+    });
 
 
 
@@ -192,11 +208,6 @@ function renderNode(node: ScribeNode, state: RenderState): string {
   switch (node.type) {
     case "hr":
       return "<hr>";
-
-    case "end-columns":
-      // Emits a clearing element so floated sidebars from the preceding
-      // section don't bleed into the next one.
-      return '<div class="clear"></div>';
 
     case "head":
     case "info":
