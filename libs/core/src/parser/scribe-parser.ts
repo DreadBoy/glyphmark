@@ -340,7 +340,7 @@ export function parseScribe(input: string): ScribeDocument {
 
     // Regular paragraph (possibly with leading indent)
     const leadingSpaces = line.match(/^(\s*)/)?.[1]?.length ?? 0;
-    const paragraphLines: string[] = [trimmed];
+    const paragraphLines: string[] = [line];
     i++;
 
     // Collect continuation lines (non-empty, not a special marker)
@@ -349,10 +349,10 @@ export function parseScribe(input: string): ScribeDocument {
       const nextTrimmed = nextLine.trim();
       if (
         nextTrimmed === "" ||
-        nextTrimmed === "=" ||
-        nextTrimmed === "|" ||
-        nextTrimmed === "/" ||
-        nextTrimmed === "-" ||
+        nextLine === "=" ||
+        nextLine === "|" ||
+        nextLine === "/" ||
+        nextLine === "-" ||
         nextTrimmed.startsWith("* ") ||
         nextTrimmed.match(
           /^(head|info|rules|note|math|item|left|right|css|watermark|title)\s*\(/,
@@ -368,7 +368,7 @@ export function parseScribe(input: string): ScribeDocument {
           break;
         }
       }
-      paragraphLines.push(nextTrimmed);
+      paragraphLines.push(nextLine);
       i++;
     }
 

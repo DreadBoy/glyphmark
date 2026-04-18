@@ -97,14 +97,14 @@ export function renderBlockContent(content: string, options?: {
 
     if (trimmed === "") continue;
 
-    // Horizontal rule inside blocks (lone -)
-    if (trimmed === "-") {
+    // Horizontal rule inside blocks (lone -, no leading whitespace)
+    if (line === "-") {
       pushHtml("<hr>");
       continue;
     }
 
-    // Column break inside blocks
-    if (trimmed === "|") {
+    // Column break inside blocks (lone |, no leading whitespace)
+    if (line === "|") {
       items.push({ type: "column-break" });
       continue;
     }
