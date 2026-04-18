@@ -147,6 +147,10 @@ export function renderBlockContent(content: string, options?: {
 
     // Regular paragraph
 
+    // Hanging indent: paragraphs starting with **bold** get class="hang"
+    const isHang = trimmed.startsWith("**") && trimmed.includes("**", 2);
+    const hangAttr = isHang ? ' class="hang"' : "";
+
     // Leading space indent: convert to &nbsp;
     const leadingSpaces = line.match(/^(\s+)/)?.[1]?.length ?? 0;
     const last = items[items.length - 1];
@@ -160,7 +164,7 @@ export function renderBlockContent(content: string, options?: {
       continue;
     }
 
-    pushHtml(`<p>${renderInlineMarkdown(trimmed)}</p>`);
+    pushHtml(`<p${hangAttr}>${renderInlineMarkdown(trimmed)}</p>`);
   }
 
   if (inList) pushHtml("</ul>");
