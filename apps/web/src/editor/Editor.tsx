@@ -3,6 +3,7 @@ import {Content, EditorContent, useEditor} from '@tiptap/react';
 import {useScribeCSS} from './useScribeCSS';
 import {scribeExtensions} from './extensions';
 import {loadDocument, saveDocument} from './storage';
+import {SlashMenu} from './SlashMenu';
 
 const INITIAL_CONTENT = {
   type: 'doc',
@@ -64,8 +65,11 @@ export function Editor() {
   }
 
   return (
-    <div id="result">
-      <EditorContent editor={editor} />
-    </div>
+    <>
+      <div id="result">
+        <EditorContent editor={editor} />
+      </div>
+      <SlashMenu />
+    </>
   );
 }

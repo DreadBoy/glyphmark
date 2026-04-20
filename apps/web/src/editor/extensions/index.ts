@@ -20,6 +20,7 @@ import { TableFooter } from './TableFooter';
 import { ItemBlock } from './ItemBlock';
 import { TraitList } from './TraitList';
 import { ParagraphClass } from './ParagraphClass';
+import { SlashCommands } from './slash/SlashCommands';
 
 export const scribeExtensions = [
   DocNode,
@@ -52,4 +53,5 @@ export const scribeExtensions = [
   ItemBlock,
   TraitList,
   ParagraphClass,
+  SlashCommands,
 ];
