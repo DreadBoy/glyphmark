@@ -97,6 +97,12 @@ function renderPages(nodes: ScribeNode[], state: RenderState): string[] {
         const wrapped = columns.map(column => `<div class="column">${column.map(renderNodeInner).join("")}</div>`).join("");
         return `<div class='columns'>${wrapped}</div>`;
       }
+      // Standalone HR section (lone `-` between `/` markers) acts as a
+      // visual section divider and needs more vertical breathing room
+      // than an HR adjacent to paragraphs or inside head/item blocks.
+      if (fullWidthSection.length === 1 && fullWidthSection[0]!.type === "hr") {
+        return '<hr class="section-divider">';
+      }
       const inner = fullWidthSection.map(renderNodeInner).join("");
       // Append .clear at the end of a sidebar section when the next section
       // doesn't already clear floats on its own (hr, columns). Without this,

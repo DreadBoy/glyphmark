@@ -152,6 +152,44 @@ body { counter-reset: pages; }
   clear: both;
 }
 
+/* Standalone HR acting as a section divider (lone - between / markers).
+   Nudged down to match legacy's gap above the rule. */
+.page > hr.section-divider {
+  margin-top: 0.7rem;
+}
+
+/* Main heading immediately after a sidebar that sits below a section
+   divider: legacy shows the h1 a bit further below the sidebar top
+   than a simple *+h1 margin would give. */
+.page > hr.section-divider + .left + h1,
+.page > hr.section-divider + .right + h1 {
+  margin-top: 1.1rem;
+}
+
+/* Inside a sidebar that follows a section divider, children from the
+   third onwards render 1 px lower than golden due to subpixel
+   rounding. Nudge them up via relative positioning (keeps layout,
+   fixes rendering). First two children (h1 + first p) already match. */
+.page > hr.section-divider + .left > :nth-child(n+3),
+.page > hr.section-divider + .right > :nth-child(n+3) {
+  position: relative;
+  top: -1px;
+}
+
+/* Heading immediately after a sidebar's .clear (the start of a new
+   section below a sidebar section). Legacy renders a slightly larger
+   gap here than the default *+h1 margin. */
+.page > .clear + h1 {
+  margin-top: -0.25rem;
+}
+
+/* Final paragraph of a closing section below a sidebar: trim 1 px
+   off its margin-bottom so the page's overall height matches
+   golden (which renders content ending 1 px earlier). */
+.page > .clear + h1 + p {
+  margin-bottom: -1px;
+}
+
 .page::after {
   position: absolute;
   bottom: 2rem;
