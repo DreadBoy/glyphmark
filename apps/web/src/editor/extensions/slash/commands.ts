@@ -194,32 +194,6 @@ export const SLASH_SECTIONS: SlashSection[] = [
           editor.chain().focus().deleteRange(range).setHorizontalRule().run();
         },
       },
-      {
-        id: 'section-divider',
-        label: 'Section divider',
-        description: 'Extra-spaced break between sections',
-        icon: '═',
-        run: (editor, range) => {
-          // Trailing empty paragraph so the cursor lands in a text position
-          // rather than a NodeSelection on the atom.
-          insertBlock(editor, range, [
-            { type: 'sectionDivider' },
-            { type: 'paragraph' },
-          ]);
-        },
-      },
-      {
-        id: 'clear',
-        label: 'Clear floats',
-        description: 'Force content below a floating sidebar',
-        icon: '⎚',
-        run: (editor, range) => {
-          insertBlock(editor, range, [
-            { type: 'clear' },
-            { type: 'paragraph' },
-          ]);
-        },
-      },
     ],
   },
   {

@@ -74,17 +74,14 @@ export const SlashCommands = Extension.create({
                 selectedIdx:
                   list.length === 0
                     ? 0
-                    : (current.selectedIdx + 1) % list.length,
+                    : Math.min(current.selectedIdx + 1, list.length - 1),
               });
               return true;
             }
             if (event.key === 'ArrowUp') {
               event.preventDefault();
               slashStore.set({
-                selectedIdx:
-                  list.length === 0
-                    ? 0
-                    : (current.selectedIdx - 1 + list.length) % list.length,
+                selectedIdx: Math.max(current.selectedIdx - 1, 0),
               });
               return true;
             }
