@@ -40,8 +40,10 @@ import { ItemBlock } from './ItemBlock';
 import { TraitList } from './TraitList';
 import { ParagraphClass } from './ParagraphClass';
 import { AutoHang } from './AutoHang';
+import { AutoTrimTrailing } from './AutoTrimTrailing';
 import { PasteSanitizer } from './PasteSanitizer';
 import { LinkInputRule } from './LinkInputRule';
+import { ActionSymbolInputRule } from './ActionSymbolInputRule';
 import { SlashCommands } from './slash/SlashCommands';
 
 export const scribeExtensions = [
@@ -84,7 +86,9 @@ export const scribeExtensions = [
   TraitList,
   ParagraphClass,
   AutoHang,
+  AutoTrimTrailing,
   PasteSanitizer,
   LinkInputRule,
+  ActionSymbolInputRule,
   SlashCommands,
 ];

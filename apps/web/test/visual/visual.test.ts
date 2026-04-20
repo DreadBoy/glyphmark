@@ -246,44 +246,12 @@ describe("editor interaction tests", { timeout: 120_000, concurrent: true }, () 
           `Editor state after interactions in ${dir} did not match golden.json`,
         ).toEqual(goldenNorm);
 
-        // Trim trailing empty paragraphs inside containers before
-        // screenshotting: they're bookkeeping left by atom inserts and
-        // lift-out fallbacks, and would shift the PNG.
+        // Move cursor to doc start so AutoTrimTrailing can collapse the
+        // trailing empty paragraph the cursor was parked in, then blur
+        // so the caret isn't in the PNG.
         await page.evaluate(() => {
           const editor = (window as any).__glyphmark_editor;
-          const strippable = new Set([
-            "page",
-            "column",
-            "leftSidebar",
-            "rightSidebar",
-            "infoBlock",
-            "rulesBlock",
-            "noteBlock",
-            "mathBlock",
-            "headBlock",
-            "itemBlock",
-          ]);
-          let changed = true;
-          while (changed) {
-            changed = false;
-            const state = editor.state;
-            const tr = state.tr;
-            state.doc.descendants((node: any, pos: number) => {
-              if (!strippable.has(node.type.name)) return;
-              if (node.childCount <= 1) return;
-              const last = node.lastChild;
-              if (
-                last?.type.name === "paragraph" &&
-                last.content.size === 0
-              ) {
-                const end = pos + node.nodeSize - 1;
-                tr.delete(end - last.nodeSize, end);
-                changed = true;
-                return false;
-              }
-            });
-            if (changed) editor.view.dispatch(tr);
-          }
+          editor.commands.setTextSelection(0);
           (document.activeElement as HTMLElement | null)?.blur();
         });
 

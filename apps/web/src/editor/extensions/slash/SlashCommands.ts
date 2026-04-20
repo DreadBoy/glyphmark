@@ -116,16 +116,13 @@ export const SlashCommands = Extension.create({
 
             const $from = view.state.doc.resolve(from);
             const parent = $from.parent;
-            if (!parent.isTextblock) return false;
-            // Allow slash in paragraph or heading (headings need it for
-            // inline commands like action symbols).
-            if (parent.type.name !== 'paragraph' && parent.type.name !== 'heading') return false;
-            // Require a word boundary before the slash so we don't trigger
-            // inside URLs, fractions, regex literals, etc.
-            const charBefore = $from.parentOffset > 0
-              ? parent.textBetween($from.parentOffset - 1, $from.parentOffset, null, '')
-              : '';
-            if (charBefore && !/\s/.test(charBefore)) return false;
+            // Slash is for block-level commands. Inline inserts (action
+            // symbols) have their own input rules (:a:, :aa:, …).
+            if (parent.type.name !== 'paragraph') return false;
+            // Only trigger in an empty/whitespace paragraph so slashes in
+            // prose stay as slashes.
+            const before = parent.textBetween(0, $from.parentOffset, null, '');
+            if (before.trim() !== '') return false;
 
             // Defer so the '/' character actually lands before we read coords.
             setTimeout(() => {

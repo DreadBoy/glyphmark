@@ -71,15 +71,6 @@ function insertColumns(editor: Editor, range: Range, n: number) {
   }
 }
 
-function insertInline(editor: Editor, range: Range, node: unknown) {
-  editor
-    .chain()
-    .focus()
-    .deleteRange(range)
-    .insertContent(node as never)
-    .run();
-}
-
 export const SLASH_SECTIONS: SlashSection[] = [
   {
     section: 'Basic',
@@ -388,76 +379,6 @@ export const SLASH_SECTIONS: SlashSection[] = [
         aliases: ['item'],
         run: (editor, range) => {
           insertBlock(editor, range, blockWithParagraph('itemBlock'));
-        },
-      },
-    ],
-  },
-  {
-    section: 'Actions',
-    items: [
-      {
-        id: 'a-single',
-        label: 'Single action',
-        description: 'One-action symbol',
-        icon: ':a:',
-        aliases: ['action', 'single'],
-        run: (editor, range) => {
-          insertInline(editor, range, {
-            type: 'actionSymbol',
-            attrs: { symbol: ':a:' },
-          });
-        },
-      },
-      {
-        id: 'a-two',
-        label: 'Two actions',
-        description: 'Two-action symbol',
-        icon: ':aa:',
-        aliases: ['double'],
-        run: (editor, range) => {
-          insertInline(editor, range, {
-            type: 'actionSymbol',
-            attrs: { symbol: ':aa:' },
-          });
-        },
-      },
-      {
-        id: 'a-three',
-        label: 'Three actions',
-        description: 'Three-action symbol',
-        icon: ':aaa:',
-        aliases: ['triple'],
-        run: (editor, range) => {
-          insertInline(editor, range, {
-            type: 'actionSymbol',
-            attrs: { symbol: ':aaa:' },
-          });
-        },
-      },
-      {
-        id: 'a-reaction',
-        label: 'Reaction',
-        description: 'Reaction symbol',
-        icon: ':r:',
-        aliases: ['reaction'],
-        run: (editor, range) => {
-          insertInline(editor, range, {
-            type: 'actionSymbol',
-            attrs: { symbol: ':r:' },
-          });
-        },
-      },
-      {
-        id: 'a-free',
-        label: 'Free action',
-        description: 'Free-action symbol',
-        icon: ':f:',
-        aliases: ['free'],
-        run: (editor, range) => {
-          insertInline(editor, range, {
-            type: 'actionSymbol',
-            attrs: { symbol: ':f:' },
-          });
         },
       },
     ],
