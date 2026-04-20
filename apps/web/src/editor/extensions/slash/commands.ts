@@ -244,22 +244,13 @@ export const SLASH_SECTIONS: SlashSection[] = [
         },
       },
       {
-        id: 'columns-2',
+        id: 'columns',
         label: '2 columns',
         description: 'Two equal-width columns',
         icon: '▥',
-        aliases: ['columns'],
+        aliases: ['columns-2', 'columns'],
         run: (editor, range) => {
           insertColumns(editor, range, 2);
-        },
-      },
-      {
-        id: 'columns-3',
-        label: '3 columns',
-        description: 'Three equal-width columns',
-        icon: '▦',
-        run: (editor, range) => {
-          insertColumns(editor, range, 3);
         },
       },
       {
