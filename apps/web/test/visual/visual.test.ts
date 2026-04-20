@@ -78,68 +78,6 @@ function comparePngs(
   };
 }
 
-function isEmptyParagraph(node: unknown): boolean {
-  if (!node || typeof node !== "object") return false;
-  const n = node as Record<string, unknown>;
-  if (n.type !== "paragraph") return false;
-  const content = n.content;
-  if (!content || (Array.isArray(content) && content.length === 0)) return true;
-  return false;
-}
-
-function stripTrailingEmptyParagraphs(content: unknown): unknown {
-  if (!Array.isArray(content)) return content;
-  const result = [...content];
-  while (result.length > 0 && isEmptyParagraph(result[result.length - 1])) {
-    result.pop();
-  }
-  return result;
-}
-
-function normalize(node: unknown): unknown {
-  if (Array.isArray(node)) return node.map(normalize);
-  if (typeof node !== "object" || node === null) return node;
-  const src = node as Record<string, unknown>;
-  const out: Record<string, unknown> = {};
-  for (const [k, v] of Object.entries(src)) {
-    if (k === "attrs" && v && typeof v === "object") {
-      const cleaned: Record<string, unknown> = {};
-      for (const [ak, av] of Object.entries(v as Record<string, unknown>)) {
-        if (av === null || av === undefined) continue;
-        if (av === false) continue;
-        // Table cells default colspan/rowspan to 1; drop to match goldens.
-        if ((ak === "colspan" || ak === "rowspan") && av === 1) continue;
-        cleaned[ak] = av;
-      }
-      if (Object.keys(cleaned).length) out[k] = cleaned;
-    } else if (
-      k === "content" &&
-      typeof src.type === "string" &&
-      [
-        "page",
-        "doc",
-        "column",
-        "leftSidebar",
-        "rightSidebar",
-        "infoBlock",
-        "rulesBlock",
-        "noteBlock",
-        "mathBlock",
-        "headBlock",
-        "itemBlock",
-      ].includes(src.type)
-    ) {
-      // Trailing empty paragraphs in containers are editor bookkeeping
-      // (cursor landing pads after atom/block inserts, lift-out remnants);
-      // not semantically meaningful, so strip before comparing.
-      out[k] = normalize(stripTrailingEmptyParagraphs(v));
-    } else {
-      out[k] = normalize(v);
-    }
-  }
-  return out;
-}
-
 async function runInteractions(page: Page, interactions: Interaction[]) {
   const editorSelector = ".ProseMirror";
   await page.click(editorSelector);
@@ -234,24 +172,25 @@ describe("editor interaction tests", { timeout: 120_000, concurrent: true }, () 
         await resetEditor(page);
         await runInteractions(page, interactions);
 
-        const actualJson = await page.evaluate(() => {
-          return (window as any).__glyphmark_editor.getJSON();
-        });
-
-        const actualNorm = normalize(actualJson);
-        const goldenNorm = normalize(golden);
-
-        expect(
-          actualNorm,
-          `Editor state after interactions in ${dir} did not match golden.json`,
-        ).toEqual(goldenNorm);
-
-        // Move cursor to doc start so AutoTrimTrailing can collapse the
-        // trailing empty paragraph the cursor was parked in, then blur
-        // so the caret isn't in the PNG.
+        // Move cursor to doc start so AutoTrimTrailing can collapse any
+        // trailing empty paragraph the cursor was parked in. Do this
+        // before reading state so the JSON we compare is the same one
+        // the PNG will capture.
         await page.evaluate(() => {
           const editor = (window as any).__glyphmark_editor;
           editor.commands.setTextSelection(0);
+        });
+
+        const actualJson = await page.evaluate(() => {
+          return (window as any).__glyphmark_getCanonicalJSON();
+        });
+
+        expect(
+          actualJson,
+          `Editor state after interactions in ${dir} did not match golden.json`,
+        ).toEqual(golden);
+
+        await page.evaluate(() => {
           (document.activeElement as HTMLElement | null)?.blur();
         });
 

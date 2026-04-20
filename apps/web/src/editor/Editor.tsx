@@ -4,6 +4,7 @@ import {useScribeCSS} from './useScribeCSS';
 import {scribeExtensions} from './extensions';
 import {loadDocument, saveDocument} from './storage';
 import {SlashMenu} from './SlashMenu';
+import {getCanonicalJSON} from './canonicalJson';
 
 const INITIAL_CONTENT = {
   type: 'doc',
@@ -47,7 +48,7 @@ export function Editor() {
       onUpdate({ editor }) {
         if (saveTimer.current) clearTimeout(saveTimer.current);
         saveTimer.current = setTimeout(() => {
-          saveDocument(editor.getJSON());
+          saveDocument(getCanonicalJSON(editor));
         }, SAVE_DELAY);
       },
     },
@@ -57,6 +58,7 @@ export function Editor() {
   useEffect(() => {
     if (editor) {
       (window as any).__glyphmark_editor = editor;
+      (window as any).__glyphmark_getCanonicalJSON = () => getCanonicalJSON(editor);
     }
   }, [editor]);
 
