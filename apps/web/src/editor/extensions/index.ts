@@ -44,7 +44,9 @@ import { AutoTrimTrailing } from './AutoTrimTrailing';
 import { PasteSanitizer } from './PasteSanitizer';
 import { LinkInputRule } from './LinkInputRule';
 import { ActionSymbolInputRule } from './ActionSymbolInputRule';
+import { Placeholders } from './Placeholders';
 import { SlashCommands } from './slash/SlashCommands';
+import { ColonCommands } from './colon/ColonCommands';
 
 export const scribeExtensions = [
   DocNode,
@@ -90,5 +92,7 @@ export const scribeExtensions = [
   PasteSanitizer,
   LinkInputRule,
   ActionSymbolInputRule,
+  Placeholders,
   SlashCommands,
+  ColonCommands,
 ];

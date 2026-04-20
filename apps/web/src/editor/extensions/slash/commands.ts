@@ -365,11 +365,41 @@ export const SLASH_SECTIONS: SlashSection[] = [
       {
         id: 'item-block',
         label: 'Item block',
-        description: 'Framed item/feat/spell entry',
+        description: 'Framed item/feat/spell — starts pre-filled',
         icon: '❒',
         aliases: ['item'],
         run: (editor, range) => {
-          insertBlock(editor, range, blockWithParagraph('itemBlock'));
+          // Seed a full template: title, subtitle, divider, traits,
+          // body. Ghost placeholders teach the rest.
+          editor
+            .chain()
+            .focus()
+            .deleteRange(range)
+            .insertContent({
+              type: 'itemBlock',
+              content: [
+                { type: 'heading', attrs: { level: 1 } },
+                { type: 'heading', attrs: { level: 2 } },
+                { type: 'horizontalRule' },
+                { type: 'traitList', attrs: { traits: [] } },
+                { type: 'paragraph' },
+              ],
+            })
+            .run();
+          // Drop the cursor on the title so the first keystroke names
+          // the item.
+          const { state } = editor;
+          let titlePos: number | null = null;
+          state.doc.descendants((n, pos) => {
+            if (titlePos !== null) return false;
+            if (n.type.name === 'heading' && n.attrs.level === 1 && n.content.size === 0) {
+              titlePos = pos + 1;
+              return false;
+            }
+          });
+          if (titlePos !== null) {
+            editor.commands.setTextSelection(titlePos);
+          }
         },
       },
     ],

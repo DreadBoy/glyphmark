@@ -118,3 +118,77 @@ html, body, #root {
   font-size: inherit;
   margin: 0;
 }
+
+/* ── Placeholder ghost text ─────────────────────────────────────── */
+.ProseMirror .is-empty::before {
+  content: attr(data-placeholder);
+  float: left;
+  color: #c1b6a1;
+  pointer-events: none;
+  height: 0;
+}
+
+/* ── Status bar ─────────────────────────────────────────────────── */
+.editor-statusbar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 10px 20px;
+  font: 12px system-ui, -apple-system, sans-serif;
+  color: #1c1c1c;
+  background: #f7f3eb;
+  border-top: 1px solid #d4d4d4;
+  z-index: 100;
+  display: flex;
+  gap: 16px;
+  align-items: baseline;
+}
+.editor-statusbar strong {
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  font-size: 10px;
+  color: #5d0000;
+  font-weight: 600;
+}
+
+/* ── Trait chip input ───────────────────────────────────────────── */
+.traits-editable {
+  display: flex !important;
+  flex-wrap: wrap;
+  gap: 2px;
+  align-items: stretch;
+}
+.trait-chip {
+  cursor: pointer;
+  transition: filter 0.1s ease;
+}
+.trait-chip:hover {
+  filter: brightness(1.15);
+}
+.trait-input {
+  appearance: none;
+  border: 1px dashed #d4d4d4;
+  background: transparent;
+  padding: 0 8px;
+  min-width: 120px;
+  color: #1c1c1c;
+  font: inherit;
+  outline: none;
+}
+.trait-input:focus {
+  border-color: #5d0000;
+}
+
+/* ── Print: drop editor chrome so the page prints as-is ─────────── */
+@media print {
+  .editor-statusbar,
+  .trait-input,
+  .slash-menu {
+    display: none !important;
+  }
+  /* Kill the dashed border too so the chip strip prints clean. */
+  .traits-editable {
+    gap: 0;
+  }
+}

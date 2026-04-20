@@ -1,4 +1,6 @@
 import { Node, mergeAttributes } from '@tiptap/core';
+import { ReactNodeViewRenderer } from '@tiptap/react';
+import { TraitListView } from '../TraitListView';
 
 const SIZES = new Set(['tiny', 'small', 'medium', 'large', 'huge', 'gargantuan']);
 const ALIGNS = new Set([
@@ -27,6 +29,10 @@ export const TraitList = Node.create({
     return {
       traits: { default: [] as string[] },
     };
+  },
+
+  addNodeView() {
+    return ReactNodeViewRenderer(TraitListView);
   },
 
   parseHTML() {

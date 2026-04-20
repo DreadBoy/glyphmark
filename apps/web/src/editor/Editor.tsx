@@ -4,6 +4,8 @@ import {useScribeCSS} from './useScribeCSS';
 import {scribeExtensions} from './extensions';
 import {loadDocument, saveDocument} from './storage';
 import {SlashMenu} from './SlashMenu';
+import {ColonMenu} from './ColonMenu';
+import {StatusBar} from './StatusBar';
 import {getCanonicalJSON} from './canonicalJson';
 
 const INITIAL_CONTENT = {
@@ -72,6 +74,8 @@ export function Editor() {
         <EditorContent editor={editor} />
       </div>
       <SlashMenu />
+      <ColonMenu />
+      {editor ? <StatusBar editor={editor} /> : null}
     </>
   );
 }

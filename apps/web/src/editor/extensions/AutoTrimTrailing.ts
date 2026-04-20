@@ -12,6 +12,10 @@ import { Plugin, PluginKey } from '@tiptap/pm/state';
  * Also keeps at least one paragraph per container so nothing becomes
  * empty in a way that violates the schema or the cursor can't enter.
  */
+// itemBlock is intentionally excluded — /item inserts a template that
+// ends in an empty body paragraph (with a ghost placeholder) the user
+// is meant to type into. Auto-trimming would eat it the moment the
+// cursor lands on the title.
 const TRIMMABLE = new Set([
   'page',
   'column',
@@ -22,7 +26,6 @@ const TRIMMABLE = new Set([
   'noteBlock',
   'mathBlock',
   'headBlock',
-  'itemBlock',
 ]);
 
 export const AutoTrimTrailing = Extension.create({
