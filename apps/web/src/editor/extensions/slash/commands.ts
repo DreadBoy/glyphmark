@@ -148,16 +148,6 @@ export const SLASH_SECTIONS: SlashSection[] = [
           editor.chain().focus().deleteRange(range).toggleBulletList().run();
         },
       },
-      {
-        id: 'ordered',
-        label: 'Numbered list',
-        description: 'Ordered list',
-        icon: '1.',
-        aliases: ['ol'],
-        run: (editor, range) => {
-          editor.chain().focus().deleteRange(range).toggleOrderedList().run();
-        },
-      },
     ],
   },
   {

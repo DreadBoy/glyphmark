@@ -1,4 +1,15 @@
-import StarterKit from '@tiptap/starter-kit';
+import { Text } from '@tiptap/extension-text';
+import { Paragraph } from '@tiptap/extension-paragraph';
+import { Heading } from '@tiptap/extension-heading';
+import { Bold } from '@tiptap/extension-bold';
+import { Italic } from '@tiptap/extension-italic';
+import { Strike } from '@tiptap/extension-strike';
+import { HardBreak } from '@tiptap/extension-hard-break';
+import { HorizontalRule } from '@tiptap/extension-horizontal-rule';
+import { BulletList } from '@tiptap/extension-bullet-list';
+import { ListItem } from '@tiptap/extension-list-item';
+import { Link } from '@tiptap/extension-link';
+import { UndoRedo, Dropcursor, Gapcursor } from '@tiptap/extensions';
 import { Table, TableRow, TableHeader, TableCell } from './Table';
 import { DocNode } from './DocNode';
 import { PageNode } from './PageNode';
@@ -20,16 +31,25 @@ import { TableFooter } from './TableFooter';
 import { ItemBlock } from './ItemBlock';
 import { TraitList } from './TraitList';
 import { ParagraphClass } from './ParagraphClass';
+import { PasteSanitizer } from './PasteSanitizer';
 import { SlashCommands } from './slash/SlashCommands';
 
 export const scribeExtensions = [
   DocNode,
-  StarterKit.configure({
-    document: false,
-    codeBlock: false,
-    code: false,
-    blockquote: false,
-  }),
+  Text,
+  Paragraph,
+  Heading,
+  Bold,
+  Italic,
+  Strike,
+  Link,
+  HardBreak,
+  HorizontalRule,
+  BulletList,
+  ListItem,
+  UndoRedo,
+  Dropcursor,
+  Gapcursor,
   PageNode,
   PageDecorations,
   OrdinalHeading,
@@ -53,5 +73,6 @@ export const scribeExtensions = [
   ItemBlock,
   TraitList,
   ParagraphClass,
+  PasteSanitizer,
   SlashCommands,
 ];
