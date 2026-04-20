@@ -1,44 +1,41 @@
 import { Node, mergeAttributes } from '@tiptap/core';
 import { ACTION_SYMBOLS } from '@glyphmark/core';
 
-const TYPE_TO_KEY: Record<string, string> = {
-  'action': ':a:',
-  'two-actions': ':aa:',
-  'three-actions': ':aaa:',
-  'reaction': ':r:',
-  'free-action': ':f:',
-};
+type SymbolKey = keyof typeof ACTION_SYMBOLS;
 
 export const ActionSymbol = Node.create({
   name: 'actionSymbol',
   group: 'inline',
   inline: true,
   atom: true,
+  selectable: false,
 
   addAttributes() {
     return {
-      type: { default: 'action' },
+      symbol: { default: ':a:' as SymbolKey },
     };
   },
 
   parseHTML() {
     return [{
-      tag: 'img.text-img',
+      tag: 'img.action-img',
       getAttrs: (el) => {
-        const src = (el as HTMLImageElement).src;
-        for (const [type, key] of Object.entries(TYPE_TO_KEY)) {
-          if (ACTION_SYMBOLS[key] === src) {
-            return { type };
-          }
-        }
-        return { type: 'action' };
+        const alt = (el as HTMLElement).getAttribute('alt') ?? '';
+        return ACTION_SYMBOLS[alt as SymbolKey] ? { symbol: alt } : false;
       },
     }];
   },
 
-  renderHTML({ node }) {
-    const key = TYPE_TO_KEY[node.attrs.type] || ':a:';
-    const src = ACTION_SYMBOLS[key] || ACTION_SYMBOLS[':a:'];
-    return ['img', mergeAttributes({ src, class: 'text-img' })];
+  renderHTML({ node, HTMLAttributes }) {
+    const symbol = node.attrs.symbol as SymbolKey;
+    const src = ACTION_SYMBOLS[symbol] ?? '';
+    return [
+      'img',
+      mergeAttributes(HTMLAttributes, {
+        class: 'action-img',
+        src,
+        alt: symbol,
+      }),
+    ];
   },
 });

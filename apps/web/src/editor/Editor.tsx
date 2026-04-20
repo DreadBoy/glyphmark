@@ -64,10 +64,8 @@ export function Editor() {
   }
 
   return (
-    <div className="editor-shell">
-      <div id="result">
-        <EditorContent editor={editor} />
-      </div>
+    <div id="result">
+      <EditorContent editor={editor} />
     </div>
   );
 }

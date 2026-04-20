@@ -1,19 +1,14 @@
 {
   "type": "doc",
-  "attrs": {
-    "title": "My Document Title"
-  },
   "content": [
     {
       "type": "page",
+      "attrs": { "title": "My Document Title" },
       "content": [
         {
           "type": "paragraph",
           "content": [
-            {
-              "type": "text",
-              "text": "Some body text to verify the title appears in the page header."
-            }
+            { "type": "text", "text": "Some body text to verify the title appears in the page header." }
           ]
         }
       ]

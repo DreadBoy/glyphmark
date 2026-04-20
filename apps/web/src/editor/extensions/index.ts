@@ -1,41 +1,55 @@
 import StarterKit from '@tiptap/starter-kit';
-import { Table } from '@tiptap/extension-table';
-import { TableRow } from '@tiptap/extension-table-row';
-import { TableHeader } from '@tiptap/extension-table-header';
-import { TableCell } from '@tiptap/extension-table-cell';
-import { InfoBlock, NoteBlock, RulesBlock, MathBlock, HeadBlock, LeftSidebar, RightSidebar } from './StyledBlock';
-import { ItemBlock } from './ItemBlock';
-import { TraitList } from './TraitList';
-import { ActionSymbol } from './ActionSymbol';
-import { TableFooter } from './TableFooter';
+import { Table, TableRow, TableHeader, TableCell } from './Table';
 import { DocNode } from './DocNode';
 import { PageNode } from './PageNode';
-import { SlashCommands } from './SlashCommands';
+import { PageDecorations } from './PageDecorations';
+import { OrdinalHeading } from './OrdinalHeading';
+import { ActionSymbol } from './ActionSymbol';
+import {
+  HeadBlock,
+  InfoBlock,
+  RulesBlock,
+  NoteBlock,
+  MathBlock,
+  LeftSidebar,
+  RightSidebar,
+} from './StyledBlocks';
+import { Columns, Column } from './Columns';
+import { SectionDivider, Clear } from './Dividers';
+import { TableFooter } from './TableFooter';
+import { ItemBlock } from './ItemBlock';
+import { TraitList } from './TraitList';
+import { ParagraphClass } from './ParagraphClass';
 
 export const scribeExtensions = [
   DocNode,
   StarterKit.configure({
-    // Disable the default doc since we provide our own
     document: false,
     codeBlock: false,
     code: false,
     blockquote: false,
   }),
   PageNode,
+  PageDecorations,
+  OrdinalHeading,
+  ActionSymbol,
+  HeadBlock,
+  InfoBlock,
+  RulesBlock,
+  NoteBlock,
+  MathBlock,
+  LeftSidebar,
+  RightSidebar,
+  Columns,
+  Column,
+  SectionDivider,
+  Clear,
   Table.configure({ resizable: false }),
   TableRow,
   TableHeader,
   TableCell,
-  InfoBlock,
-  NoteBlock,
-  RulesBlock,
-  MathBlock,
-  HeadBlock,
-  LeftSidebar,
-  RightSidebar,
+  TableFooter,
   ItemBlock,
   TraitList,
-  ActionSymbol,
-  TableFooter,
-  SlashCommands,
+  ParagraphClass,
 ];

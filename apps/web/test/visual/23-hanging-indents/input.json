@@ -1,0 +1,50 @@
+{
+  "type": "doc",
+  "content": [
+    {
+      "type": "page",
+      "content": [
+        { "type": "itemBlock", "content": [
+          { "type": "heading", "attrs": { "level": 1 }, "content": [{ "type": "text", "text": "Hanging Indent Test" }] },
+          { "type": "horizontalRule" },
+          { "type": "paragraph", "attrs": { "class": "hang" }, "content": [
+            { "type": "text", "marks": [{ "type": "bold" }], "text": "Requirements" },
+            { "type": "text", "text": " You must be wielding a two-handed melee weapon with which you are trained, and you must have a shield raised or be benefiting from cover. This requirement text is intentionally long so that it wraps to multiple lines, making the hanging indent visually obvious. The first line starts at the bold label, while continuation lines should be indented past the label." }
+          ]},
+          { "type": "paragraph", "attrs": { "class": "hang" }, "content": [
+            { "type": "text", "marks": [{ "type": "bold" }], "text": "Trigger" },
+            { "type": "text", "text": " A creature within your reach critically fails a melee Strike against you, or a creature within your reach attempts to move away from you without properly disengaging. This trigger description is also deliberately verbose to test multi-line wrapping behavior with the hanging indent styling." }
+          ]},
+          { "type": "paragraph", "attrs": { "class": "hang" }, "content": [
+            { "type": "text", "marks": [{ "type": "bold" }], "text": "Critical Success" },
+            { "type": "text", "text": " You deal double damage and the target is knocked prone. The target also takes persistent bleed damage equal to your weapon's number of damage dice. On its next turn, the target is flat-footed and takes a circumstance penalty to all attacks." }
+          ]},
+          { "type": "paragraph", "attrs": { "class": "hang" }, "content": [
+            { "type": "text", "marks": [{ "type": "bold" }], "text": "Failure" },
+            { "type": "text", "text": " Your Strike deals no damage, but you do not lose your action or provoke reactions from the failed attempt." }
+          ]},
+          { "type": "paragraph", "content": [{ "type": "text", "text": "Regular paragraph without bold start for contrast. This text should have normal indentation, not the hanging indent applied to bold-start paragraphs. It helps verify that the hanging indent is only applied conditionally." }] }
+        ]},
+        { "type": "rightSidebar", "content": [
+          { "type": "bulletList", "content": [
+            { "type": "listItem", "content": [
+              { "type": "paragraph", "content": [{ "type": "text", "text": "Sometimes you want a longer paragraph that is about a class and it should have a hanging indent, but this isn't always true so that's why it's a bullet point option." }] }
+            ]}
+          ]}
+        ]},
+        { "type": "paragraph", "attrs": { "class": "hang" }, "content": [
+          { "type": "text", "marks": [{ "type": "bold" }], "text": "Requirements" },
+          { "type": "text", "text": " You must be wielding a two-handed melee weapon with which you are trained, and you must have a shield raised or be benefiting from cover. This requirement text is intentionally long so that it wraps to multiple lines, making the hanging indent visually obvious. The first line starts at the bold label, while continuation lines should be indented past the label." }
+        ]},
+        { "type": "paragraph", "content": [
+          { "type": "text", "text": "The editor makes use of " },
+          { "type": "text", "marks": [{ "type": "bold" }], "text": "markdown" },
+          { "type": "text", "text": " for a lot of the formatting. A " },
+          { "type": "text", "marks": [{ "type": "italic" }], "text": "basic guide" },
+          { "type": "text", "text": " is provided in the help window. Use the menu on the top left to find it." }
+        ]},
+        { "type": "clear" }
+      ]
+    }
+  ]
+}

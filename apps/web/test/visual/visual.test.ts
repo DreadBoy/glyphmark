@@ -10,8 +10,8 @@ import { preview, type PreviewServer } from "vite";
 const VISUAL_DIR = path.resolve(import.meta.dirname, ".");
 const UPDATE_SNAPSHOTS = process.env.UPDATE_SNAPSHOTS === "1";
 
-// A4-ish at 96 DPI (matches core visual tests)
-const VIEWPORT = { width: 816, height: 1056 };
+// Match core visual test viewport (A4 width + breathing room)
+const VIEWPORT = { width: 1300, height: 1056 };
 
 // Max allowed pixel diff ratio (allows minor differences from TipTap's DOM structure)
 const DIFF_THRESHOLD = 0.025;
@@ -78,7 +78,7 @@ function comparePngs(
   };
 }
 
-describe.skip("editor golden snapshots", { timeout: 120_000, concurrent: true }, () => {
+describe("editor golden snapshots", { timeout: 120_000, concurrent: true }, () => {
   let browser: Browser;
   let server: PreviewServer;
 

@@ -6,23 +6,24 @@ export const PageNode = Node.create({
   content: 'block+',
   defining: true,
 
+  addAttributes() {
+    return {
+      title: { default: null },
+      watermark: { default: null },
+      pageNumbers: { default: false },
+    };
+  },
+
   parseHTML() {
     return [{ tag: 'div.page' }];
   },
 
   renderHTML({ HTMLAttributes }) {
+    const { title, watermark, pageNumbers, ...rest } = HTMLAttributes as Record<string, unknown>;
     return [
       'div',
-      mergeAttributes(HTMLAttributes, {
-        'data-markdown': '1',
-        class: 'bg-paper page d-flex flex-wrap',
-      }),
-      ['div', { class: 'page-overlay' }],
-      [
-        'div',
-        { 'data-markdown': '1', class: 'flex-even column' },
-        0,
-      ],
+      mergeAttributes(rest, { class: 'page' }),
+      0,
     ];
   },
 });

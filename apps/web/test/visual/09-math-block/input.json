@@ -7,20 +7,7 @@
         {
           "type": "mathBlock",
           "content": [
-            {
-              "type": "paragraph",
-              "content": [
-                {
-                  "type": "text",
-                  "marks": [
-                    {
-                      "type": "bold"
-                    }
-                  ],
-                  "text": "Total = base value + modifier + bonuses - penalties"
-                }
-              ]
-            }
+            { "type": "paragraph", "content": [{ "type": "text", "text": "Total = base value + modifier + bonuses - penalties" }] }
           ]
         }
       ]

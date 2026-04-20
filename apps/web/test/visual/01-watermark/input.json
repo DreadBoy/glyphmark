@@ -1,19 +1,14 @@
 {
   "type": "doc",
-  "attrs": {
-    "watermark": "DRAFT"
-  },
   "content": [
     {
       "type": "page",
+      "attrs": { "watermark": "DRAFT" },
       "content": [
         {
           "type": "paragraph",
           "content": [
-            {
-              "type": "text",
-              "text": "Some body text to verify the watermark appears at the top of the page."
-            }
+            { "type": "text", "text": "Some body text to verify the watermark appears at the top of the page." }
           ]
         }
       ]

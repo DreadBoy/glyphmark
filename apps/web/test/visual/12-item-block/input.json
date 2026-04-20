@@ -4,114 +4,29 @@
     {
       "type": "page",
       "content": [
-        {
-          "type": "itemBlock",
-          "content": [
-            {
-              "type": "heading",
-              "attrs": {
-                "level": 1
-              },
-              "content": [
-                {
-                  "type": "text",
-                  "text": "Power Strike ◆"
-                }
-              ]
-            },
-            {
-              "type": "heading",
-              "attrs": {
-                "level": 2
-              },
-              "content": [
-                {
-                  "type": "text",
-                  "text": "Feat 4"
-                }
-              ]
-            },
-            {
-              "type": "horizontalRule"
-            },
-            {
-              "type": "traitList",
-              "attrs": {
-                "traits": [
-                  "Uncommon",
-                  "Class",
-                  "Feat"
-                ]
-              }
-            },
-            {
-              "type": "paragraph",
-              "content": [
-                {
-                  "type": "text",
-                  "marks": [
-                    {
-                      "type": "bold"
-                    }
-                  ],
-                  "text": "Requirements "
-                },
-                {
-                  "type": "text",
-                  "text": "You must be wielding a melee weapon."
-                }
-              ]
-            },
-            {
-              "type": "horizontalRule"
-            },
-            {
-              "type": "paragraph",
-              "content": [
-                {
-                  "type": "text",
-                  "text": "Make a melee Strike with a +2 circumstance bonus to damage."
-                }
-              ]
-            },
-            {
-              "type": "paragraph",
-              "content": [
-                {
-                  "type": "text",
-                  "marks": [
-                    {
-                      "type": "bold"
-                    }
-                  ],
-                  "text": "Critical Success "
-                },
-                {
-                  "type": "text",
-                  "text": "Double the bonus damage."
-                }
-              ]
-            },
-            {
-              "type": "paragraph",
-              "content": [
-                {
-                  "type": "text",
-                  "marks": [
-                    {
-                      "type": "bold"
-                    }
-                  ],
-                  "text": "Failure "
-                },
-                {
-                  "type": "text",
-                  "text": "You are flat-footed until the start of your next turn."
-                }
-              ]
-            }
-          ]
-        }
+        { "type": "itemBlock", "content": [
+          { "type": "heading", "attrs": { "level": 1 }, "content": [
+            { "type": "text", "text": "Power Strike " },
+            { "type": "actionSymbol", "attrs": { "symbol": ":a:" } }
+          ]},
+          { "type": "heading", "attrs": { "level": 2 }, "content": [{ "type": "text", "text": "Feat 4" }] },
+          { "type": "horizontalRule" },
+          { "type": "traitList", "attrs": { "traits": ["uncommon", "class", "feat"] } },
+          { "type": "paragraph", "attrs": { "class": "hang" }, "content": [
+            { "type": "text", "marks": [{ "type": "bold" }], "text": "Requirements" },
+            { "type": "text", "text": " You must be wielding a melee weapon." }
+          ]},
+          { "type": "horizontalRule" },
+          { "type": "paragraph", "content": [{ "type": "text", "text": "Make a melee Strike with a +2 circumstance bonus to damage." }] },
+          { "type": "paragraph", "attrs": { "class": "hang" }, "content": [
+            { "type": "text", "marks": [{ "type": "bold" }], "text": "Critical Success" },
+            { "type": "text", "text": " Double the bonus damage." }
+          ]},
+          { "type": "paragraph", "attrs": { "class": "hang" }, "content": [
+            { "type": "text", "marks": [{ "type": "bold" }], "text": "Failure" },
+            { "type": "text", "text": " You are flat-footed until the start of your next turn." }
+          ]}
+        ]}
       ]
     }
   ]

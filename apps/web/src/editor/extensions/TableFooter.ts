@@ -4,6 +4,7 @@ export const TableFooter = Node.create({
   name: 'tableFooter',
   group: 'block',
   content: 'inline*',
+  defining: true,
 
   parseHTML() {
     return [{ tag: 'div.tfoot' }];

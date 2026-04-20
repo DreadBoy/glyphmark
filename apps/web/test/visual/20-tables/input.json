@@ -1,0 +1,49 @@
+{
+  "type": "doc",
+  "content": [
+    {
+      "type": "page",
+      "content": [
+        { "type": "heading", "attrs": { "level": 5 }, "content": [{ "type": "text", "text": "Table 1: Example Data" }] },
+        {
+          "type": "table",
+          "content": [
+            {
+              "type": "tableRow",
+              "content": [
+                { "type": "tableHeader", "content": [{ "type": "paragraph", "content": [{ "type": "text", "text": "Name" }] }] },
+                { "type": "tableHeader", "attrs": { "style": "text-align:center;" }, "content": [{ "type": "paragraph", "content": [{ "type": "text", "text": "Value" }] }] },
+                { "type": "tableHeader", "attrs": { "style": "text-align:right;" }, "content": [{ "type": "paragraph", "content": [{ "type": "text", "text": "Notes" }] }] }
+              ]
+            },
+            {
+              "type": "tableRow",
+              "content": [
+                { "type": "tableCell", "content": [{ "type": "paragraph", "content": [{ "type": "text", "text": "Alpha" }] }] },
+                { "type": "tableCell", "attrs": { "style": "text-align:center;" }, "content": [{ "type": "paragraph", "content": [{ "type": "text", "text": "10" }] }] },
+                { "type": "tableCell", "attrs": { "style": "text-align:right;" }, "content": [{ "type": "paragraph", "content": [{ "type": "text", "text": "First entry" }] }] }
+              ]
+            },
+            {
+              "type": "tableRow",
+              "content": [
+                { "type": "tableCell", "content": [{ "type": "paragraph", "content": [{ "type": "text", "text": "Beta" }] }] },
+                { "type": "tableCell", "attrs": { "style": "text-align:center;" }, "content": [{ "type": "paragraph", "content": [{ "type": "text", "text": "20" }] }] },
+                { "type": "tableCell", "attrs": { "style": "text-align:right;" }, "content": [{ "type": "paragraph", "content": [{ "type": "text", "text": "Second entry" }] }] }
+              ]
+            },
+            {
+              "type": "tableRow",
+              "content": [
+                { "type": "tableCell", "content": [{ "type": "paragraph", "content": [{ "type": "text", "text": "Gamma" }] }] },
+                { "type": "tableCell", "attrs": { "style": "text-align:center;" }, "content": [{ "type": "paragraph", "content": [{ "type": "text", "text": "30" }] }] },
+                { "type": "tableCell", "attrs": { "style": "text-align:right;" }, "content": [{ "type": "paragraph", "content": [{ "type": "text", "text": "Third entry" }] }] }
+              ]
+            }
+          ]
+        },
+        { "type": "tableFooter", "content": [{ "type": "text", "text": "* Values are approximate." }] }
+      ]
+    }
+  ]
+}

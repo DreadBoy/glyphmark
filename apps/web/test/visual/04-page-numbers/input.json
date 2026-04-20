@@ -1,15 +1,16 @@
 {
   "type": "doc",
-  "attrs": { "pageNumbers": true },
   "content": [
     {
       "type": "page",
+      "attrs": { "pageNumbers": true },
       "content": [
         { "type": "paragraph", "content": [{ "type": "text", "text": "First page content." }] }
       ]
     },
     {
       "type": "page",
+      "attrs": { "pageNumbers": true },
       "content": [
         { "type": "paragraph", "content": [{ "type": "text", "text": "Second page content." }] }
       ]

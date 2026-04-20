@@ -7,59 +7,16 @@
         {
           "type": "leftSidebar",
           "content": [
-            {
-              "type": "heading",
-              "attrs": {
-                "level": 1
-              },
-              "content": [
-                {
-                  "type": "text",
-                  "text": "Left Sidebar"
-                }
-              ]
-            },
-            {
-              "type": "paragraph",
-              "content": [
-                {
-                  "type": "text",
-                  "text": "Content inside the left sidebar area."
-                }
-              ]
-            },
-            {
-              "type": "heading",
-              "attrs": {
-                "level": 2
-              },
-              "content": [
-                {
-                  "type": "text",
-                  "text": "Sub-section"
-                }
-              ]
-            },
-            {
-              "type": "paragraph",
-              "content": [
-                {
-                  "type": "text",
-                  "text": "More sidebar content."
-                }
-              ]
-            }
+            { "type": "heading", "attrs": { "level": 1 }, "content": [{ "type": "text", "text": "Left Sidebar" }] },
+            { "type": "paragraph", "content": [{ "type": "text", "text": "Content inside the left sidebar area." }] },
+            { "type": "heading", "attrs": { "level": 2 }, "content": [{ "type": "text", "text": "Sub-section" }] },
+            { "type": "paragraph", "content": [{ "type": "text", "text": "More sidebar content." }] }
           ]
         },
-        {
-          "type": "paragraph",
-          "content": [
-            {
-              "type": "text",
-              "text": "Main body text beside the sidebar."
-            }
-          ]
-        }
+        { "type": "paragraph", "content": [{ "type": "text", "text": "Main body text beside the sidebar. This paragraph needs to be long enough to fill the space to the right of the sidebar and continue past its bottom edge, so we can see how the text reflows to the full page width once the sidebar ends. As the paragraph keeps going it should first wrap in the narrow column that sits to the right of the sidebar, and then once the sidebar has ended the remaining lines should expand to occupy the full content width of the page." }] },
+        { "type": "paragraph", "content": [{ "type": "text", "text": "Here is a second paragraph that starts well below where the sidebar ended. It should be laid out using the full page width because nothing is occupying the right column anymore." }] },
+        { "type": "heading", "attrs": { "level": 1 }, "content": [{ "type": "text", "text": "A Heading After the Sidebar" }] },
+        { "type": "paragraph", "content": [{ "type": "text", "text": "This final paragraph exists purely to add enough text to verify that multiple paragraphs after the sidebar all use the full width and none of them are still indented as if the sidebar were still present." }] }
       ]
     }
   ]
