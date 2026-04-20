@@ -1,0 +1,21 @@
+[
+  { "type": "type", "text": "Single action /a-single" },
+  { "type": "key", "key": "Enter" },
+  { "type": "type", "text": " appears inline." },
+  { "type": "key", "key": "Enter" },
+  { "type": "type", "text": "Two actions /a-two" },
+  { "type": "key", "key": "Enter" },
+  { "type": "type", "text": " appears inline." },
+  { "type": "key", "key": "Enter" },
+  { "type": "type", "text": "Three actions /a-three" },
+  { "type": "key", "key": "Enter" },
+  { "type": "type", "text": " appears inline." },
+  { "type": "key", "key": "Enter" },
+  { "type": "type", "text": "Reaction /a-reaction" },
+  { "type": "key", "key": "Enter" },
+  { "type": "type", "text": " appears inline." },
+  { "type": "key", "key": "Enter" },
+  { "type": "type", "text": "Free action /a-free" },
+  { "type": "key", "key": "Enter" },
+  { "type": "type", "text": " appears inline." }
+]

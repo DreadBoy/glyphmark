@@ -116,13 +116,14 @@ export const SlashCommands = Extension.create({
 
             const $from = view.state.doc.resolve(from);
             const parent = $from.parent;
-            // Must be a textblock that can hold marks (paragraph, heading).
             if (!parent.isTextblock) return false;
-            // Only trigger inside a paragraph for now (headings would be weird).
             if (parent.type.name !== 'paragraph') return false;
-            // Must be empty or whitespace before the slash.
-            const before = parent.textBetween(0, $from.parentOffset, null, '');
-            if (before.trim() !== '') return false;
+            // Require a word boundary before the slash so we don't trigger
+            // inside URLs, fractions, regex literals, etc.
+            const charBefore = $from.parentOffset > 0
+              ? parent.textBetween($from.parentOffset - 1, $from.parentOffset, null, '')
+              : '';
+            if (charBefore && !/\s/.test(charBefore)) return false;
 
             // Defer so the '/' character actually lands before we read coords.
             setTimeout(() => {

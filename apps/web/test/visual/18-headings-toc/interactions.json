@@ -1,0 +1,23 @@
+[
+  { "type": "type", "text": "/h1" },
+  { "type": "key", "key": "Enter" },
+  { "type": "type", "text": "Main Section" },
+  { "type": "key", "key": "Enter" },
+  { "type": "type", "text": "/h2" },
+  { "type": "key", "key": "Enter" },
+  { "type": "type", "text": "Sub-section" },
+  { "type": "key", "key": "Enter" },
+  { "type": "type", "text": "/h3" },
+  { "type": "key", "key": "Enter" },
+  { "type": "type", "text": "Deeper Section" },
+  { "type": "key", "key": "Enter" },
+  { "type": "type", "text": "/h4" },
+  { "type": "key", "key": "Enter" },
+  { "type": "type", "text": "Even Deeper" },
+  { "type": "key", "key": "Enter" },
+  { "type": "type", "text": "/h5" },
+  { "type": "key", "key": "Enter" },
+  { "type": "type", "text": "Even Deeper" },
+  { "type": "key", "key": "Enter" },
+  { "type": "type", "text": "Regular paragraph text under the headings." }
+]

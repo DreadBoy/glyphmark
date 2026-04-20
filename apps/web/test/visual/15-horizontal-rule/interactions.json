@@ -1,0 +1,7 @@
+[
+  { "type": "type", "text": "Text above the horizontal rule." },
+  { "type": "key", "key": "Enter" },
+  { "type": "type", "text": "/hr" },
+  { "type": "key", "key": "Enter" },
+  { "type": "type", "text": "Text below the horizontal rule." }
+]

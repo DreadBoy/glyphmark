@@ -1,0 +1,23 @@
+[
+  { "type": "type", "text": "/h1" },
+  { "type": "key", "key": "Enter" },
+  { "type": "type", "text": "Page One" },
+  { "type": "key", "key": "Enter" },
+  { "type": "type", "text": "Content on the first page." },
+  { "type": "key", "key": "Enter" },
+  { "type": "type", "text": "/page-break" },
+  { "type": "key", "key": "Enter" },
+  { "type": "type", "text": "/h1" },
+  { "type": "key", "key": "Enter" },
+  { "type": "type", "text": "Page Two" },
+  { "type": "key", "key": "Enter" },
+  { "type": "type", "text": "Content on the second page." },
+  { "type": "key", "key": "Enter" },
+  { "type": "type", "text": "/page-break" },
+  { "type": "key", "key": "Enter" },
+  { "type": "type", "text": "/h1" },
+  { "type": "key", "key": "Enter" },
+  { "type": "type", "text": "Page Three" },
+  { "type": "key", "key": "Enter" },
+  { "type": "type", "text": "Content on the third page." }
+]

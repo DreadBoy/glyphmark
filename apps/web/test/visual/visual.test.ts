@@ -10,21 +10,20 @@ import { preview, type PreviewServer } from "vite";
 const VISUAL_DIR = path.resolve(import.meta.dirname, ".");
 const UPDATE_SNAPSHOTS = process.env.UPDATE_SNAPSHOTS === "1";
 
-// Match core visual test viewport (A4 width + breathing room)
 const VIEWPORT = { width: 1300, height: 1056 };
-
-// Max allowed pixel diff ratio (allows minor differences from TipTap's DOM structure)
 const DIFF_THRESHOLD = 0.025;
-
 const PREVIEW_PORT = 4300;
 
-// Discover fixture directories (contain input.json)
+type Interaction =
+  | { type: "type"; text: string }
+  | { type: "key"; key: string };
+
 const fixtureDirs = fs
   .readdirSync(VISUAL_DIR, { withFileTypes: true })
   .filter(
     (d) =>
       d.isDirectory() &&
-      fs.existsSync(path.join(VISUAL_DIR, d.name, "input.json")),
+      fs.existsSync(path.join(VISUAL_DIR, d.name, "golden.json")),
   )
   .map((d) => d.name)
   .sort();
@@ -78,7 +77,59 @@ function comparePngs(
   };
 }
 
-describe("editor golden snapshots", { timeout: 120_000, concurrent: true }, () => {
+function normalize(node: unknown): unknown {
+  if (Array.isArray(node)) return node.map(normalize);
+  if (typeof node !== "object" || node === null) return node;
+  const src = node as Record<string, unknown>;
+  const out: Record<string, unknown> = {};
+  for (const [k, v] of Object.entries(src)) {
+    if (k === "attrs" && v && typeof v === "object") {
+      const cleaned: Record<string, unknown> = {};
+      for (const [ak, av] of Object.entries(v as Record<string, unknown>)) {
+        if (av === null || av === undefined) continue;
+        if (av === false) continue;
+        cleaned[ak] = av;
+      }
+      if (Object.keys(cleaned).length) out[k] = cleaned;
+    } else {
+      out[k] = normalize(v);
+    }
+  }
+  return out;
+}
+
+async function runInteractions(page: Page, interactions: Interaction[]) {
+  const editorSelector = ".ProseMirror";
+  await page.click(editorSelector);
+
+  for (const action of interactions) {
+    if (action.type === "type") {
+      // Per-char delay so slash-menu's setTimeout-based open flag settles
+      // before subsequent characters race ahead of it.
+      await page.keyboard.type(action.text, { delay: 20 });
+    } else if (action.type === "key") {
+      await page.keyboard.press(action.key);
+      await page.waitForTimeout(20);
+    } else {
+      throw new Error(`Unknown interaction type: ${JSON.stringify(action)}`);
+    }
+  }
+}
+
+async function resetEditor(page: Page) {
+  await page.evaluate(() => {
+    const editor = (window as any).__glyphmark_editor;
+    editor.commands.setContent({
+      type: "doc",
+      content: [
+        { type: "page", content: [{ type: "paragraph" }] },
+      ],
+    });
+    editor.commands.focus("end");
+  });
+}
+
+describe("editor interaction tests", { timeout: 120_000, concurrent: true }, () => {
   let browser: Browser;
   let server: PreviewServer;
 
@@ -99,13 +150,19 @@ describe("editor golden snapshots", { timeout: 120_000, concurrent: true }, () =
 
   for (const dir of fixtureDirs) {
     const fixtureDir = path.join(VISUAL_DIR, dir);
+    const interactionsPath = path.join(fixtureDir, "interactions.json");
+    const hasInteractions = fs.existsSync(interactionsPath);
 
-    it(`${dir}`, async () => {
-      const inputJson = JSON.parse(
-        fs.readFileSync(path.join(fixtureDir, "input.json"), "utf-8"),
+    const testFn = hasInteractions ? it : it.skip;
+
+    testFn(`${dir}`, async () => {
+      const golden = JSON.parse(
+        fs.readFileSync(path.join(fixtureDir, "golden.json"), "utf-8"),
       );
+      const interactions: Interaction[] = hasInteractions
+        ? JSON.parse(fs.readFileSync(interactionsPath, "utf-8"))
+        : [];
 
-      // Each test gets its own tab
       const page = await browser.newPage();
       await page.setViewportSize(VIEWPORT);
 
@@ -120,9 +177,24 @@ describe("editor golden snapshots", { timeout: 120_000, concurrent: true }, () =
           { timeout: 10_000 },
         );
 
-        await page.evaluate((json) => {
-          (window as any).__glyphmark_editor.commands.setContent(json);
-        }, inputJson);
+        await resetEditor(page);
+        await runInteractions(page, interactions);
+
+        const actualJson = await page.evaluate(() => {
+          return (window as any).__glyphmark_editor.getJSON();
+        });
+
+        const actualNorm = normalize(actualJson);
+        const goldenNorm = normalize(golden);
+
+        expect(
+          actualNorm,
+          `Editor state after interactions in ${dir} did not match golden.json`,
+        ).toEqual(goldenNorm);
+
+        await page.evaluate(() => {
+          (document.activeElement as HTMLElement | null)?.blur();
+        });
 
         await page.waitForFunction(() =>
           (document as any).fonts.ready.then(() => true),
@@ -145,7 +217,7 @@ describe("editor golden snapshots", { timeout: 120_000, concurrent: true }, () =
         } else {
           assert.ok(
             fs.existsSync(goldenPath),
-            `Golden snapshot missing for ${dir}. Run nx run web:test:update-goldens first.`,
+            `Golden snapshot missing for ${dir}.`,
           );
 
           const result = comparePngs(pngPath, goldenPath, diffPath);

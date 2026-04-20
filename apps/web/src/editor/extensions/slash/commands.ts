@@ -45,6 +45,32 @@ function insertBlock(editor: Editor, range: Range, node: unknown) {
     .run();
 }
 
+function insertColumns(editor: Editor, range: Range, n: number) {
+  const { from } = range;
+  editor
+    .chain()
+    .focus()
+    .deleteRange(range)
+    .insertContent(columnsOfN(n) as never)
+    .run();
+  // insertContent leaves cursor at end of the inserted columns (in the last
+  // column). Move it into the first column so typing proceeds left-to-right.
+  const { state } = editor;
+  let target: number | null = null;
+  state.doc.descendants((node, pos) => {
+    if (target !== null) return false;
+    if (pos < from) return true;
+    if (node.type.name === 'column') {
+      target = pos + 2; // +1 for column open, +1 for paragraph open
+      return false;
+    }
+    return true;
+  });
+  if (target !== null) {
+    editor.commands.setTextSelection(target);
+  }
+}
+
 function insertInline(editor: Editor, range: Range, node: unknown) {
   editor
     .chain()
@@ -139,6 +165,20 @@ export const SLASH_SECTIONS: SlashSection[] = [
         },
       },
       {
+        id: 'h6',
+        label: 'Heading 6',
+        description: 'Smallest heading',
+        icon: 'H6',
+        run: (editor, range) => {
+          editor
+            .chain()
+            .focus()
+            .deleteRange(range)
+            .setNode('heading', { level: 6 })
+            .run();
+        },
+      },
+      {
         id: 'bullet',
         label: 'Bullet list',
         description: 'Unordered list',
@@ -169,7 +209,12 @@ export const SLASH_SECTIONS: SlashSection[] = [
         description: 'Extra-spaced break between sections',
         icon: '═',
         run: (editor, range) => {
-          insertBlock(editor, range, { type: 'sectionDivider' });
+          // Trailing empty paragraph so the cursor lands in a text position
+          // rather than a NodeSelection on the atom.
+          insertBlock(editor, range, [
+            { type: 'sectionDivider' },
+            { type: 'paragraph' },
+          ]);
         },
       },
       {
@@ -178,7 +223,10 @@ export const SLASH_SECTIONS: SlashSection[] = [
         description: 'Force content below a floating sidebar',
         icon: '⎚',
         run: (editor, range) => {
-          insertBlock(editor, range, { type: 'clear' });
+          insertBlock(editor, range, [
+            { type: 'clear' },
+            { type: 'paragraph' },
+          ]);
         },
       },
     ],
@@ -211,7 +259,7 @@ export const SLASH_SECTIONS: SlashSection[] = [
         icon: '▥',
         aliases: ['columns'],
         run: (editor, range) => {
-          insertBlock(editor, range, columnsOfN(2));
+          insertColumns(editor, range, 2);
         },
       },
       {
@@ -220,7 +268,7 @@ export const SLASH_SECTIONS: SlashSection[] = [
         description: 'Three equal-width columns',
         icon: '▦',
         run: (editor, range) => {
-          insertBlock(editor, range, columnsOfN(3));
+          insertColumns(editor, range, 3);
         },
       },
       {
@@ -236,17 +284,34 @@ export const SLASH_SECTIONS: SlashSection[] = [
             .deleteRange(range)
             .command(({ tr, state, dispatch }) => {
               const $from = state.selection.$from;
-              const pageDepth = (() => {
-                for (let d = $from.depth; d > 0; d--) {
-                  if ($from.node(d).type.name === 'page') return d;
-                }
-                return -1;
-              })();
+              let pageDepth = -1;
+              for (let d = $from.depth; d > 0; d--) {
+                if ($from.node(d).type.name === 'page') { pageDepth = d; break; }
+              }
               if (pageDepth < 0) return false;
-              const pageEnd = $from.after(pageDepth);
               const pageType = state.schema.nodes.page;
               const paragraphType = state.schema.nodes.paragraph;
               if (!pageType || !paragraphType) return false;
+
+              // If the slash sat in an empty last-child paragraph of the
+              // current page, drop that paragraph so the preceding page
+              // doesn't retain a trailing blank line.
+              const paraDepth = pageDepth + 1;
+              const page = $from.node(pageDepth);
+              const inEmptyLastPara =
+                $from.depth >= paraDepth &&
+                $from.node(paraDepth).type.name === 'paragraph' &&
+                $from.node(paraDepth).content.size === 0 &&
+                $from.index(pageDepth) === page.childCount - 1 &&
+                page.childCount > 1;
+
+              let pageEnd = $from.after(pageDepth);
+              if (inEmptyLastPara) {
+                const paraStart = $from.before(paraDepth);
+                tr.delete(paraStart, pageEnd);
+                pageEnd = tr.mapping.map(pageEnd);
+              }
+
               const newPage = pageType.create(null, paragraphType.create());
               if (dispatch) {
                 tr.insert(pageEnd, newPage);
@@ -394,10 +459,19 @@ export function flatCommands(): SlashCommand[] {
 export function filterCommands(query: string): SlashCommand[] {
   const q = query.toLowerCase().trim();
   if (!q) return flatCommands();
-  return flatCommands().filter((c) => {
-    const hay = [c.id, c.label, c.description, ...(c.aliases ?? [])]
-      .join(' ')
-      .toLowerCase();
-    return hay.includes(q);
-  });
+  const scored: { cmd: SlashCommand; score: number }[] = [];
+  for (const cmd of flatCommands()) {
+    const id = cmd.id.toLowerCase();
+    const aliases = (cmd.aliases ?? []).map((a) => a.toLowerCase());
+    const label = cmd.label.toLowerCase();
+    const desc = cmd.description.toLowerCase();
+    let score: number | null = null;
+    if (id === q || aliases.includes(q)) score = 0;
+    else if (id.startsWith(q) || aliases.some((a) => a.startsWith(q))) score = 1;
+    else if (label.startsWith(q)) score = 2;
+    else if ([id, label, desc, ...aliases].join(' ').includes(q)) score = 3;
+    if (score !== null) scored.push({ cmd, score });
+  }
+  scored.sort((a, b) => a.score - b.score);
+  return scored.map((x) => x.cmd);
 }
