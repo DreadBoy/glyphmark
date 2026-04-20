@@ -312,7 +312,9 @@ export const SLASH_SECTIONS: SlashSection[] = [
                 pageEnd = tr.mapping.map(pageEnd);
               }
 
-              const newPage = pageType.create(null, paragraphType.create());
+              // Carry over per-page attrs like pageNumbers/watermark so
+              // multi-page documents keep consistent framing.
+              const newPage = pageType.create(page.attrs, paragraphType.create());
               if (dispatch) {
                 tr.insert(pageEnd, newPage);
                 tr.setSelection(TextSelection.near(tr.doc.resolve(pageEnd + 2)));
@@ -376,6 +378,16 @@ export const SLASH_SECTIONS: SlashSection[] = [
         aliases: ['head'],
         run: (editor, range) => {
           insertBlock(editor, range, blockWithParagraph('headBlock'));
+        },
+      },
+      {
+        id: 'item-block',
+        label: 'Item block',
+        description: 'Framed item/feat/spell entry',
+        icon: '❒',
+        aliases: ['item'],
+        run: (editor, range) => {
+          insertBlock(editor, range, blockWithParagraph('itemBlock'));
         },
       },
     ],

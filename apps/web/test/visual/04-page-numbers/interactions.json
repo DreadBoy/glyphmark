@@ -1,0 +1,8 @@
+[
+  { "type": "exec", "script": "editor.commands.updateAttributes('page', { pageNumbers: true })" },
+  { "type": "type", "text": "First page content." },
+  { "type": "key", "key": "Enter" },
+  { "type": "type", "text": "/page-break" },
+  { "type": "key", "key": "Enter" },
+  { "type": "type", "text": "Second page content." }
+]

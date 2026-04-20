@@ -117,7 +117,9 @@ export const SlashCommands = Extension.create({
             const $from = view.state.doc.resolve(from);
             const parent = $from.parent;
             if (!parent.isTextblock) return false;
-            if (parent.type.name !== 'paragraph') return false;
+            // Allow slash in paragraph or heading (headings need it for
+            // inline commands like action symbols).
+            if (parent.type.name !== 'paragraph' && parent.type.name !== 'heading') return false;
             // Require a word boundary before the slash so we don't trigger
             // inside URLs, fractions, regex literals, etc.
             const charBefore = $from.parentOffset > 0

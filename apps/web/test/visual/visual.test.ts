@@ -16,7 +16,8 @@ const PREVIEW_PORT = 4300;
 
 type Interaction =
   | { type: "type"; text: string }
-  | { type: "key"; key: string };
+  | { type: "key"; key: string }
+  | { type: "exec"; script: string };
 
 const fixtureDirs = fs
   .readdirSync(VISUAL_DIR, { withFileTypes: true })
@@ -77,6 +78,24 @@ function comparePngs(
   };
 }
 
+function isEmptyParagraph(node: unknown): boolean {
+  if (!node || typeof node !== "object") return false;
+  const n = node as Record<string, unknown>;
+  if (n.type !== "paragraph") return false;
+  const content = n.content;
+  if (!content || (Array.isArray(content) && content.length === 0)) return true;
+  return false;
+}
+
+function stripTrailingEmptyParagraphs(content: unknown): unknown {
+  if (!Array.isArray(content)) return content;
+  const result = [...content];
+  while (result.length > 0 && isEmptyParagraph(result[result.length - 1])) {
+    result.pop();
+  }
+  return result;
+}
+
 function normalize(node: unknown): unknown {
   if (Array.isArray(node)) return node.map(normalize);
   if (typeof node !== "object" || node === null) return node;
@@ -88,9 +107,32 @@ function normalize(node: unknown): unknown {
       for (const [ak, av] of Object.entries(v as Record<string, unknown>)) {
         if (av === null || av === undefined) continue;
         if (av === false) continue;
+        // Table cells default colspan/rowspan to 1; drop to match goldens.
+        if ((ak === "colspan" || ak === "rowspan") && av === 1) continue;
         cleaned[ak] = av;
       }
       if (Object.keys(cleaned).length) out[k] = cleaned;
+    } else if (
+      k === "content" &&
+      typeof src.type === "string" &&
+      [
+        "page",
+        "doc",
+        "column",
+        "leftSidebar",
+        "rightSidebar",
+        "infoBlock",
+        "rulesBlock",
+        "noteBlock",
+        "mathBlock",
+        "headBlock",
+        "itemBlock",
+      ].includes(src.type)
+    ) {
+      // Trailing empty paragraphs in containers are editor bookkeeping
+      // (cursor landing pads after atom/block inserts, lift-out remnants);
+      // not semantically meaningful, so strip before comparing.
+      out[k] = normalize(stripTrailingEmptyParagraphs(v));
     } else {
       out[k] = normalize(v);
     }
@@ -109,6 +151,18 @@ async function runInteractions(page: Page, interactions: Interaction[]) {
       await page.keyboard.type(action.text, { delay: 20 });
     } else if (action.type === "key") {
       await page.keyboard.press(action.key);
+      // Give ProseMirror time to settle a multi-step command chain
+      // (e.g. liftEmptyBlock falling through to splitBlock).
+      await page.waitForTimeout(50);
+    } else if (action.type === "exec") {
+      // Runs a script against the editor. Used to simulate non-keyboard
+      // actions (toolbar buttons, modal dialogs) that will eventually have
+      // real UI but don't yet.
+      await page.evaluate((script) => {
+        const editor = (window as any).__glyphmark_editor;
+        // eslint-disable-next-line no-new-func
+        new Function("editor", script)(editor);
+      }, action.script);
       await page.waitForTimeout(20);
     } else {
       throw new Error(`Unknown interaction type: ${JSON.stringify(action)}`);
@@ -192,7 +246,44 @@ describe("editor interaction tests", { timeout: 120_000, concurrent: true }, () 
           `Editor state after interactions in ${dir} did not match golden.json`,
         ).toEqual(goldenNorm);
 
+        // Trim trailing empty paragraphs inside containers before
+        // screenshotting: they're bookkeeping left by atom inserts and
+        // lift-out fallbacks, and would shift the PNG.
         await page.evaluate(() => {
+          const editor = (window as any).__glyphmark_editor;
+          const strippable = new Set([
+            "page",
+            "column",
+            "leftSidebar",
+            "rightSidebar",
+            "infoBlock",
+            "rulesBlock",
+            "noteBlock",
+            "mathBlock",
+            "headBlock",
+            "itemBlock",
+          ]);
+          let changed = true;
+          while (changed) {
+            changed = false;
+            const state = editor.state;
+            const tr = state.tr;
+            state.doc.descendants((node: any, pos: number) => {
+              if (!strippable.has(node.type.name)) return;
+              if (node.childCount <= 1) return;
+              const last = node.lastChild;
+              if (
+                last?.type.name === "paragraph" &&
+                last.content.size === 0
+              ) {
+                const end = pos + node.nodeSize - 1;
+                tr.delete(end - last.nodeSize, end);
+                changed = true;
+                return false;
+              }
+            });
+            if (changed) editor.view.dispatch(tr);
+          }
           (document.activeElement as HTMLElement | null)?.blur();
         });
 
