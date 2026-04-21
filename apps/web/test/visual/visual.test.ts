@@ -17,6 +17,7 @@ const PREVIEW_PORT = 4300;
 type Interaction =
   | { type: "type"; text: string }
   | { type: "key"; key: string }
+  | { type: "click"; selector: string; nth?: number }
   | { type: "exec"; script: string };
 
 const fixtureDirs = fs
@@ -91,6 +92,15 @@ async function runInteractions(page: Page, interactions: Interaction[]) {
       await page.keyboard.press(action.key);
       // Give ProseMirror time to settle a multi-step command chain
       // (e.g. liftEmptyBlock falling through to splitBlock).
+      await page.waitForTimeout(50);
+    } else if (action.type === "click") {
+      // Click a specific element by CSS selector. Used when a natural
+      // user path is mouse-driven (e.g. focusing the trait chip input
+      // inside an item block).
+      const locator = action.nth !== undefined
+        ? page.locator(action.selector).nth(action.nth)
+        : page.locator(action.selector).first();
+      await locator.click();
       await page.waitForTimeout(50);
     } else if (action.type === "exec") {
       // Runs a script against the editor. Used to simulate non-keyboard

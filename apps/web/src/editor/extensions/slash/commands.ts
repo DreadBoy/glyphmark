@@ -343,8 +343,8 @@ export const SLASH_SECTIONS: SlashSection[] = [
         icon: '❒',
         aliases: ['item'],
         run: (editor, range) => {
-          // Seed a full template: title, subtitle, divider, traits,
-          // body. Ghost placeholders teach the rest.
+          // Seed the common item skeleton: title, divider, empty trait
+          // row, divider, body. Ghost placeholders teach the rest.
           editor
             .chain()
             .focus()
@@ -353,9 +353,9 @@ export const SLASH_SECTIONS: SlashSection[] = [
               type: 'itemBlock',
               content: [
                 { type: 'heading', attrs: { level: 1 } },
-                { type: 'heading', attrs: { level: 2 } },
                 { type: 'horizontalRule' },
                 { type: 'traitList', attrs: { traits: [] } },
+                { type: 'horizontalRule' },
                 { type: 'paragraph' },
               ],
             })

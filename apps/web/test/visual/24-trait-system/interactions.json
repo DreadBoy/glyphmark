@@ -1,6 +1,32 @@
 [
-  {
-    "type": "exec",
-    "script": "editor.commands.setContent({\"type\":\"doc\",\"content\":[{\"type\":\"page\",\"content\":[{\"type\":\"itemBlock\",\"content\":[{\"type\":\"heading\",\"attrs\":{\"level\":1},\"content\":[{\"type\":\"text\",\"text\":\"Creature Entry\"}]},{\"type\":\"horizontalRule\"},{\"type\":\"traitList\",\"attrs\":{\"traits\":[\"unique\",\"ce\",\"large\",\"beast\",\"dragon\"]}},{\"type\":\"horizontalRule\"},{\"type\":\"paragraph\",\"content\":[{\"type\":\"text\",\"text\":\"A unique large creature with multiple trait types.\"}]}]},{\"type\":\"itemBlock\",\"content\":[{\"type\":\"heading\",\"attrs\":{\"level\":1},\"content\":[{\"type\":\"text\",\"text\":\"Common Item\"}]},{\"type\":\"horizontalRule\"},{\"type\":\"traitList\",\"attrs\":{\"traits\":[\"uncommon\",\"class\",\"feat\"]}},{\"type\":\"horizontalRule\"},{\"type\":\"paragraph\",\"content\":[{\"type\":\"text\",\"text\":\"An uncommon class feat.\"}]}]},{\"type\":\"itemBlock\",\"content\":[{\"type\":\"heading\",\"attrs\":{\"level\":1},\"content\":[{\"type\":\"text\",\"text\":\"Rare Spell\"}]},{\"type\":\"horizontalRule\"},{\"type\":\"traitList\",\"attrs\":{\"traits\":[\"rare\",\"arcane\",\"evocation\"]}},{\"type\":\"horizontalRule\"},{\"type\":\"paragraph\",\"content\":[{\"type\":\"text\",\"text\":\"A rare arcane evocation spell.\"}]}]}]}]})"
-  }
+  { "type": "type", "text": "/item" },
+  { "type": "key", "key": "Enter" },
+  { "type": "type", "text": "Creature Entry" },
+  { "type": "click", "selector": ".trait-input", "nth": 0 },
+  { "type": "type", "text": "unique,ce,large,beast,dragon," },
+  { "type": "key", "key": "Escape" },
+  { "type": "click", "selector": ".item > p", "nth": 0 },
+  { "type": "type", "text": "A unique large creature with multiple trait types." },
+  { "type": "key", "key": "Enter" },
+  { "type": "key", "key": "Enter" },
+
+  { "type": "type", "text": "/item" },
+  { "type": "key", "key": "Enter" },
+  { "type": "type", "text": "Common Item" },
+  { "type": "click", "selector": ".trait-input", "nth": 1 },
+  { "type": "type", "text": "uncommon,class,feat," },
+  { "type": "key", "key": "Escape" },
+  { "type": "click", "selector": ".item > p", "nth": 1 },
+  { "type": "type", "text": "An uncommon class feat." },
+  { "type": "key", "key": "Enter" },
+  { "type": "key", "key": "Enter" },
+
+  { "type": "type", "text": "/item" },
+  { "type": "key", "key": "Enter" },
+  { "type": "type", "text": "Rare Spell" },
+  { "type": "click", "selector": ".trait-input", "nth": 2 },
+  { "type": "type", "text": "rare,arcane,evocation," },
+  { "type": "key", "key": "Escape" },
+  { "type": "click", "selector": ".item > p", "nth": 2 },
+  { "type": "type", "text": "A rare arcane evocation spell." }
 ]
