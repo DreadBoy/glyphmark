@@ -6,6 +6,25 @@ import { NodeViewWrapper, type NodeViewProps } from '@tiptap/react';
  * input disappears under `@media print` so a printed/PDF rendering is
  * indistinguishable from the static render.
  */
+
+const SIZES = new Set(['tiny', 'small', 'medium', 'large', 'huge', 'gargantuan']);
+const ALIGNS = new Set([
+  'lg', 'ln', 'le', 'ng', 'n', 'ne', 'cg', 'cn', 'ce',
+  'lawful good', 'lawful neutral', 'lawful evil',
+  'neutral good', 'neutral', 'neutral evil',
+  'chaotic good', 'chaotic neutral', 'chaotic evil',
+]);
+
+function traitClass(trait: string): string {
+  const t = trait.toLowerCase().trim();
+  if (t === 'uncommon') return 'pf-trait-uncommon';
+  if (t === 'rare') return 'pf-trait-rare';
+  if (t === 'unique') return 'pf-trait-unique';
+  if (SIZES.has(t)) return 'pf-trait-size';
+  if (ALIGNS.has(t)) return 'pf-trait-align';
+  return `pf-trait-${t.replace(/\s+/g, '-')}`;
+}
+
 export function TraitListView({ node, updateAttributes, editor }: NodeViewProps) {
   const traits: string[] = node.attrs.traits ?? [];
   const [draft, setDraft] = useState('');
@@ -30,7 +49,7 @@ export function TraitListView({ node, updateAttributes, editor }: NodeViewProps)
       {traits.map((t, i) => (
         <div
           key={i}
-          className="pf-trait trait-chip"
+          className={`pf-trait trait-chip ${traitClass(t)}`}
           onClick={() => remove(i)}
           title="Click to remove"
         >
