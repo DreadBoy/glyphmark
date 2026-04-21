@@ -66,7 +66,11 @@ function nodeToJSON(node: Node): JSONValue {
   if (Object.keys(attrs).length) out.attrs = attrs;
   if (node.marks.length) out.marks = node.marks.map(markToJSON);
   if (node.isText && node.text !== undefined) {
-    out.text = node.text;
+    // Browsers convert trailing typed spaces to U+00A0 (NBSP) in
+    // contenteditable to keep them from collapsing; the serializer
+    // reads them back as NBSP. Normalize to regular space so the
+    // persisted/compared JSON matches what the user actually typed.
+    out.text = node.text.replace(/\u00a0/g, ' ');
   } else if (node.childCount > 0) {
     const children: JSONValue[] = [];
     node.content.forEach((child) => children.push(nodeToJSON(child)));

@@ -128,6 +128,20 @@ html, body, #root {
   height: 0;
 }
 
+/* TipTap/ProseMirror's own CSS disables ligatures and turns off
+   font-feature-settings on the whole .ProseMirror subtree — that
+   widens text metrics enough to change justified line wrapping
+   compared to the legacy scribe renderer the goldens were captured
+   from. Restore the defaults on the rendered page. (white-space
+   stays as ProseMirror's `break-spaces` so typed trailing spaces
+   don't get relocated across mark boundaries.) */
+.ProseMirror .page,
+.ProseMirror .page * {
+  font-variant-ligatures: normal;
+  -webkit-font-variant-ligatures: normal;
+  font-feature-settings: normal;
+}
+
 /* ── Status bar ─────────────────────────────────────────────────── */
 .editor-statusbar {
   position: fixed;
