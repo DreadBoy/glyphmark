@@ -19,8 +19,15 @@ export function ColonMenu() {
     if (!state.open || !state.rect) return;
     const el = menuRef.current;
     if (!el) return;
-    const selected = el.querySelector('[data-selected="true"]');
-    if (selected) selected.scrollIntoView({ block: 'nearest' });
+    const selected = el.querySelector('[data-selected="true"]') as HTMLElement | null;
+    if (!selected) return;
+    const menuRect = el.getBoundingClientRect();
+    const selRect = selected.getBoundingClientRect();
+    if (selRect.top < menuRect.top) {
+      el.scrollTop -= menuRect.top - selRect.top;
+    } else if (selRect.bottom > menuRect.bottom) {
+      el.scrollTop += selRect.bottom - menuRect.bottom;
+    }
   }, [state]);
 
   if (!state.open || !state.rect) return null;

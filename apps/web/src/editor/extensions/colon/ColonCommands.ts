@@ -61,16 +61,17 @@ export const ColonCommands = Extension.create({
               event.preventDefault();
               colonStore.set({
                 selectedIdx:
-                  list.length === 0
-                    ? 0
-                    : Math.min(current.selectedIdx + 1, list.length - 1),
+                  list.length === 0 ? 0 : (current.selectedIdx + 1) % list.length,
               });
               return true;
             }
             if (event.key === 'ArrowUp') {
               event.preventDefault();
               colonStore.set({
-                selectedIdx: Math.max(current.selectedIdx - 1, 0),
+                selectedIdx:
+                  list.length === 0
+                    ? 0
+                    : (current.selectedIdx - 1 + list.length) % list.length,
               });
               return true;
             }

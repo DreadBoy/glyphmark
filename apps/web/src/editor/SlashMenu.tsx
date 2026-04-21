@@ -20,8 +20,30 @@ export function SlashMenu() {
     if (!state.open || !state.rect) return;
     const el = menuRef.current;
     if (!el) return;
-    const selected = el.querySelector('[data-selected="true"]');
-    if (selected) selected.scrollIntoView({ block: 'nearest' });
+    const selected = el.querySelector('[data-selected="true"]') as HTMLElement | null;
+    if (!selected) return;
+    // Adjust the menu's own scrollTop instead of calling scrollIntoView.
+    // scrollIntoView also touches ancestor scrollers (including the window
+    // when the menu is position: fixed near the edge of the page), which
+    // caused the caller's viewport to judder when navigating across the
+    // wrap boundary.
+    //
+    // When the selected button is the first entry of its section, use
+    // the section div's top so the section header ("BASIC", "DIVIDERS",
+    // etc.) is also in view — otherwise wrapping to idx 0 leaves the
+    // label just above the visible area.
+    const section = selected.parentElement;
+    const firstButton = section?.querySelector('button');
+    const topAnchor =
+      firstButton === selected && section ? section : selected;
+    const menuRect = el.getBoundingClientRect();
+    const topRect = topAnchor.getBoundingClientRect();
+    const botRect = selected.getBoundingClientRect();
+    if (topRect.top < menuRect.top) {
+      el.scrollTop -= menuRect.top - topRect.top;
+    } else if (botRect.bottom > menuRect.bottom) {
+      el.scrollTop += botRect.bottom - menuRect.bottom;
+    }
   }, [state]);
 
   if (!state.open || !state.rect) return null;
