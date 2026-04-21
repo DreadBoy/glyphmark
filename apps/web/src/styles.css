@@ -194,15 +194,24 @@ html, body, #root {
   border-color: #5d0000;
 }
 
-/* ── Print: drop editor chrome so the page prints as-is ─────────── */
+/* ── Print / screenshot: drop editor chrome so the page outputs as-is
+      (visual tests toggle body[data-screenshot] to trigger the same
+      rules without flipping the whole layout into @page). ─────────── */
 @media print {
   .editor-statusbar,
   .trait-input,
   .slash-menu {
     display: none !important;
   }
-  /* Kill the dashed border too so the chip strip prints clean. */
   .traits-editable {
     gap: 0;
   }
+}
+body[data-screenshot] .editor-statusbar,
+body[data-screenshot] .trait-input,
+body[data-screenshot] .slash-menu {
+  display: none !important;
+}
+body[data-screenshot] .traits-editable {
+  gap: 0;
 }

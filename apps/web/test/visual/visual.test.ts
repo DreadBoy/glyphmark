@@ -190,8 +190,11 @@ describe("editor interaction tests", { timeout: 120_000, concurrent: true }, () 
           `Editor state after interactions in ${dir} did not match golden.json`,
         ).toEqual(golden);
 
+        // Flag the body so CSS hides editor chrome (status bar, trait
+        // `+` input, slash menu) without changing the page layout the
+        // way `@media print` would.
         await page.evaluate(() => {
-          (document.activeElement as HTMLElement | null)?.blur();
+          document.body.setAttribute("data-screenshot", "1");
         });
 
         await page.waitForFunction(() =>
@@ -201,6 +204,10 @@ describe("editor interaction tests", { timeout: 120_000, concurrent: true }, () 
 
         const pngPath = path.join(fixtureDir, "output.png");
         await page.screenshot({ path: pngPath, fullPage: true });
+
+        await page.evaluate(() => {
+          document.body.removeAttribute("data-screenshot");
+        });
 
         assert.ok(
           fs.statSync(pngPath).size > 0,
