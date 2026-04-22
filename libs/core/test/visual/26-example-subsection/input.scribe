@@ -1,0 +1,73 @@
+right (
+# Right Sidebar ((+Right Sidebar))
+Sometimes splitting the page with a sidebar that is about one third of the page wide is necessary.
+
+## Why Though
+It isn't known why this practice is so widely used. At some point in history the rule of thirds was discovered and ever since then the number three has been too powerful.
+
+### Another Header
+Sometimes the headers should look like this.
+
+* Sometimes you want a longer paragraph that is about a class and it should have a hanging indent, but this isn't always true so that's why it's a bullet point option.
+)
+
+# Look at This
+
+This section is good. Look at it. Look at all the words that are here. Here you can find many words
+
+info (
+## Something
+
+One might think why not just use one of those text generators? That is a good question. One that will be answered in due time.
+
+|
+
+## Columns
+
+Boy howdy, columns can even be used in here, but you should be careful with them.
+)
+
+## More Text 4th
+
+Notice how when using a header followed by a number with a suffix like 'th' it's automatically adjusted to be on the other side of the header. Neat! I think it's neat, anyway.
+
+Uh oh, it appears that I need a little bit more text here in order to really fill out this spot. What a pickle I've gotten myself into. At least I can rest easy that nobody will actually ever read this.
+
+/
+
+#### 1st Level ((+Feat Section))
+
+item(
+# Something Cool :a: ((+Feats))
+## Feat 3
+-
+; uncommon,class,feat,trait
+**Usage** Typed into the editor window.
+-
+This feat allows you to type text into the editor and have it appear here. When starting a line with bold text make sure to put two line breaks between so the hanging indent functions properly.
+
+**Critical Success** You are the best.
+
+**Success** You are pretty good.
+
+**Failure** At least you tried.
+
+**Critical Failure** Even though your body and spirit are broken, you will heal with time.
+)
+
+|
+#### 20th Level
+
+item(
+# Look out behind you :r:
+## Feat 6
+-
+; rare,class,feat,trait
+**Usage** Typed into the editor window.
+
+**Trigger** You spaced things properly in the item window for the formatting to work.
+-
+You can put action symbols into here. Look here is a single action :a: wow. And then here's :aa: two actions. Now look out because we're going to :aaa: three actions. How about a :r: reaction? That is a :f: free action!
+
+**Special** This feat is very special. It is so special that it needs some text that says special at the end of it.
+)
