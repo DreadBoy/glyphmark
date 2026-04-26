@@ -277,7 +277,7 @@ You can also use [links](http://pf2.tools) if you so desire.
 ## Indent ((++Indent))
 
 What happens if you have some text here and it's just fine on its own. It's just here and there isn't any formatting needed.
-But maybe this line should start indented? When you start a line with spaces it converts the spaces into the starting indent of the paragraph.
+    But maybe this line should start indented? When you start a line with spaces it converts the spaces into the starting indent of the paragraph.
 
 ## Image ((++Images))
 What about an image? Here we go!

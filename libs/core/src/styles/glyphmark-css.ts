@@ -166,28 +166,45 @@ body { counter-reset: pages; }
   margin-top: 1.1rem;
 }
 
-/* Inside a sidebar that follows a section divider, children from the
-   third onwards render 1 px lower than golden due to subpixel
-   rounding. Nudge them up via relative positioning (keeps layout,
-   fixes rendering). First two children (h1 + first p) already match. */
-.page > hr.section-divider + .left > :nth-child(n+3),
-.page > hr.section-divider + .right > :nth-child(n+3) {
+/* Subpixel rendering inside sidebars that sit below a section divider:
+   a few children land 1 px lower than golden and need a -1 px nudge to
+   match. The pattern differs between right and left floats:
+   - Right sidebar: every child from the third onwards
+   - Left sidebar: only the third + fourth children (h2 + first p after
+     it); children five and six (h3 + p) already match without help.
+   Shifts use position:relative so layout stays intact. */
+.page > hr.section-divider + .right > :nth-child(n+3),
+.page > hr.section-divider + .left > :nth-child(3),
+.page > hr.section-divider + .left > :nth-child(4) {
   position: relative;
   top: -1px;
 }
 
-/* Heading immediately after a sidebar's .clear (the start of a new
-   section below a sidebar section). Legacy renders a slightly larger
-   gap here than the default *+h1 margin. */
+/* Heading immediately after a sidebar's .clear (the start of a new section
+   below a sidebar section). Legacy renders a tighter gap above this h1
+   than our default *+h1 margin gives. We can't shrink the gap with a
+   negative margin-top because the h1's line box would then overlap the
+   float box vertically and Chrome would push the inline text past the
+   float horizontally — the heading would render inside the old main
+   column instead of full-width. So we visually shift the h1 (and the
+   following p, which trails the h1) up via position:relative without
+   changing layout, and trim the page height with a matching negative
+   margin-bottom on the p so the page background ends at the right y. */
 .page > .clear + h1 {
-  margin-top: -0.25rem;
+  position: relative;
+  top: -10px;
+}
+.page > .clear + h1 + p {
+  position: relative;
+  top: -9px;
+  margin-bottom: -10px;
 }
 
-/* Final paragraph of a closing section below a sidebar: trim 1 px
-   off its margin-bottom so the page's overall height matches
-   golden (which renders content ending 1 px earlier). */
-.page > .clear + h1 + p {
-  margin-bottom: -1px;
+/* Main-column paragraph in a section that opens with a left sidebar
+   below a section divider. Legacy renders this paragraph one px lower
+   than our default *+p margin-top gives, so we widen it by one px. */
+.page > hr.section-divider + .left + h1 + p {
+  margin-top: calc(0.5rem + 1px);
 }
 
 .page::after {
@@ -545,6 +562,20 @@ body { counter-reset: pages; }
   font-weight: bold;
 }
 
+/* Items inside columns that follow a right sidebar (test 26-style):
+   legacy renders the title text 1 px lower while keeping the underline
+   HR at the same baseline. Increase padding-top to push the title
+   glyphs down, then offset margin-bottom so the HR below it stays
+   where it is. Without the margin offset, the HR shifts 1 px down too
+   and the cascading subpixel positions of every line below get
+   misaligned with golden. Test 14's columns (no preceding sidebar)
+   already match without this nudge, hence the .right ~ qualifier. */
+.page > .right ~ .columns > .column > .item > h1,
+.page > .right ~ .columns > .column > .item > h2 {
+  padding-top: calc(0.1rem + 1px);
+  margin-bottom: -1px;
+}
+
 .item h2 {
   text-align: right;
   float: right;
@@ -655,7 +686,7 @@ body { counter-reset: pages; }
   float: left;
   padding-right: 0.5rem;
   margin-right: 0.5rem;
-  margin-bottom: 0.7rem;
+  margin-bottom: calc(0.7rem - 1px);
   border-right: 1px solid var(--gm-red);
 }
 
@@ -668,8 +699,16 @@ body { counter-reset: pages; }
   float: right;
   padding-left: 0.5rem;
   margin-left: 0.5rem;
-  margin-bottom: 0.7rem;
+  margin-bottom: calc(0.7rem - 3px);
   border-left: 1px solid var(--gm-red);
+}
+
+/* When a right sidebar is followed somewhere by a section-divider HR,
+   the legacy renderer leaves a ~10 px gap between sidebar and HR; our
+   default smaller margin under-shoots. Bump it back up just for that
+   case. */
+.right:has(~ hr.section-divider) {
+  margin-bottom: calc(0.7rem - 1px);
 }
 
 .right p, .right h2 { line-height: 1.2; }
