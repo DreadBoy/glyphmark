@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
     "target": "esnext",
-    "module": "nodenext",
-    "moduleResolution": "nodenext",
+    "module": "esnext",
+    "moduleResolution": "bundler",
     "lib": ["esnext"],
     "strict": true,
     "isolatedModules": true,
@@ -11,6 +11,10 @@
     "skipLibCheck": true,
     "esModuleInterop": true,
     "sourceMap": true,
-    "declaration": true
+    "declaration": true,
+    "paths": {
+      "@glyphmark/core": ["./libs/core/src/index.ts"],
+      "@glyphmark/cli": ["./apps/cli/src/cli.ts"]
+    }
   }
 }

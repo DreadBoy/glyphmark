@@ -5,10 +5,6 @@
   "private": true,
   "type": "module",
   "license": "MIT",
-  "workspaces": [
-    "libs/*",
-    "apps/*"
-  ],
   "scripts": {},
   "devDependencies": {
     "@nx/js": "22.6.2",
