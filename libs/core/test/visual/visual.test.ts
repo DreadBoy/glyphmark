@@ -1,15 +1,15 @@
-import {afterAll, beforeAll, describe, it} from "vitest";
-import assert from "node:assert/strict";
-import fs from "node:fs";
-import path from "node:path";
-import {type Browser, chromium, type Page} from "playwright";
-import {PNG} from "pngjs";
-import pixelmatch from "pixelmatch";
-import {convert} from "../../src/pipeline.js";
+import { afterAll, beforeAll, describe, it } from 'vitest';
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import path from 'node:path';
+import { type Browser, chromium, type Page } from 'playwright';
+import { PNG } from 'pngjs';
+import pixelmatch from 'pixelmatch';
+import { convert } from '../../src/pipeline.js';
 
-const VISUAL_DIR = path.resolve(import.meta.dirname, ".");
-const UPDATE_SNAPSHOTS = process.env.UPDATE_SNAPSHOTS === "1";
-const IMPORT_GOLDENS = process.env.IMPORT_GOLDENS === "1";
+const VISUAL_DIR = path.resolve(import.meta.dirname, '.');
+const UPDATE_SNAPSHOTS = process.env.UPDATE_SNAPSHOTS === '1';
+const IMPORT_GOLDENS = process.env.IMPORT_GOLDENS === '1';
 
 // A4-ish at 96 DPI
 const VIEWPORT = { width: 1300, height: 1056 };
@@ -23,7 +23,7 @@ const fixtureDirs = fs
   .filter(
     (d) =>
       d.isDirectory() &&
-      fs.existsSync(path.join(VISUAL_DIR, d.name, "input.scribe")),
+      fs.existsSync(path.join(VISUAL_DIR, d.name, 'input.scribe')),
   )
   .map((d) => d.name)
   .sort();
@@ -71,10 +71,14 @@ function comparePngs(
   }
 
   const totalPixels = width * height;
-  return { match: diffPixels / totalPixels <= DIFF_THRESHOLD, diffPixels, totalPixels };
+  return {
+    match: diffPixels / totalPixels <= DIFF_THRESHOLD,
+    diffPixels,
+    totalPixels,
+  };
 }
 
-describe("golden snapshots", { timeout: 120_000 }, () => {
+describe('golden snapshots', { timeout: 120_000 }, () => {
   let browser: Browser;
   let page: Page;
 
@@ -93,16 +97,20 @@ describe("golden snapshots", { timeout: 120_000 }, () => {
 
     it.skip(`${dir}`, async () => {
       const scribeInput = fs.readFileSync(
-        path.join(fixtureDir, "input.scribe"),
-        "utf-8",
+        path.join(fixtureDir, 'input.scribe'),
+        'utf-8',
       );
 
       if (IMPORT_GOLDENS) {
-        await page.goto("https://scribe.pf2.tools/", { waitUntil: "networkidle" });
+        await page.goto('https://scribe.pf2.tools/', {
+          waitUntil: 'networkidle',
+        });
         // Clear Ace editor and paste input.scribe
         const setValueScript =
           "(() => { const editor = document.querySelector('.ace_editor').env.editor;" +
-          " editor.setValue(" + JSON.stringify(scribeInput) + ", -1); })()";
+          ' editor.setValue(' +
+          JSON.stringify(scribeInput) +
+          ', -1); })()';
         await page.evaluate(setValueScript);
         await page.waitForTimeout(500);
         // Strip chrome to isolate result
@@ -114,7 +122,7 @@ describe("golden snapshots", { timeout: 120_000 }, () => {
           document.querySelectorAll(".bg-paper").forEach((el) => { el.style.background = "#eee"; });
         })()`);
         await page.waitForTimeout(200);
-        const goldenPath = path.join(fixtureDir, "golden.png");
+        const goldenPath = path.join(fixtureDir, 'golden.png');
         await page.screenshot({ path: goldenPath, fullPage: true });
         return;
       }
@@ -123,17 +131,17 @@ describe("golden snapshots", { timeout: 120_000 }, () => {
       const html = convert(scribeInput);
 
       // Write HTML output
-      const htmlPath = path.join(fixtureDir, "output.html");
-      fs.writeFileSync(htmlPath, html, "utf-8");
+      const htmlPath = path.join(fixtureDir, 'output.html');
+      fs.writeFileSync(htmlPath, html, 'utf-8');
 
       // Load in browser and screenshot
       // page.setContent doesn't trigger LCD antialiasing, only grayscale one. So we use page.goto()
       // We use data URI to avoid file system access and potential issues with stale .html files
       const dataUri = `data:text/html;charset=utf-8,${encodeURIComponent(html)}`;
-      await page.goto(dataUri, { waitUntil: "networkidle" });
+      await page.goto(dataUri, { waitUntil: 'networkidle' });
       await page.waitForTimeout(300);
 
-      const pngPath = path.join(fixtureDir, "output.png");
+      const pngPath = path.join(fixtureDir, 'output.png');
       await page.screenshot({ path: pngPath, fullPage: true });
 
       assert.ok(
@@ -141,8 +149,8 @@ describe("golden snapshots", { timeout: 120_000 }, () => {
         `PNG should be non-empty for ${dir}`,
       );
 
-      const goldenPath = path.join(fixtureDir, "golden.png");
-      const diffPath = path.join(fixtureDir, "diff.png");
+      const goldenPath = path.join(fixtureDir, 'golden.png');
+      const diffPath = path.join(fixtureDir, 'diff.png');
 
       if (UPDATE_SNAPSHOTS) {
         // Update mode: copy output to golden

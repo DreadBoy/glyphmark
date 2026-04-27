@@ -1,5 +1,5 @@
-import { renderToStaticMarkup } from "react-dom/server";
-import type { ScribeDocument } from "../parser/scribe-parser.js";
+import { renderToStaticMarkup } from 'react-dom/server';
+import type { ScribeDocument } from '../parser/scribe-parser.js';
 
 export function renderScribeDocument(doc: ScribeDocument): string {
   return renderToStaticMarkup(<Document doc={doc} />);

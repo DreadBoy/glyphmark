@@ -32,38 +32,46 @@ export type ScribeNode =
   | HeadingNode
   | TableNode;
 
-export interface PageBreakNode { type: "page-break"; }
-export interface ColumnBreakNode { type: "column-break"; }
-export interface EndColumnsNode { type: "end-columns"; }
-export interface HorizontalRuleNode { type: "hr"; }
+export interface PageBreakNode {
+  type: 'page-break';
+}
+export interface ColumnBreakNode {
+  type: 'column-break';
+}
+export interface EndColumnsNode {
+  type: 'end-columns';
+}
+export interface HorizontalRuleNode {
+  type: 'hr';
+}
 
 export interface HeadBlockNode {
-  type: "head";
+  type: 'head';
   content: string; // raw markdown content before the -
 }
 
 export interface InfoBlockNode {
-  type: "info";
+  type: 'info';
   content: string;
 }
 
 export interface RulesBlockNode {
-  type: "rules";
+  type: 'rules';
   content: string;
 }
 
 export interface NoteBlockNode {
-  type: "note";
+  type: 'note';
   content: string;
 }
 
 export interface MathBlockNode {
-  type: "math";
+  type: 'math';
   content: string;
 }
 
 export interface ItemBlockNode {
-  type: "item";
+  type: 'item';
   name: string;
   nameActions?: string; // e.g. ":a:"
   subtitle?: string;
@@ -73,31 +81,31 @@ export interface ItemBlockNode {
 }
 
 export interface LeftSidebarNode {
-  type: "left-sidebar";
+  type: 'left-sidebar';
   content: string;
 }
 
 export interface RightSidebarNode {
-  type: "right-sidebar";
+  type: 'right-sidebar';
   content: string;
 }
 
 export interface ParagraphNode {
-  type: "paragraph";
+  type: 'paragraph';
   content: string;
   indent?: number; // leading spaces count
 }
 
 export interface HeadingNode {
-  type: "heading";
+  type: 'heading';
   level: number; // 1-6
   text: string;
 }
 
 export interface TableNode {
-  type: "table";
+  type: 'table';
   headers: string[];
-  alignments: ("left" | "center" | "right")[];
+  alignments: ('left' | 'center' | 'right')[];
   rows: string[][];
   caption?: string; // from ##### header before table
   footnotes: string[];
@@ -116,7 +124,7 @@ export function parseScribe(input: string): ScribeDocument {
   let content = input;
 
   // Split hidden section (everything after lone %)
-  let hiddenSection = "";
+  let hiddenSection = '';
   const hiddenMatch = content.match(/^%\s*$/m);
   if (hiddenMatch && hiddenMatch.index !== undefined) {
     hiddenSection = content.slice(hiddenMatch.index + hiddenMatch[0].length);
@@ -142,15 +150,18 @@ export function parseScribe(input: string): ScribeDocument {
   content = stripContentRefDefinitions(content);
 
   // Strip HTML comments
-  content = content.replace(/<!--[\s\S]*?-->/g, "");
+  content = content.replace(/<!--[\s\S]*?-->/g, '');
 
   // Extract fonts() blocks
   const fontsMatches = content.matchAll(/fonts\s*\(\s*\n([\s\S]*?)\n\s*\)/g);
   const fontSpecs: string[] = [];
   for (const m of fontsMatches) {
-    const specs = m[1]!.split("\n").map(s => s.trim()).filter(Boolean);
+    const specs = m[1]!
+      .split('\n')
+      .map((s) => s.trim())
+      .filter(Boolean);
     fontSpecs.push(...specs);
-    content = content.replace(m[0], "");
+    content = content.replace(m[0], '');
   }
   if (fontSpecs.length > 0) {
     doc.fonts = fontSpecs;
@@ -159,11 +170,11 @@ export function parseScribe(input: string): ScribeDocument {
   // Extract pagenumbers keyword
   if (/^\s*pagenumbers\s*$/m.test(content)) {
     doc.pageNumbers = true;
-    content = content.replace(/^\s*pagenumbers\s*$/gm, "");
+    content = content.replace(/^\s*pagenumbers\s*$/gm, '');
   }
 
   // Strip sticky() blocks (unsupported)
-  content = content.replace(/sticky\s*\([^)]*\)/g, "");
+  content = content.replace(/sticky\s*\([^)]*\)/g, '');
 
   // ── Phase 2: Extract watermark, title, css blocks ──
 
@@ -171,14 +182,14 @@ export function parseScribe(input: string): ScribeDocument {
   const wmMatch = content.match(/^watermark\s*\(\s*\n([\s\S]*?)\n\s*\)/m);
   if (wmMatch) {
     doc.watermark = wmMatch[1]!.trim();
-    content = content.replace(wmMatch[0], "");
+    content = content.replace(wmMatch[0], '');
   }
 
   // Extract title
   const titleMatch = content.match(/^title\s*\(\s*\n([\s\S]*?)\n\s*\)/m);
   if (titleMatch) {
     doc.title = titleMatch[1]!.trim();
-    content = content.replace(titleMatch[0], "");
+    content = content.replace(titleMatch[0], '');
   }
 
   // Extract css blocks
@@ -186,13 +197,13 @@ export function parseScribe(input: string): ScribeDocument {
   const cssParts: string[] = [];
   for (const m of cssMatches) {
     cssParts.push(m[1]!);
-    content = content.replace(m[0], "");
+    content = content.replace(m[0], '');
   }
   if (cssParts.length > 0) {
-    doc.customCss = cssParts.join("\n");
+    doc.customCss = cssParts.join('\n');
   }
 
-  const lines = content.split("\n");
+  const lines = content.split('\n');
   let i = 0;
 
   while (i < lines.length) {
@@ -200,35 +211,35 @@ export function parseScribe(input: string): ScribeDocument {
     const trimmed = line.trim();
 
     // Skip empty lines
-    if (trimmed === "") {
+    if (trimmed === '') {
       i++;
       continue;
     }
 
     // Page break (lone =, no leading whitespace)
-    if (line === "=") {
-      doc.body.push({ type: "page-break" });
+    if (line === '=') {
+      doc.body.push({ type: 'page-break' });
       i++;
       continue;
     }
 
     // Column break (lone |, no leading whitespace)
-    if (line === "|") {
-      doc.body.push({ type: "column-break" });
+    if (line === '|') {
+      doc.body.push({ type: 'column-break' });
       i++;
       continue;
     }
 
     // End columns (lone /, no leading whitespace)
-    if (line === "/") {
-      doc.body.push({ type: "end-columns" });
+    if (line === '/') {
+      doc.body.push({ type: 'end-columns' });
       i++;
       continue;
     }
 
     // Horizontal rule (lone -, no leading whitespace)
-    if (line === "-") {
-      doc.body.push({ type: "hr" });
+    if (line === '-') {
+      doc.body.push({ type: 'hr' });
       i++;
       continue;
     }
@@ -242,15 +253,15 @@ export function parseScribe(input: string): ScribeDocument {
       const result = extractBlock(lines, i);
       i = result.endIndex + 1;
 
-      if (blockType === "item") {
+      if (blockType === 'item') {
         doc.body.push(parseItemBlock(result.content));
-      } else if (blockType === "left") {
-        doc.body.push({ type: "left-sidebar", content: result.content });
-      } else if (blockType === "right") {
-        doc.body.push({ type: "right-sidebar", content: result.content });
+      } else if (blockType === 'left') {
+        doc.body.push({ type: 'left-sidebar', content: result.content });
+      } else if (blockType === 'right') {
+        doc.body.push({ type: 'right-sidebar', content: result.content });
       } else {
         doc.body.push({
-          type: blockType as "head" | "info" | "rules" | "note" | "math",
+          type: blockType as 'head' | 'info' | 'rules' | 'note' | 'math',
           content: result.content,
         });
       }
@@ -261,10 +272,10 @@ export function parseScribe(input: string): ScribeDocument {
     const headingMatch = trimmed.match(/^(#{1,6})\s+(.+)$/);
     if (headingMatch) {
       const level = headingMatch[1]!.length;
-      let text = headingMatch[2]!;
+      const text = headingMatch[2]!;
 
       doc.body.push({
-        type: "heading",
+        type: 'heading',
         level,
         text,
       });
@@ -273,9 +284,9 @@ export function parseScribe(input: string): ScribeDocument {
     }
 
     // Table detection: line with | separators followed by --- line
-    if (trimmed.includes("|") && i + 1 < lines.length) {
+    if (trimmed.includes('|') && i + 1 < lines.length) {
       const nextTrimmed = lines[i + 1]!.trim();
-      if (nextTrimmed.match(/^[\s\-:|]+$/) && nextTrimmed.includes("---")) {
+      if (nextTrimmed.match(/^[\s\-:|]+$/) && nextTrimmed.includes('---')) {
         const tableResult = parseTable(lines, i, doc.body);
         doc.body.push(tableResult.node);
         i = tableResult.endIndex;
@@ -284,17 +295,20 @@ export function parseScribe(input: string): ScribeDocument {
     }
 
     // List detection: lines starting with * or -  (note: lone - is hr, handled above)
-    if (trimmed.startsWith("* ") || (trimmed.startsWith("- ") && trimmed.length > 2)) {
+    if (
+      trimmed.startsWith('* ') ||
+      (trimmed.startsWith('- ') && trimmed.length > 2)
+    ) {
       const listItems: string[] = [];
       while (i < lines.length) {
         const listLine = lines[i]!.trim();
-        if (listLine.startsWith("* ")) {
+        if (listLine.startsWith('* ')) {
           listItems.push(listLine.slice(2));
           i++;
-        } else if (listLine.startsWith("- ") && listLine.length > 2) {
+        } else if (listLine.startsWith('- ') && listLine.length > 2) {
           listItems.push(listLine.slice(2));
           i++;
-        } else if (listLine === "") {
+        } else if (listLine === '') {
           i++;
           break;
         } else {
@@ -303,9 +317,9 @@ export function parseScribe(input: string): ScribeDocument {
       }
       // Emit as a paragraph with list content for now
       // (renderBlockContent handles * items)
-      const listContent = listItems.map((item) => `* ${item}`).join("\n");
+      const listContent = listItems.map((item) => `* ${item}`).join('\n');
       doc.body.push({
-        type: "paragraph",
+        type: 'paragraph',
         content: listContent,
       });
       continue;
@@ -321,12 +335,12 @@ export function parseScribe(input: string): ScribeDocument {
       const nextLine = lines[i]!;
       const nextTrimmed = nextLine.trim();
       if (
-        nextTrimmed === "" ||
-        nextLine === "=" ||
-        nextLine === "|" ||
-        nextLine === "/" ||
-        nextLine === "-" ||
-        nextTrimmed.startsWith("* ") ||
+        nextTrimmed === '' ||
+        nextLine === '=' ||
+        nextLine === '|' ||
+        nextLine === '/' ||
+        nextLine === '-' ||
+        nextTrimmed.startsWith('* ') ||
         nextTrimmed.match(
           /^(head|info|rules|note|math|item|left|right|css|watermark|title)\s*\(/,
         ) ||
@@ -335,9 +349,9 @@ export function parseScribe(input: string): ScribeDocument {
         break;
       }
       // Check if next line starts a table
-      if (nextTrimmed.includes("|") && i + 1 < lines.length) {
-        const afterNext = lines[i + 1]?.trim() ?? "";
-        if (afterNext.match(/^[\s\-:|]+$/) && afterNext.includes("---")) {
+      if (nextTrimmed.includes('|') && i + 1 < lines.length) {
+        const afterNext = lines[i + 1]?.trim() ?? '';
+        if (afterNext.match(/^[\s\-:|]+$/) && afterNext.includes('---')) {
           break;
         }
       }
@@ -346,8 +360,8 @@ export function parseScribe(input: string): ScribeDocument {
     }
 
     doc.body.push({
-      type: "paragraph",
-      content: paragraphLines.join("\n"),
+      type: 'paragraph',
+      content: paragraphLines.join('\n'),
       indent: leadingSpaces > 0 ? leadingSpaces : undefined,
     });
   }
@@ -370,20 +384,20 @@ function extractBlock(
     const line = lines[i]!;
 
     for (const ch of line) {
-      if (ch === "(") {
+      if (ch === '(') {
         if (!started) {
           started = true;
           depth = 1;
         } else {
           depth++;
         }
-      } else if (ch === ")" && started) {
+      } else if (ch === ')' && started) {
         depth--;
         if (depth === 0) {
           // Extract content: everything after first ( up to this )
-          const fullBlock = lines.slice(startIndex, i + 1).join("\n");
-          const openIdx = fullBlock.indexOf("(");
-          const lastCloseIdx = fullBlock.lastIndexOf(")");
+          const fullBlock = lines.slice(startIndex, i + 1).join('\n');
+          const openIdx = fullBlock.indexOf('(');
+          const lastCloseIdx = fullBlock.lastIndexOf(')');
           const inner = fullBlock.slice(openIdx + 1, lastCloseIdx).trim();
           return { content: inner, endIndex: i };
         }
@@ -392,20 +406,20 @@ function extractBlock(
   }
 
   // No matching close found, return everything
-  const fullBlock = lines.slice(startIndex).join("\n");
-  const openIdx = fullBlock.indexOf("(");
+  const fullBlock = lines.slice(startIndex).join('\n');
+  const openIdx = fullBlock.indexOf('(');
   const inner = openIdx >= 0 ? fullBlock.slice(openIdx + 1).trim() : fullBlock;
   return { content: inner, endIndex: lines.length - 1 };
 }
 
 function parseItemBlock(content: string): ItemBlockNode {
-  const lines = content.split("\n");
-  let name = "";
+  const lines = content.split('\n');
+  let name = '';
   let nameActions: string | undefined;
   let subtitle: string | undefined;
   const traits: string[] = [];
-  let topSection = "";
-  let body = "";
+  let topSection = '';
+  let body = '';
 
   // Parse the item structure:
   // # Name :a: ((+Label))
@@ -416,7 +430,7 @@ function parseItemBlock(content: string): ItemBlockNode {
   // -
   // Body text
 
-  let phase: "header" | "top" | "body" = "header";
+  let phase: 'header' | 'top' | 'body' = 'header';
   let separatorCount = 0;
   const topLines: string[] = [];
   const bodyLines: string[] = [];
@@ -424,19 +438,17 @@ function parseItemBlock(content: string): ItemBlockNode {
   for (const line of lines) {
     const trimmed = line.trim();
 
-    if (phase === "header") {
+    if (phase === 'header') {
       // Parse name line
       const nameMatch = trimmed.match(/^#\s+(.+)$/);
-      if (nameMatch && !trimmed.startsWith("##")) {
+      if (nameMatch && !trimmed.startsWith('##')) {
         let nameText = nameMatch[1]!;
 
         // Extract action symbols from name
-        const actionMatch = nameText.match(
-          /\s+(:(?:aaa|aa|a|r|f):)\s*$/,
-        );
+        const actionMatch = nameText.match(/\s+(:(?:aaa|aa|a|r|f):)\s*$/);
         if (actionMatch) {
           nameActions = actionMatch[1];
-          nameText = nameText.replace(actionMatch[0], "").trim();
+          nameText = nameText.replace(actionMatch[0], '').trim();
         }
 
         name = nameText;
@@ -451,26 +463,29 @@ function parseItemBlock(content: string): ItemBlockNode {
       }
 
       // First separator switches to top section
-      if (trimmed === "-") {
-        phase = "top";
+      if (trimmed === '-') {
+        phase = 'top';
         separatorCount++;
         continue;
       }
     }
 
-    if (phase === "top") {
+    if (phase === 'top') {
       // Trait line
-      if (trimmed.startsWith(";")) {
+      if (trimmed.startsWith(';')) {
         const traitStr = trimmed.slice(1).trim();
         traits.push(
-          ...traitStr.split(",").map((t) => t.trim()).filter(Boolean),
+          ...traitStr
+            .split(',')
+            .map((t) => t.trim())
+            .filter(Boolean),
         );
         continue;
       }
 
       // Second separator switches to body
-      if (trimmed === "-") {
-        phase = "body";
+      if (trimmed === '-') {
+        phase = 'body';
         separatorCount++;
         continue;
       }
@@ -479,22 +494,22 @@ function parseItemBlock(content: string): ItemBlockNode {
       continue;
     }
 
-    if (phase === "body") {
+    if (phase === 'body') {
       bodyLines.push(line);
     }
   }
 
   // If we never hit a second separator, the top section IS the body
   if (separatorCount < 2) {
-    body = topLines.join("\n").trim();
-    topSection = "";
+    body = topLines.join('\n').trim();
+    topSection = '';
   } else {
-    topSection = topLines.join("\n").trim();
-    body = bodyLines.join("\n").trim();
+    topSection = topLines.join('\n').trim();
+    body = bodyLines.join('\n').trim();
   }
 
   return {
-    type: "item",
+    type: 'item',
     name,
     nameActions,
     subtitle,
@@ -512,7 +527,7 @@ function parseTable(
   // Check if the previous node was a heading that serves as a caption
   let caption: string | undefined;
   const prevNode = bodyNodes[bodyNodes.length - 1];
-  if (prevNode && prevNode.type === "heading" && prevNode.level >= 4) {
+  if (prevNode && prevNode.type === 'heading' && prevNode.level >= 4) {
     caption = prevNode.text;
     bodyNodes.pop(); // Remove heading — it becomes the table caption
   }
@@ -520,13 +535,19 @@ function parseTable(
   const headerLine = lines[startIndex]!.trim();
   const separatorLine = lines[startIndex + 1]!.trim();
 
-  const headers = headerLine.split("|").map((h) => h.trim()).filter(Boolean);
-  const aligns = separatorLine.split("|").map((s) => {
-    const t = s.trim();
-    if (t.startsWith(":") && t.endsWith(":")) return "center" as const;
-    if (t.endsWith(":")) return "right" as const;
-    return "left" as const;
-  }).filter((_, idx) => idx < headers.length);
+  const headers = headerLine
+    .split('|')
+    .map((h) => h.trim())
+    .filter(Boolean);
+  const aligns = separatorLine
+    .split('|')
+    .map((s) => {
+      const t = s.trim();
+      if (t.startsWith(':') && t.endsWith(':')) return 'center' as const;
+      if (t.endsWith(':')) return 'right' as const;
+      return 'left' as const;
+    })
+    .filter((_, idx) => idx < headers.length);
 
   const rows: string[][] = [];
   const footnotes: string[] = [];
@@ -534,24 +555,29 @@ function parseTable(
 
   while (i < lines.length) {
     const line = lines[i]!.trim();
-    if (line === "" || !line.includes("|")) {
+    if (line === '' || !line.includes('|')) {
       // Check for table footnote: ". *" pattern
-      if (line.startsWith(". *") || line.startsWith(".*")) {
-        footnotes.push(line.replace(/^\.\s*\*\s*/, "").trim());
+      if (line.startsWith('. *') || line.startsWith('.*')) {
+        footnotes.push(line.replace(/^\.\s*\*\s*/, '').trim());
         i++;
         continue;
       }
       break;
     }
-    rows.push(line.split("|").map((c) => c.trim()).filter(Boolean));
+    rows.push(
+      line
+        .split('|')
+        .map((c) => c.trim())
+        .filter(Boolean),
+    );
     i++;
   }
 
   // Check for footnotes right after table
   while (i < lines.length) {
     const line = lines[i]!.trim();
-    if (line.startsWith(". *") || line.startsWith(".*")) {
-      footnotes.push(line.replace(/^\.\s*\*\s*/, "").trim());
+    if (line.startsWith('. *') || line.startsWith('.*')) {
+      footnotes.push(line.replace(/^\.\s*\*\s*/, '').trim());
       i++;
     } else {
       break;
@@ -560,7 +586,7 @@ function parseTable(
 
   return {
     node: {
-      type: "table",
+      type: 'table',
       headers,
       alignments: aligns,
       rows,
@@ -577,13 +603,10 @@ function parseTable(
  * Extract content reference definitions (key { ... }) from text.
  * Handles nested braces by depth tracking.
  */
-function extractContentRefs(
-  text: string,
-  refs: Map<string, string>,
-): void {
+function extractContentRefs(text: string, refs: Map<string, string>): void {
   // Match: identifier { content } where content can span multiple lines
   // and may contain nested braces
-  const lines = text.split("\n");
+  const lines = text.split('\n');
   let i = 0;
 
   while (i < lines.length) {
@@ -598,14 +621,14 @@ function extractContentRefs(
       while (i < lines.length && depth > 0) {
         const l = lines[i]!;
         for (const ch of l) {
-          if (ch === "{") depth++;
-          else if (ch === "}") depth--;
+          if (ch === '{') depth++;
+          else if (ch === '}') depth--;
         }
         if (depth > 0) {
           contentLines.push(l);
         } else {
           // Last line - include everything before the closing brace
-          const lastBrace = l.lastIndexOf("}");
+          const lastBrace = l.lastIndexOf('}');
           if (lastBrace > 0) {
             contentLines.push(l.slice(0, lastBrace));
           }
@@ -613,7 +636,7 @@ function extractContentRefs(
         i++;
       }
 
-      refs.set(key, contentLines.join("\n").trim());
+      refs.set(key, contentLines.join('\n').trim());
       continue;
     }
     i++;
@@ -624,7 +647,7 @@ function extractContentRefs(
  * Strip content reference definitions from text, leaving {{key}} placeholders intact.
  */
 function stripContentRefDefinitions(text: string): string {
-  const lines = text.split("\n");
+  const lines = text.split('\n');
   const result: string[] = [];
   let i = 0;
 
@@ -640,8 +663,8 @@ function stripContentRefDefinitions(text: string): string {
       while (i < lines.length && depth > 0) {
         const l = lines[i]!;
         for (const ch of l) {
-          if (ch === "{") depth++;
-          else if (ch === "}") depth--;
+          if (ch === '{') depth++;
+          else if (ch === '}') depth--;
         }
         i++;
       }
@@ -651,5 +674,5 @@ function stripContentRefDefinitions(text: string): string {
     i++;
   }
 
-  return result.join("\n");
+  return result.join('\n');
 }
