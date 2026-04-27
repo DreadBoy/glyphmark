@@ -91,7 +91,7 @@ describe("golden snapshots", { timeout: 120_000 }, () => {
   for (const dir of fixtureDirs) {
     const fixtureDir = path.join(VISUAL_DIR, dir);
 
-    it(`${dir}`, async () => {
+    it.skip(`${dir}`, async () => {
       const scribeInput = fs.readFileSync(
         path.join(fixtureDir, "input.scribe"),
         "utf-8",

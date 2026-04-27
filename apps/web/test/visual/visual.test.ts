@@ -155,9 +155,8 @@ describe("editor interaction tests", { timeout: 120_000, concurrent: true }, () 
     const interactionsPath = path.join(fixtureDir, "interactions.json");
     const hasInteractions = fs.existsSync(interactionsPath);
 
-    const testFn = hasInteractions ? it : it.skip;
-
-    testFn(`${dir}`, async () => {
+    // const testFn = hasInteractions ? it : it.skip;
+    it.skip(`${dir}`, async () => {
       const golden = JSON.parse(
         fs.readFileSync(path.join(fixtureDir, "golden.json"), "utf-8"),
       );

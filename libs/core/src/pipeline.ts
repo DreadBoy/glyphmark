@@ -1,7 +1,6 @@
 import { parseScribe } from "./parser/scribe-parser.js";
-import { renderScribeDocument } from "./renderer/scribe-renderer.js";
+import { renderScribeDocument } from "./renderer/render.jsx";
 
 export function convert(input: string): string {
-  const doc = parseScribe(input);
-  return renderScribeDocument(doc);
+  return renderScribeDocument(parseScribe(input));
 }
