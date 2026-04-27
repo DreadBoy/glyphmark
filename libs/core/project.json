@@ -1,36 +1,11 @@
 {
-  "name": "core",
+  "name": "@glyphmark/core",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/core/src",
   "projectType": "library",
+  "tags": [],
+  "// targets": "to see all targets run: nx show project @glyphmark/core --web",
   "targets": {
-    "dev": {
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "tsc -w -p libs/core/tsconfig.json"
-      },
-      "outputs": ["{projectRoot}/dist"]
-    },
-    "build": {
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "tsc -p libs/core/tsconfig.json"
-      },
-      "outputs": ["{projectRoot}/dist"]
-    },
-    "typecheck": {
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "tsc --noEmit -p libs/core/tsconfig.json"
-      }
-    },
-    "test": {
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "vitest run --config libs/core/vitest.config.ts",
-        "cwd": "{workspaceRoot}"
-      }
-    },
     "test:visual": {
       "executor": "nx:run-commands",
       "options": {

@@ -13,8 +13,8 @@
     "sourceMap": true,
     "declaration": true,
     "paths": {
-      "@glyphmark/core": ["./libs/core/src/index.ts"],
-      "@glyphmark/cli": ["./apps/cli/src/cli.ts"]
+      "@glyphmark/cli": ["./apps/cli/src/cli.ts"],
+      "@glyphmark/core": ["./libs/core/src/index.ts"]
     }
   }
 }
