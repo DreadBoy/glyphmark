@@ -94,22 +94,11 @@ describe("parseScribe", () => {
       const info = doc.body.find((n) => n.type === "info");
       expect(info).toBeDefined();
     });
-
-    it("parses headings with TOC labels", () => {
-      const doc = parseScribe("# My Section ((+Section Label))");
-      const heading = doc.body.find((n) => n.type === "heading");
-      expect(heading).toBeDefined();
-      if (heading?.type === "heading") {
-        expect(heading.text).toBe("My Section");
-        expect(heading.tocLabel).toBe("Section Label");
-        expect(heading.tocIndent).toBe(1);
-      }
-    });
   });
 
   describe("item block parsing", () => {
     it("parses item with name and action", () => {
-      const doc = parseScribe("item(\n# Cool Feat :a: ((+Feats))\n## Feat 3\n-\n; uncommon,class\nContent\n-\nBody text\n)");
+      const doc = parseScribe("item(\n# Cool Feat :a:\n## Feat 3\n-\n; uncommon,class\nContent\n-\nBody text\n)");
       const item = doc.body.find((n) => n.type === "item");
       expect(item).toBeDefined();
       if (item?.type === "item") {
@@ -117,7 +106,6 @@ describe("parseScribe", () => {
         expect(item.nameActions).toBe(":a:");
         expect(item.subtitle).toBe("Feat 3");
         expect(item.traits).toEqual(["uncommon", "class"]);
-        expect(item.tocLabel).toBe("Feats");
       }
     });
 

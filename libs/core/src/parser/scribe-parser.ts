@@ -12,14 +12,7 @@ export interface ScribeDocument {
   contentRefs: Map<string, string>;
   fonts?: string[];
   pageNumbers: boolean;
-  toc: TocEntry[];
   body: ScribeNode[];
-}
-
-export interface TocEntry {
-  label: string;
-  id: string;
-  indent: number; // 0, 1, 2 based on + count
 }
 
 export type ScribeNode =
@@ -39,37 +32,37 @@ export type ScribeNode =
   | HeadingNode
   | TableNode;
 
-interface PageBreakNode { type: "page-break"; }
-interface ColumnBreakNode { type: "column-break"; }
-interface EndColumnsNode { type: "end-columns"; }
-interface HorizontalRuleNode { type: "hr"; }
+export interface PageBreakNode { type: "page-break"; }
+export interface ColumnBreakNode { type: "column-break"; }
+export interface EndColumnsNode { type: "end-columns"; }
+export interface HorizontalRuleNode { type: "hr"; }
 
-interface HeadBlockNode {
+export interface HeadBlockNode {
   type: "head";
   content: string; // raw markdown content before the -
 }
 
-interface InfoBlockNode {
+export interface InfoBlockNode {
   type: "info";
   content: string;
 }
 
-interface RulesBlockNode {
+export interface RulesBlockNode {
   type: "rules";
   content: string;
 }
 
-interface NoteBlockNode {
+export interface NoteBlockNode {
   type: "note";
   content: string;
 }
 
-interface MathBlockNode {
+export interface MathBlockNode {
   type: "math";
   content: string;
 }
 
-interface ItemBlockNode {
+export interface ItemBlockNode {
   type: "item";
   name: string;
   nameActions?: string; // e.g. ":a:"
@@ -77,35 +70,31 @@ interface ItemBlockNode {
   traits: string[];
   topSection: string; // content between first - and second - (or ; line)
   body: string; // main content after second -
-  tocLabel?: string;
-  tocIndent?: number;
 }
 
-interface LeftSidebarNode {
+export interface LeftSidebarNode {
   type: "left-sidebar";
   content: string;
 }
 
-interface RightSidebarNode {
+export interface RightSidebarNode {
   type: "right-sidebar";
   content: string;
 }
 
-interface ParagraphNode {
+export interface ParagraphNode {
   type: "paragraph";
   content: string;
   indent?: number; // leading spaces count
 }
 
-interface HeadingNode {
+export interface HeadingNode {
   type: "heading";
   level: number; // 1-6
   text: string;
-  tocLabel?: string;
-  tocIndent?: number;
 }
 
-interface TableNode {
+export interface TableNode {
   type: "table";
   headers: string[];
   alignments: ("left" | "center" | "right")[];
@@ -120,7 +109,6 @@ export function parseScribe(input: string): ScribeDocument {
   const doc: ScribeDocument = {
     contentRefs: new Map(),
     pageNumbers: false,
-    toc: [],
     body: [],
   };
 
@@ -275,25 +263,10 @@ export function parseScribe(input: string): ScribeDocument {
       const level = headingMatch[1]!.length;
       let text = headingMatch[2]!;
 
-      // Extract ToC label ((Label)) or ((+Label)) or ((++Label))
-      let tocLabel: string | undefined;
-      let tocIndent = 0;
-      const tocMatch = text.match(/\(\((\+*)(.*?)\)\)\s*$/);
-      if (tocMatch) {
-        tocIndent = tocMatch[1]!.length;
-        tocLabel = tocMatch[2]!;
-        text = text.replace(tocMatch[0], "").trim();
-
-        const id = tocLabel.toLowerCase().replace(/[^a-z0-9]+/g, "-");
-        doc.toc.push({ label: tocLabel, id, indent: tocIndent });
-      }
-
       doc.body.push({
         type: "heading",
         level,
         text,
-        tocLabel,
-        tocIndent,
       });
       i++;
       continue;
@@ -430,8 +403,6 @@ function parseItemBlock(content: string): ItemBlockNode {
   let name = "";
   let nameActions: string | undefined;
   let subtitle: string | undefined;
-  let tocLabel: string | undefined;
-  let tocIndent: number | undefined;
   const traits: string[] = [];
   let topSection = "";
   let body = "";
@@ -458,14 +429,6 @@ function parseItemBlock(content: string): ItemBlockNode {
       const nameMatch = trimmed.match(/^#\s+(.+)$/);
       if (nameMatch && !trimmed.startsWith("##")) {
         let nameText = nameMatch[1]!;
-
-        // Extract ToC label
-        const tocMatch = nameText.match(/\(\((\+*)(.*?)\)\)\s*$/);
-        if (tocMatch) {
-          tocIndent = tocMatch[1]!.length;
-          tocLabel = tocMatch[2]!;
-          nameText = nameText.replace(tocMatch[0], "").trim();
-        }
 
         // Extract action symbols from name
         const actionMatch = nameText.match(
@@ -538,8 +501,6 @@ function parseItemBlock(content: string): ItemBlockNode {
     traits,
     topSection,
     body,
-    tocLabel,
-    tocIndent,
   };
 }
 
