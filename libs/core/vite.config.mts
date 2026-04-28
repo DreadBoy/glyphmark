@@ -1,6 +1,6 @@
 /// <reference types='vitest' />
 import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
+import react from '@vitejs/plugin-react-swc';
 import dts from 'vite-plugin-dts';
 import * as path from 'path';
 import { nxViteTsPaths } from '@nx/vite/plugins/nx-tsconfig-paths.plugin';
@@ -10,7 +10,10 @@ export default defineConfig(() => ({
   root: import.meta.dirname,
   cacheDir: '../../node_modules/.vite/libs/core',
   plugins: [
-    react(),
+    react({
+      jsxImportSource: '@emotion/react',
+      plugins: [['@swc/plugin-emotion', {}]],
+    }),
     nxViteTsPaths(),
     nxCopyAssetsPlugin(['*.md']),
     dts({
@@ -43,14 +46,24 @@ export default defineConfig(() => ({
     },
     rollupOptions: {
       // External packages that should not be bundled into your library.
-      external: ['react', 'react-dom', 'react/jsx-runtime'],
+      external: [
+        'react',
+        'react-dom',
+        'react/jsx-runtime',
+        '@emotion/react',
+        '@emotion/react/jsx-runtime',
+        '@emotion/styled',
+        '@emotion/cache',
+        '@emotion/server',
+        '@emotion/server/create-instance',
+      ],
     },
   },
   test: {
     name: '@glyphmark/core',
     watch: false,
     globals: true,
-    environment: 'jsdom',
+    environment: 'node',
     include: [
       '{src,test,tests}/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
     ],
