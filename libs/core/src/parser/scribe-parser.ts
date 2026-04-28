@@ -418,7 +418,7 @@ function parseItemBlock(content: string): ItemBlockNode {
   let body = '';
 
   // Parse the item structure:
-  // # Name :a: ((+Label))
+  // # Name :a:
   // ## Subtitle
   // -
   // ; trait1,trait2
