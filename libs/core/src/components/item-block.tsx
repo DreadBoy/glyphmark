@@ -1,7 +1,7 @@
 import type { ItemBlockNode } from '../parser/scribe-parser';
 import { pt } from './size-helper';
 import { Hr } from './hr';
-import { H4 } from './heading';
+import { tighterMargin } from './style-helpers';
 
 export function ItemBlock({ node }: { node: ItemBlockNode }) {
   return (
@@ -10,10 +10,7 @@ export function ItemBlock({ node }: { node: ItemBlockNode }) {
         css={{
           display: 'flex',
           justifyContent: 'space-between',
-          marginTop: pt(12).toRem(),
-          [`${H4} + &`]: {
-            marginTop: pt(7).toRem(),
-          },
+          ...tighterMargin(7).withNormalMargin(12),
           breakAfter: 'avoid',
         }}
       >

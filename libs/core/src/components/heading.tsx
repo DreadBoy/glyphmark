@@ -1,6 +1,7 @@
 import type { HeadingNode } from '../parser/scribe-parser';
 import { pt } from './size-helper';
 import styled from '@emotion/styled';
+import { tighterMargin } from './style-helpers';
 
 const H4_BORDER = 1;
 const H4_BORDER_GAP = 0.5;
@@ -10,21 +11,21 @@ export const H1 = styled.h1({
   fontSize: pt(14).toRem(),
   lineHeight: pt(16).toRem(),
   color: '#002A17',
-  margin: `0`,
+  ...tighterMargin(4).withNormalMargin(8),
   breakAfter: 'avoid',
 });
 
-export const H2 = styled.h1({
+export const H2 = styled.h2({
   fontFamily: 'ff-good-web-pro',
   fontWeight: 700,
   fontSize: pt(12).toRem(),
   lineHeight: pt(13).toRem(),
   color: '#4E1C0D',
-  margin: `${pt(11).toRem()} 0 0 0`,
+  ...tighterMargin(7).withNormalMargin(11),
   breakAfter: 'avoid',
 });
 
-export const H3 = styled.h1({
+export const H3 = styled.h3({
   fontFamily: 'ff-good-web-pro-condensed',
   fontWeight: 700,
   fontSize: pt(12).toRem(),
@@ -55,6 +56,7 @@ export const H4 = styled.h4({
     background: '#002663',
     pointerEvents: 'none',
   },
+  ...tighterMargin.marker,
 });
 
 const TAGS = [H1, H2, H3, H4, 'h5', 'h6'] as const;
