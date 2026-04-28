@@ -61,25 +61,39 @@ async function extractBoxes(pdfPage, viewport, pageW, pageH) {
   const boxes = [];
 
   // Text boxes (per text item from the content stream).
+  // text.styles maps each item.fontName alias to a generic family
+  // (sans-serif/serif). The real PostScript name (e.g. "GoodOT-Bold")
+  // lives in pdfPage.commonObjs, populated during render() above. Many
+  // embedded fonts also carry a 6-letter subset prefix like "AAAAAA+";
+  // strip it for a readable label.
   const text = await pdfPage.getTextContent();
+  const fontNameCache = new Map();
+  const lookupFont = (alias) => {
+    if (!alias) return null;
+    if (fontNameCache.has(alias)) return fontNameCache.get(alias);
+    let name = null;
+    try {
+      name = pdfPage.commonObjs.get(alias)?.name ?? null;
+    } catch {
+      // commonObjs throws if the font isn't loaded yet — leave null.
+    }
+    if (name) name = name.replace(/^[A-Z]{6}\+/, '');
+    fontNameCache.set(alias, name);
+    return name;
+  };
   for (const item of text.items) {
     if (!item.str || !item.transform) continue;
     const tx = pdfjs.Util.transform(viewport.transform, item.transform);
     const h = Math.hypot(tx[2], tx[3]);
     const w = item.width * (viewport.scale ?? 1);
     if (w <= 0 || h <= 0) continue;
-    // Font size = magnitude of the y-axis of the (unscaled) text matrix,
-    // which is the em-square height in PDF user units (pt). The box's h
-    // matches this in viewport-px, but we expose it separately so the
-    // label reads in pt regardless of viewer scale.
-    const fs = Math.hypot(item.transform[2], item.transform[3]);
     boxes.push({
       kind: 'text',
       x: round(tx[4]),
       y: round(tx[5] - h),
       w: round(w),
       h: round(h),
-      fs: round(fs),
+      font: lookupFont(item.fontName),
       s: item.str,
     });
   }
@@ -280,7 +294,9 @@ function renderHtml({ png, boxes, width, height, sourcePath, page, scale }) {
       el.style.top = b.y + 'px';
       el.style.width = b.w + 'px';
       el.style.height = b.h + 'px';
-      el.title = b.s;
+      el.title = b.kind === 'text' && b.font
+        ? '"' + b.s + '" — ' + b.font
+        : b.s;
       el.dataset.i = i;
       el.addEventListener('mouseenter', () => { hover = b; draw(); });
       el.addEventListener('mouseleave', () => { hover = null; draw(); });
@@ -313,7 +329,10 @@ function renderHtml({ png, boxes, width, height, sourcePath, page, scale }) {
     function draw() {
       overlay.innerHTML = '';
       if (hover) {
-        addLabel(hover.x + hover.w / 2, hover.y - 4, fmt(hover.w) + ' × ' + fmt(hover.h), 'size');
+        const parts = [];
+        if (hover.kind === 'text' && hover.font) parts.push(hover.font);
+        parts.push(fmt(hover.w) + ' × ' + fmt(hover.h));
+        addLabel(hover.x + hover.w / 2, hover.y - 4, parts.join(' · '), 'size');
       }
       if (anchor && hover && anchor.i !== BOXES.indexOf(hover)) {
         drawGap(anchor.b, hover);

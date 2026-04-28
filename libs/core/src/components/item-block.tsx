@@ -3,7 +3,7 @@ import { pt } from './size-helper';
 import { Hr } from './hr';
 import { H4 } from './heading';
 
-export function Item({ node }: { node: ItemBlockNode }) {
+export function ItemBlock({ node }: { node: ItemBlockNode }) {
   return (
     <>
       <div
@@ -58,4 +58,3 @@ export function Item({ node }: { node: ItemBlockNode }) {
     </>
   );
 }
-

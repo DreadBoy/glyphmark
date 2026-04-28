@@ -6,9 +6,10 @@ import createEmotionServer from '@emotion/server/create-instance';
 import type { ScribeDocument, ScribeNode } from '../parser/scribe-parser';
 import { FONT_CSS } from '../vendor/font-css';
 import { Document } from '../components/document';
-import { Item } from '../components/info';
+import { ItemBlock } from '../components/item-block';
 import { Heading } from '../components/heading';
 import { ColumnBreak } from '../components/column-break';
+import { Paragraph } from '../components/paragraph';
 
 type NodeOf<T extends ScribeNode['type']> = Extract<ScribeNode, { type: T }>;
 type Renderers = {
@@ -16,9 +17,10 @@ type Renderers = {
 };
 
 const RENDERERS: Renderers = {
-  item: Item,
+  item: ItemBlock,
   heading: Heading,
   'column-break': ColumnBreak,
+  paragraph: Paragraph,
 };
 
 export function renderScribeDocument(doc: ScribeDocument): string {

@@ -93,7 +93,6 @@ export interface RightSidebarNode {
 export interface ParagraphNode {
   type: 'paragraph';
   content: string;
-  indent?: number; // leading spaces count
 }
 
 export interface HeadingNode {
@@ -325,8 +324,6 @@ export function parseScribe(input: string): ScribeDocument {
       continue;
     }
 
-    // Regular paragraph (possibly with leading indent)
-    const leadingSpaces = line.match(/^(\s*)/)?.[1]?.length ?? 0;
     const paragraphLines: string[] = [line];
     i++;
 
@@ -362,7 +359,6 @@ export function parseScribe(input: string): ScribeDocument {
     doc.body.push({
       type: 'paragraph',
       content: paragraphLines.join('\n'),
-      indent: leadingSpaces > 0 ? leadingSpaces : undefined,
     });
   }
 

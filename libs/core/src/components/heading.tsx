@@ -5,6 +5,35 @@ import styled from '@emotion/styled';
 const H4_BORDER = 1;
 const H4_BORDER_GAP = 0.5;
 
+export const H1 = styled.h1({
+  fontFamily: 'Taroca',
+  fontSize: pt(14).toRem(),
+  lineHeight: pt(16).toRem(),
+  color: '#002A17',
+  margin: `0`,
+  breakAfter: 'avoid',
+});
+
+export const H2 = styled.h1({
+  fontFamily: 'ff-good-web-pro',
+  fontWeight: 700,
+  fontSize: pt(12).toRem(),
+  lineHeight: pt(13).toRem(),
+  color: '#4E1C0D',
+  margin: `${pt(11).toRem()} 0 0 0`,
+  breakAfter: 'avoid',
+});
+
+export const H3 = styled.h1({
+  fontFamily: 'ff-good-web-pro-condensed',
+  fontWeight: 700,
+  fontSize: pt(12).toRem(),
+  lineHeight: pt(12).toRem(),
+  color: '#035D4F',
+  margin: `${pt(12).toRem()} 0 0 0`,
+  breakAfter: 'avoid',
+});
+
 export const H4 = styled.h4({
   fontFamily: 'gin',
   fontSize: pt(12).toRem(),
@@ -28,7 +57,7 @@ export const H4 = styled.h4({
   },
 });
 
-const TAGS = ['h1', 'h2', 'h3', H4, 'h5', 'h6'] as const;
+const TAGS = [H1, H2, H3, H4, 'h5', 'h6'] as const;
 
 export function Heading({ node }: { node: HeadingNode }) {
   const level = Math.min(Math.max(node.level, 1), 6);
