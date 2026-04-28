@@ -10,6 +10,7 @@ import { ItemBlock } from '../components/item-block';
 import { Heading } from '../components/heading';
 import { ColumnBreak } from '../components/column-break';
 import { Paragraph } from '../components/paragraph';
+import { Table } from '../components/table';
 
 type NodeOf<T extends ScribeNode['type']> = Extract<ScribeNode, { type: T }>;
 type Renderers = {
@@ -21,6 +22,7 @@ const RENDERERS: Renderers = {
   heading: Heading,
   'column-break': ColumnBreak,
   paragraph: Paragraph,
+  table: Table,
 };
 
 export function renderScribeDocument(doc: ScribeDocument): string {
