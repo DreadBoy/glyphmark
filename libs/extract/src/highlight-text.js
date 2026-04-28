@@ -7,7 +7,11 @@ import * as pdfjs from 'pdfjs-dist/legacy/build/pdf.mjs';
 
 const DEFAULT_SCALE = 2;
 
-export async function renderHighlightHtml(sourcePath, page, scale = DEFAULT_SCALE) {
+export async function renderHighlightHtml(
+  sourcePath,
+  page,
+  scale = DEFAULT_SCALE,
+) {
   if (!Number.isInteger(page) || page < 1) {
     throw new Error('page must be a positive 1-based integer');
   }
@@ -32,11 +36,14 @@ export async function renderHighlightHtml(sourcePath, page, scale = DEFAULT_SCAL
   const png = await canvas.encode('png');
 
   const boxes = await extractBoxes(pdfPage, viewport, width, height);
+  // Synthetic page-sized box; goes first so it sits behind everything in
+  // the DOM and only catches pointer events in empty page area.
+  boxes.unshift({ kind: 'page', x: 0, y: 0, w: width, h: height, s: 'page' });
 
   await doc.cleanup();
   await doc.destroy();
 
-  return renderHtml({ png, boxes, width, height, sourcePath, page });
+  return renderHtml({ png, boxes, width, height, sourcePath, page, scale });
 }
 
 function round(n) {
@@ -61,12 +68,18 @@ async function extractBoxes(pdfPage, viewport, pageW, pageH) {
     const h = Math.hypot(tx[2], tx[3]);
     const w = item.width * (viewport.scale ?? 1);
     if (w <= 0 || h <= 0) continue;
+    // Font size = magnitude of the y-axis of the (unscaled) text matrix,
+    // which is the em-square height in PDF user units (pt). The box's h
+    // matches this in viewport-px, but we expose it separately so the
+    // label reads in pt regardless of viewer scale.
+    const fs = Math.hypot(item.transform[2], item.transform[3]);
     boxes.push({
       kind: 'text',
       x: round(tx[4]),
       y: round(tx[5] - h),
       w: round(w),
       h: round(h),
+      fs: round(fs),
       s: item.str,
     });
   }
@@ -198,7 +211,7 @@ function dedupeBoxes(boxes) {
   return out;
 }
 
-function renderHtml({ png, boxes, width, height, sourcePath, page }) {
+function renderHtml({ png, boxes, width, height, sourcePath, page, scale }) {
   const dataUrl = `data:image/png;base64,${Buffer.from(png).toString('base64')}`;
   const title = `${basename(sourcePath)} — page ${page}`;
   // Box data is injected as JSON. The viewer JS owns all interaction.
@@ -226,6 +239,8 @@ function renderHtml({ png, boxes, width, height, sourcePath, page }) {
     }
     .box:hover { border-color: rgba(220, 0, 0, 0.9); background: rgba(220, 0, 0, 0.10); }
     .box.anchor { border-color: rgba(60, 150, 255, 0.95); background: rgba(60, 150, 255, 0.18); }
+    .box.page:hover { border-color: rgba(220, 0, 0, 0.5); background: transparent; }
+    .box.page.anchor { border-color: rgba(60, 150, 255, 0.7); background: transparent; }
     .overlay { position: absolute; inset: 0; pointer-events: none; }
     .label {
       position: absolute; background: #111e; color: #fff; padding: 2px 5px;
@@ -252,6 +267,7 @@ function renderHtml({ png, boxes, width, height, sourcePath, page }) {
   </div>
   <script>
     const BOXES = ${json};
+    const SCALE = ${scale};
     const stage = document.getElementById('stage');
     const overlay = document.getElementById('overlay');
     let anchor = null;
@@ -259,7 +275,7 @@ function renderHtml({ png, boxes, width, height, sourcePath, page }) {
 
     BOXES.forEach((b, i) => {
       const el = document.createElement('div');
-      el.className = 'box';
+      el.className = 'box' + (b.kind === 'page' ? ' page' : '');
       el.style.left = b.x + 'px';
       el.style.top = b.y + 'px';
       el.style.width = b.w + 'px';
@@ -297,7 +313,7 @@ function renderHtml({ png, boxes, width, height, sourcePath, page }) {
     function draw() {
       overlay.innerHTML = '';
       if (hover) {
-        addLabel(hover.x + hover.w / 2, hover.y - 4, hover.w + ' × ' + hover.h, 'size');
+        addLabel(hover.x + hover.w / 2, hover.y - 4, fmt(hover.w) + ' × ' + fmt(hover.h), 'size');
       }
       if (anchor && hover && anchor.i !== BOXES.indexOf(hover)) {
         drawGap(anchor.b, hover);
@@ -305,6 +321,13 @@ function renderHtml({ png, boxes, width, height, sourcePath, page }) {
     }
 
     function drawGap(a, b) {
+      // Containment: one rect fully inside the other → show 4 edge insets.
+      const inner = contains(a, b) ? b : contains(b, a) ? a : null;
+      if (inner) {
+        const outer = inner === a ? b : a;
+        drawInsets(outer, inner);
+        return;
+      }
       // Horizontal gap: empty space between right of left-rect and left of right-rect.
       const hLeft = a.x + a.w <= b.x;
       const hRight = b.x + b.w <= a.x;
@@ -320,7 +343,7 @@ function renderHtml({ png, boxes, width, height, sourcePath, page }) {
         addGuide('h', x1, y, x2 - x1);
         addTick('h', x1, y);
         addTick('h', x2, y);
-        addLabel((x1 + x2) / 2, y - 4, round(x2 - x1) + '', 'gap');
+        addLabel((x1 + x2) / 2, y - 4, fmt(x2 - x1), 'gap');
       }
       // Vertical gap.
       const vUp = a.y + a.h <= b.y;
@@ -336,11 +359,52 @@ function renderHtml({ png, boxes, width, height, sourcePath, page }) {
         addGuide('v', x, y1, y2 - y1);
         addTick('v', x, y1);
         addTick('v', x, y2);
-        addLabel(x, (y1 + y2) / 2, round(y2 - y1) + '', 'gap');
+        addLabel(x, (y1 + y2) / 2, fmt(y2 - y1), 'gap');
       }
     }
 
     function round(n) { return Math.round(n * 10) / 10; }
+    function fmt(n) { return round(n / SCALE) + ' pt'; }
+
+    function contains(outer, inner) {
+      return outer.x <= inner.x
+        && outer.y <= inner.y
+        && outer.x + outer.w >= inner.x + inner.w
+        && outer.y + outer.h >= inner.y + inner.h;
+    }
+
+    function drawInsets(outer, inner) {
+      const left = inner.x - outer.x;
+      const right = (outer.x + outer.w) - (inner.x + inner.w);
+      const top = inner.y - outer.y;
+      const bottom = (outer.y + outer.h) - (inner.y + inner.h);
+      const yMid = inner.y + inner.h / 2;
+      const xMid = inner.x + inner.w / 2;
+      if (left > 0) {
+        addGuide('h', outer.x, yMid, left);
+        addTick('h', outer.x, yMid);
+        addTick('h', inner.x, yMid);
+        addLabel(outer.x + left / 2, yMid - 4, fmt(left), 'gap');
+      }
+      if (right > 0) {
+        addGuide('h', inner.x + inner.w, yMid, right);
+        addTick('h', inner.x + inner.w, yMid);
+        addTick('h', outer.x + outer.w, yMid);
+        addLabel(inner.x + inner.w + right / 2, yMid - 4, fmt(right), 'gap');
+      }
+      if (top > 0) {
+        addGuide('v', xMid, outer.y, top);
+        addTick('v', xMid, outer.y);
+        addTick('v', xMid, inner.y);
+        addLabel(xMid, outer.y + top / 2, fmt(top), 'gap');
+      }
+      if (bottom > 0) {
+        addGuide('v', xMid, inner.y + inner.h, bottom);
+        addTick('v', xMid, inner.y + inner.h);
+        addTick('v', xMid, outer.y + outer.h);
+        addLabel(xMid, inner.y + inner.h + bottom / 2, fmt(bottom), 'gap');
+      }
+    }
 
     function addLabel(x, y, text, kind) {
       const el = document.createElement('div');
