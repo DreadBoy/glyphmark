@@ -1,10 +1,9 @@
-import type { ScribeNode } from '../parser/scribe-parser';
+import type { ItemBlockNode } from '../parser/scribe-parser';
 import { pt } from './size-helper';
 import { Hr } from './hr';
 import { H4 } from './heading';
 
-export function Item({ node }: { node: ScribeNode }) {
-  if (!isItem(node)) return null;
+export function Item({ node }: { node: ItemBlockNode }) {
   return (
     <>
       <div
@@ -60,6 +59,3 @@ export function Item({ node }: { node: ScribeNode }) {
   );
 }
 
-export function isItem(node: ScribeNode) {
-  return node.type === 'item';
-}

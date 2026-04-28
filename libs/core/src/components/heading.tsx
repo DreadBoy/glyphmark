@@ -1,4 +1,4 @@
-import type { ScribeNode } from '@glyphmark/core';
+import type { HeadingNode } from '../parser/scribe-parser';
 import { pt } from './size-helper';
 import styled from '@emotion/styled';
 
@@ -30,15 +30,9 @@ export const H4 = styled.h4({
 
 const TAGS = ['h1', 'h2', 'h3', H4, 'h5', 'h6'] as const;
 
-export function Heading({ node }: { node: ScribeNode }) {
-  if (!isHeading(node)) return null;
-
+export function Heading({ node }: { node: HeadingNode }) {
   const level = Math.min(Math.max(node.level, 1), 6);
   const Comp = TAGS[level - 1];
 
   return <Comp>{node.text}</Comp>;
-}
-
-export function isHeading(node: ScribeNode) {
-  return node.type == 'heading';
 }

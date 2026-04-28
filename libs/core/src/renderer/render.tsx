@@ -1,12 +1,25 @@
 import { renderToString } from 'react-dom/server';
+import type { FC } from 'react';
 import { CacheProvider } from '@emotion/react';
 import createCache from '@emotion/cache';
 import createEmotionServer from '@emotion/server/create-instance';
-import type { ScribeDocument } from '../parser/scribe-parser.js';
-import { isItem, Item } from '../components/info';
+import type { ScribeDocument, ScribeNode } from '../parser/scribe-parser';
 import { FONT_CSS } from '../vendor/font-css';
 import { Document } from '../components/document';
-import { Heading, isHeading } from '../components/heading';
+import { Item } from '../components/info';
+import { Heading } from '../components/heading';
+import { ColumnBreak } from '../components/column-break';
+
+type NodeOf<T extends ScribeNode['type']> = Extract<ScribeNode, { type: T }>;
+type Renderers = {
+  [K in ScribeNode['type']]?: FC<{ node: NodeOf<K> }>;
+};
+
+const RENDERERS: Renderers = {
+  item: Item,
+  heading: Heading,
+  'column-break': ColumnBreak,
+};
 
 export function renderScribeDocument(doc: ScribeDocument): string {
   const cache = createCache({ key: 'gm' });
@@ -28,9 +41,10 @@ function Body({ doc }: { doc: ScribeDocument }) {
   return (
     <Document>
       {doc.body.map((node, index) => {
-        if (isItem(node)) return <Item node={node} key={index} />;
-        if (isHeading(node)) return <Heading node={node} key={index} />;
-        return null;
+        const Comp = RENDERERS[node.type] as
+          | FC<{ node: ScribeNode }>
+          | undefined;
+        return Comp ? <Comp key={index} node={node} /> : null;
       })}
     </Document>
   );

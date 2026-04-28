@@ -5,7 +5,7 @@ import path from 'node:path';
 import { type Browser, chromium, type Page } from 'playwright';
 import { PNG } from 'pngjs';
 import pixelmatch from 'pixelmatch';
-import { convert } from '../../src/pipeline.js';
+import { convert } from '../../src/pipeline';
 
 const VISUAL_DIR = path.resolve(import.meta.dirname, '.');
 const UPDATE_SNAPSHOTS = process.env.UPDATE_SNAPSHOTS === '1';

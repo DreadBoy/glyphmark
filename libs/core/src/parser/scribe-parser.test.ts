@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { parseScribe } from './scribe-parser.js';
+import { parseScribe } from './scribe-parser';
 
 describe('parseScribe', () => {
   describe('metadata extraction', () => {
