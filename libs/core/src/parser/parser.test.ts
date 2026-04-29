@@ -1,0 +1,380 @@
+import { describe, it, expect, vi } from 'vitest';
+import { parse } from './parser';
+
+describe('parse — preamble', () => {
+  it('extracts watermark', () => {
+    const doc = parse('watermark(\nDRAFT\n)\n\nBody');
+    expect(doc.watermark).toBe('DRAFT');
+  });
+
+  it('extracts custom CSS', () => {
+    const doc = parse('css(\n.foo { color: red; }\n)\n\nBody');
+    expect(doc.customCss).toBe('.foo { color: red; }');
+  });
+
+  it('concatenates multiple css blocks', () => {
+    const doc = parse('css(\n.a {}\n)\n\ncss(\n.b {}\n)');
+    expect(doc.customCss).toBe('.a {}\n.b {}');
+  });
+
+  it('extracts fonts as one entry per line', () => {
+    const doc = parse('fonts(\nRoboto\nOpen Sans\n)');
+    expect(doc.fonts).toEqual(['Roboto', 'Open Sans']);
+  });
+
+  it('detects pagenumbers keyword', () => {
+    const doc = parse('pagenumbers\n\nBody');
+    expect(doc.pageNumbers).toBe(true);
+  });
+
+  it('defaults pagenumbers to false', () => {
+    const doc = parse('Body');
+    expect(doc.pageNumbers).toBe(false);
+  });
+});
+
+describe('parse — content references', () => {
+  it('extracts content-ref definitions', () => {
+    const doc = parse('myref {\nHello world\n}\n\nBody');
+    expect(doc.contentRefs.get('myref')).toBe('Hello world');
+  });
+
+  it('strips definitions from body', () => {
+    const doc = parse('myref {\nHello\n}\n\nVisible text');
+    const para = doc.body.find((n) => n.type === 'paragraph');
+    expect(para?.type).toBe('paragraph');
+    if (para?.type === 'paragraph') {
+      expect(para.content).toEqual([{ kind: 'text', text: 'Visible text' }]);
+    }
+  });
+
+  it('extracts refs from hidden section', () => {
+    const doc = parse(
+      'Visible\n\n%\n\nsecret {\nnote(\n# Hidden\nContent\n)\n}',
+    );
+    expect(doc.contentRefs.has('secret')).toBe(true);
+  });
+
+  it('keeps {{key}} placeholders in body', () => {
+    const doc = parse('myref {\nHi\n}\n\n{{myref}}');
+    const para = doc.body.find((n) => n.type === 'paragraph');
+    if (para?.type === 'paragraph') {
+      expect(para.content).toEqual([{ kind: 'text', text: '{{myref}}' }]);
+    }
+  });
+
+  it('extracts refs from inside block contents', () => {
+    const doc = parse('note(\nmyref {\nInside\n}\n)');
+    expect(doc.contentRefs.get('myref')).toBe('Inside');
+  });
+});
+
+describe('parse — markers', () => {
+  it('parses page break', () => {
+    const doc = parse('A\n\n=\n\nB');
+    expect(doc.body.some((n) => n.type === 'page-break')).toBe(true);
+  });
+
+  it('parses column break', () => {
+    const doc = parse('A\n\n|\n\nB');
+    expect(doc.body.some((n) => n.type === 'column-break')).toBe(true);
+  });
+
+  it('parses full-width-toggle', () => {
+    const doc = parse('A\n\n/\n\nB');
+    expect(doc.body.some((n) => n.type === 'full-width-toggle')).toBe(true);
+  });
+
+  it('warns and skips top-level lone -', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    const doc = parse('A\n\n-\n\nB');
+    expect(
+      doc.body.some(
+        (n) =>
+          n.type === 'paragraph' &&
+          n.content[0]?.kind === 'text' &&
+          n.content[0].text === 'A',
+      ),
+    ).toBe(true);
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining('top-level hr'));
+    warn.mockRestore();
+  });
+});
+
+describe('parse — headings and lists', () => {
+  it('parses h1 with inline emphasis', () => {
+    const doc = parse('# *Subsist* (Untrained)');
+    const h = doc.body.find((n) => n.type === 'heading');
+    expect(h?.type).toBe('heading');
+    if (h?.type === 'heading') {
+      expect(h.level).toBe(1);
+      expect(h.content).toEqual([
+        { kind: 'em', children: [{ kind: 'text', text: 'Subsist' }] },
+        { kind: 'text', text: ' (Untrained)' },
+      ]);
+    }
+  });
+
+  it('groups consecutive list items into one list node', () => {
+    const doc = parse('* one\n* two\n* three');
+    expect(doc.body).toHaveLength(1);
+    expect(doc.body[0]?.type).toBe('list');
+    if (doc.body[0]?.type === 'list') {
+      expect(doc.body[0].items).toHaveLength(3);
+    }
+  });
+
+  it('preserves inline emphasis in list items', () => {
+    const doc = parse('* **Arcana** Arcane theories');
+    if (doc.body[0]?.type === 'list') {
+      expect(doc.body[0].items[0]).toEqual([
+        { kind: 'strong', children: [{ kind: 'text', text: 'Arcana' }] },
+        { kind: 'text', text: ' Arcane theories' },
+      ]);
+    }
+  });
+});
+
+describe('parse — paragraphs', () => {
+  it('joins consecutive lines into one paragraph with spaces', () => {
+    const doc = parse('Line one\nLine two\nLine three');
+    expect(doc.body).toHaveLength(1);
+    if (doc.body[0]?.type === 'paragraph') {
+      expect(doc.body[0].content).toEqual([
+        { kind: 'text', text: 'Line one Line two Line three' },
+      ]);
+    }
+  });
+
+  it('splits paragraphs on blank lines', () => {
+    const doc = parse('First.\n\nSecond.\n\nThird.');
+    expect(doc.body).toHaveLength(3);
+    expect(doc.body.every((n) => n.type === 'paragraph')).toBe(true);
+  });
+
+  it('parses centered paragraph from ^ marker', () => {
+    const doc = parse('^ **Damage** equals level × 2');
+    expect(doc.body[0]?.type).toBe('centered-paragraph');
+    if (doc.body[0]?.type === 'centered-paragraph') {
+      expect(doc.body[0].content).toEqual([
+        { kind: 'strong', children: [{ kind: 'text', text: 'Damage' }] },
+        { kind: 'text', text: ' equals level × 2' },
+      ]);
+    }
+  });
+});
+
+describe('parse — item block', () => {
+  it('parses item with name, action, subtitle, traits', () => {
+    const doc = parse(
+      'item(\n# Power Strike :a:\n## Feat 4\n-\n; uncommon, class\nBody text.\n)',
+    );
+    const item = doc.body.find((n) => n.type === 'item');
+    expect(item?.type).toBe('item');
+    if (item?.type === 'item') {
+      expect(item.name).toEqual([{ kind: 'text', text: 'Power Strike' }]);
+      expect(item.nameActions).toBe(':a:');
+      expect(item.subtitle).toEqual([{ kind: 'text', text: 'Feat 4' }]);
+      expect(item.traits).toEqual(['uncommon', 'class']);
+    }
+  });
+
+  it('parses item without subtitle or traits', () => {
+    const doc = parse('item(\n# Cool Feat\n-\nBody\n)');
+    const item = doc.body.find((n) => n.type === 'item');
+    if (item?.type === 'item') {
+      expect(item.subtitle).toBeUndefined();
+      expect(item.traits).toEqual([]);
+    }
+  });
+
+  it('splits content on hr separators', () => {
+    const doc = parse('item(\n# Foo\n-\n; t\nFirst\n-\nSecond\n-\nThird\n)');
+    const item = doc.body.find((n) => n.type === 'item');
+    if (item?.type === 'item') {
+      expect(item.content).toEqual([
+        { kind: 'paragraph', content: [{ kind: 'text', text: 'First' }] },
+        { kind: 'hr' },
+        { kind: 'paragraph', content: [{ kind: 'text', text: 'Second' }] },
+        { kind: 'hr' },
+        { kind: 'paragraph', content: [{ kind: 'text', text: 'Third' }] },
+      ]);
+    }
+  });
+
+  it('splits text on blank lines into separate paragraphs', () => {
+    const doc = parse(
+      'item(\n# Foo\n-\n; t\n**Trigger** You are hit.\n\n**Requirements** A spell.\n)',
+    );
+    const item = doc.body.find((n) => n.type === 'item');
+    if (item?.type === 'item') {
+      expect(item.content).toHaveLength(2);
+      expect(item.content[0]?.kind).toBe('paragraph');
+      expect(item.content[1]?.kind).toBe('paragraph');
+    }
+  });
+
+  it('joins consecutive lines in same paragraph with a space', () => {
+    const doc = parse(
+      'item(\n# Foo\n-\n; t\nLine one of paragraph.\nLine two of same paragraph.\n)',
+    );
+    const item = doc.body.find((n) => n.type === 'item');
+    if (item?.type === 'item') {
+      expect(item.content).toEqual([
+        {
+          kind: 'paragraph',
+          content: [
+            {
+              kind: 'text',
+              text: 'Line one of paragraph. Line two of same paragraph.',
+            },
+          ],
+        },
+      ]);
+    }
+  });
+
+  it('supports column-break inside item content', () => {
+    const doc = parse('item(\n# Foo\n-\n; t\nLeft\n|\nRight\n)');
+    const item = doc.body.find((n) => n.type === 'item');
+    if (item?.type === 'item') {
+      expect(item.content).toEqual([
+        { kind: 'paragraph', content: [{ kind: 'text', text: 'Left' }] },
+        { kind: 'column-break' },
+        { kind: 'paragraph', content: [{ kind: 'text', text: 'Right' }] },
+      ]);
+    }
+  });
+
+  it('warns and drops leading hr after traits', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    parse('item(\n# Foo\n-\n; t\n-\nBody\n)');
+    expect(warn).toHaveBeenCalledWith(
+      expect.stringContaining('leading hr is invalid'),
+    );
+    warn.mockRestore();
+  });
+
+  it('warns and drops trailing column-break', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    parse('item(\n# Foo\n-\n; t\nBody\n|\n)');
+    expect(warn).toHaveBeenCalledWith(
+      expect.stringContaining('trailing column-break is invalid'),
+    );
+    warn.mockRestore();
+  });
+});
+
+describe('parse — info / note / rules / sample / head / right', () => {
+  it('info() splits on column-break', () => {
+    const doc = parse('info(\nLeft\n|\nRight\n)');
+    const info = doc.body.find((n) => n.type === 'info');
+    if (info?.type === 'info') {
+      expect(info.content).toEqual([
+        { kind: 'paragraph', content: [{ kind: 'text', text: 'Left' }] },
+        { kind: 'column-break' },
+        { kind: 'paragraph', content: [{ kind: 'text', text: 'Right' }] },
+      ]);
+    }
+  });
+
+  it('rules() supports hr and column-break', () => {
+    const doc = parse('rules(\nA\n-\nB\n|\nC\n)');
+    const r = doc.body.find((n) => n.type === 'rules');
+    if (r?.type === 'rules') {
+      expect(r.content.map((s) => s.kind)).toEqual([
+        'paragraph',
+        'hr',
+        'paragraph',
+        'column-break',
+        'paragraph',
+      ]);
+    }
+  });
+
+  it('note() retains heading inside', () => {
+    const doc = parse('note(\n# Title\nBody text.\n)');
+    const n = doc.body.find((n) => n.type === 'note');
+    if (n?.type === 'note') {
+      expect(n.content[0]).toEqual({
+        kind: 'heading',
+        level: 1,
+        content: [{ kind: 'text', text: 'Title' }],
+      });
+      expect(n.content[1]?.kind).toBe('paragraph');
+    }
+  });
+
+  it('sample() supports centered paragraph', () => {
+    const doc = parse(
+      'sample(\n# Damage Formula\n\n^ **Damage** equals your level × 2\n\nThis is normal text.\n)',
+    );
+    const s = doc.body.find((n) => n.type === 'sample');
+    if (s?.type === 'sample') {
+      expect(s.content.map((seg) => seg.kind)).toEqual([
+        'heading',
+        'centered-paragraph',
+        'paragraph',
+      ]);
+    }
+  });
+
+  it('right() becomes right-sidebar with content', () => {
+    const doc = parse('right(\n# Sidebar\nText.\n)');
+    const r = doc.body.find((n) => n.type === 'right-sidebar');
+    expect(r?.type).toBe('right-sidebar');
+  });
+
+  it('list inside info() stays a list segment', () => {
+    const doc = parse('info(\n* one\n* two\n)');
+    const info = doc.body.find((n) => n.type === 'info');
+    if (info?.type === 'info') {
+      expect(info.content[0]?.kind).toBe('list');
+    }
+  });
+});
+
+describe('parse — tables', () => {
+  it('parses headers, alignments, and rows', () => {
+    const doc = parse('A | B | C\n--- | :---: | ---:\n1 | 2 | 3');
+    const table = doc.body.find((n) => n.type === 'table');
+    if (table?.type === 'table') {
+      expect(table.alignments).toEqual(['left', 'center', 'right']);
+      expect(table.headers).toHaveLength(3);
+      expect(table.rows).toHaveLength(1);
+      expect(table.rows[0]?.[1]).toEqual([{ kind: 'text', text: '2' }]);
+    }
+  });
+
+  it('captures footnotes', () => {
+    const doc = parse('A | B\n--- | ---\n1 | 2\n. * note text');
+    const table = doc.body.find((n) => n.type === 'table');
+    if (table?.type === 'table') {
+      expect(table.footnotes).toHaveLength(1);
+      expect(table.footnotes[0]).toEqual([{ kind: 'text', text: 'note text' }]);
+    }
+  });
+
+  it('lifts a preceding heading4+ as caption', () => {
+    const doc = parse('#### Caption\n\nA | B\n--- | ---\n1 | 2');
+    const table = doc.body.find((n) => n.type === 'table');
+    if (table?.type === 'table') {
+      expect(table.caption).toEqual([{ kind: 'text', text: 'Caption' }]);
+    }
+    // The heading should not appear separately
+    expect(doc.body.filter((n) => n.type === 'heading')).toHaveLength(0);
+  });
+});
+
+describe('parse — action glyph variants (book p102 area)', () => {
+  for (const glyph of [':a:', ':aa:', ':aaa:', ':r:', ':f:']) {
+    it(`parses ${glyph}`, () => {
+      const doc = parse(`item(\n# Foo ${glyph}\n-\nBody\n)`);
+      const item = doc.body.find((n) => n.type === 'item');
+      if (item?.type === 'item') {
+        expect(item.nameActions).toBe(glyph);
+        expect(item.name).toEqual([{ kind: 'text', text: 'Foo' }]);
+      }
+    });
+  }
+});
