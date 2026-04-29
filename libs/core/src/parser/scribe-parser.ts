@@ -52,17 +52,22 @@ export interface HeadBlockNode {
 
 export interface InfoBlockNode {
   type: 'info';
-  content: string;
+  content: Segment[];
 }
+
+export type Segment =
+  | { kind: 'text'; content: string }
+  | { kind: 'hr' }
+  | { kind: 'column-break' };
 
 export interface RulesBlockNode {
   type: 'rules';
-  content: string;
+  content: Segment[];
 }
 
 export interface NoteBlockNode {
   type: 'note';
-  content: string;
+  content: Segment[];
 }
 
 export interface MathBlockNode {
@@ -76,8 +81,7 @@ export interface ItemBlockNode {
   nameActions?: string; // e.g. ":a:"
   subtitle?: string;
   traits: string[];
-  topSection: string; // content between first - and second - (or ; line)
-  body: string; // main content after second -
+  content: Segment[];
 }
 
 export interface LeftSidebarNode {
@@ -254,13 +258,22 @@ export function parseScribe(input: string): ScribeDocument {
 
       if (blockType === 'item') {
         doc.body.push(parseItemBlock(result.content));
+      } else if (
+        blockType === 'info' ||
+        blockType === 'note' ||
+        blockType === 'rules'
+      ) {
+        doc.body.push({
+          type: blockType,
+          content: parseSegments(result.content, `${blockType} block`),
+        });
       } else if (blockType === 'left') {
         doc.body.push({ type: 'left-sidebar', content: result.content });
       } else if (blockType === 'right') {
         doc.body.push({ type: 'right-sidebar', content: result.content });
       } else {
         doc.body.push({
-          type: blockType as 'head' | 'info' | 'rules' | 'note' | 'math',
+          type: blockType as 'head' | 'math',
           content: result.content,
         });
       }
@@ -414,60 +427,61 @@ function parseItemBlock(content: string): ItemBlockNode {
   let nameActions: string | undefined;
   let subtitle: string | undefined;
   const traits: string[] = [];
-  let topSection = '';
-  let body = '';
 
-  // Parse the item structure:
-  // # Name :a:
-  // ## Subtitle
-  // -
-  // ; trait1,trait2
-  // **Usage** text
-  // -
-  // Body text
+  // Grammar:
+  //   # Name [:a:]
+  //   ## Subtitle?
+  //   -
+  //   ; trait1, trait2
+  //   <content>
+  //
+  // Header runs until the first lone `-`. After that, `;` lines collect into
+  // traits until a non-trait line appears; everything from there is content
+  // (which may contain its own `-` HRs and `|` column-breaks).
 
-  let phase: 'header' | 'top' | 'body' = 'header';
-  let separatorCount = 0;
-  const topLines: string[] = [];
-  const bodyLines: string[] = [];
+  let i = 0;
 
-  for (const line of lines) {
-    const trimmed = line.trim();
-
-    if (phase === 'header') {
-      // Parse name line
-      const nameMatch = trimmed.match(/^#\s+(.+)$/);
-      if (nameMatch && !trimmed.startsWith('##')) {
-        let nameText = nameMatch[1]!;
-
-        // Extract action symbols from name
-        const actionMatch = nameText.match(/\s+(:(?:aaa|aa|a|r|f):)\s*$/);
-        if (actionMatch) {
-          nameActions = actionMatch[1];
-          nameText = nameText.replace(actionMatch[0], '').trim();
-        }
-
-        name = nameText;
-        continue;
-      }
-
-      // Parse subtitle line
-      const subMatch = trimmed.match(/^##\s+(.+)$/);
-      if (subMatch) {
-        subtitle = subMatch[1]!;
-        continue;
-      }
-
-      // First separator switches to top section
-      if (trimmed === '-') {
-        phase = 'top';
-        separatorCount++;
-        continue;
-      }
+  while (i < lines.length) {
+    const trimmed = lines[i]!.trim();
+    if (trimmed === '-') {
+      i++;
+      break;
     }
+    if (trimmed === '') {
+      i++;
+      continue;
+    }
+    const nameMatch = trimmed.match(/^#\s+(.+)$/);
+    if (nameMatch && !trimmed.startsWith('##')) {
+      let nameText = nameMatch[1]!;
+      const actionMatch = nameText.match(/\s+(:(?:aaa|aa|a|r|f):)\s*$/);
+      if (actionMatch) {
+        nameActions = actionMatch[1];
+        nameText = nameText.replace(actionMatch[0], '').trim();
+      }
+      name = nameText;
+      i++;
+      continue;
+    }
+    const subMatch = trimmed.match(/^##\s+(.+)$/);
+    if (subMatch) {
+      subtitle = subMatch[1]!;
+      i++;
+      continue;
+    }
+    i++;
+  }
 
-    if (phase === 'top') {
-      // Trait line
+  const contentLines: string[] = [];
+  let inTraits = true;
+  while (i < lines.length) {
+    const line = lines[i]!;
+    const trimmed = line.trim();
+    if (inTraits) {
+      if (trimmed === '') {
+        i++;
+        continue;
+      }
       if (trimmed.startsWith(';')) {
         const traitStr = trimmed.slice(1).trim();
         traits.push(
@@ -476,43 +490,83 @@ function parseItemBlock(content: string): ItemBlockNode {
             .map((t) => t.trim())
             .filter(Boolean),
         );
+        i++;
         continue;
       }
-
-      // Second separator switches to body
-      if (trimmed === '-') {
-        phase = 'body';
-        separatorCount++;
-        continue;
-      }
-
-      topLines.push(line);
-      continue;
+      inTraits = false;
     }
-
-    if (phase === 'body') {
-      bodyLines.push(line);
-    }
+    contentLines.push(line);
+    i++;
   }
 
-  // If we never hit a second separator, the top section IS the body
-  if (separatorCount < 2) {
-    body = topLines.join('\n').trim();
-    topSection = '';
-  } else {
-    topSection = topLines.join('\n').trim();
-    body = bodyLines.join('\n').trim();
-  }
-
+  const ctxLabel = `item${name ? ` "${name}"` : ''}`;
   return {
     type: 'item',
     name,
     nameActions,
     subtitle,
     traits,
-    topSection,
-    body,
+    content: parseSegments(contentLines.join('\n'), ctxLabel),
   };
+}
+
+/**
+ * Split raw block content into Segment[] on lone `-` (hr) and lone `|`
+ * (column-break) lines. Strips leading/trailing hr/column-break with a
+ * console.warn — they're invalid syntax (Phase 2 will turn this into a
+ * proper parse error with line numbers).
+ */
+function parseSegments(raw: string, contextLabel: string): Segment[] {
+  const lines = raw.split('\n');
+  const segments: Segment[] = [];
+  let buffer: string[] = [];
+
+  const flushText = () => {
+    if (buffer.length === 0) return;
+    const raw = buffer.join('\n');
+    buffer = [];
+    // Blank line separates paragraphs — emit one text segment per paragraph.
+    // Within a paragraph, soft line breaks collapse to a single space
+    // (markdown-style: a single newline does not start a new line).
+    for (const para of raw.split(/\n\s*\n/)) {
+      const text = para.trim().replace(/\s*\n\s*/g, ' ');
+      if (text !== '') {
+        segments.push({ kind: 'text', content: text });
+      }
+    }
+  };
+
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (trimmed === '-') {
+      flushText();
+      segments.push({ kind: 'hr' });
+    } else if (trimmed === '|') {
+      flushText();
+      segments.push({ kind: 'column-break' });
+    } else {
+      buffer.push(line);
+    }
+  }
+  flushText();
+
+  while (segments.length > 0 && segments[0]!.kind !== 'text') {
+    const dropped = segments.shift()!;
+    console.warn(
+      `[scribe] ${contextLabel}: leading ${dropped.kind} is invalid; content must start with text`,
+    );
+  }
+  while (
+    segments.length > 0 &&
+    segments[segments.length - 1]!.kind !== 'text'
+  ) {
+    const dropped = segments.pop()!;
+    console.warn(
+      `[scribe] ${contextLabel}: trailing ${dropped.kind} is invalid`,
+    );
+  }
+
+  return segments;
 }
 
 function parseTable(

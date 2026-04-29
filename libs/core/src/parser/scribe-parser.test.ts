@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { parseScribe } from './scribe-parser';
 
 describe('parseScribe', () => {
@@ -126,6 +126,161 @@ describe('parseScribe', () => {
       if (item?.type === 'item') {
         expect(item.name).toBe('Jennifer');
         expect(item.traits).toEqual([]);
+      }
+    });
+
+    it('splits content on hr separators', () => {
+      const doc = parseScribe(
+        'item(\n# Cool Feat\n-\n; uncommon\nFirst\n-\nSecond\n-\nThird\n)',
+      );
+      const item = doc.body.find((n) => n.type === 'item');
+      expect(item?.type).toBe('item');
+      if (item?.type === 'item') {
+        expect(item.content).toEqual([
+          { kind: 'text', content: 'First' },
+          { kind: 'hr' },
+          { kind: 'text', content: 'Second' },
+          { kind: 'hr' },
+          { kind: 'text', content: 'Third' },
+        ]);
+      }
+    });
+
+    it('splits text on blank line into separate paragraphs', () => {
+      const doc = parseScribe(
+        'item(\n# Foo\n-\n; t\n**Trigger** You are hit.\n\n**Requirements** You have a spell.\n)',
+      );
+      const item = doc.body.find((n) => n.type === 'item');
+      if (item?.type === 'item') {
+        expect(item.content).toEqual([
+          { kind: 'text', content: '**Trigger** You are hit.' },
+          { kind: 'text', content: '**Requirements** You have a spell.' },
+        ]);
+      }
+    });
+
+    it('joins consecutive non-blank lines in same paragraph with a space', () => {
+      const doc = parseScribe(
+        'item(\n# Foo\n-\n; t\nLine one of paragraph.\nLine two of same paragraph.\n)',
+      );
+      const item = doc.body.find((n) => n.type === 'item');
+      if (item?.type === 'item') {
+        expect(item.content).toEqual([
+          {
+            kind: 'text',
+            content: 'Line one of paragraph. Line two of same paragraph.',
+          },
+        ]);
+        expect(item.name).toEqual('Foo');
+      }
+    });
+
+    it('treats multiple blank lines as one paragraph break', () => {
+      const doc = parseScribe('item(\n# Foo\n-\n; t\nFirst.\n\n\n\nSecond.\n)');
+      const item = doc.body.find((n) => n.type === 'item');
+      if (item?.type === 'item') {
+        expect(item.content).toEqual([
+          { kind: 'text', content: 'First.' },
+          { kind: 'text', content: 'Second.' },
+        ]);
+      }
+    });
+
+    it('splits content on column-break inside item', () => {
+      const doc = parseScribe(
+        'item(\n# Cool Feat\n-\n; uncommon\nLeft column\n|\nRight column\n)',
+      );
+      const item = doc.body.find((n) => n.type === 'item');
+      expect(item?.type).toBe('item');
+      if (item?.type === 'item') {
+        expect(item.content).toEqual([
+          { kind: 'text', content: 'Left column' },
+          { kind: 'column-break' },
+          { kind: 'text', content: 'Right column' },
+        ]);
+      }
+    });
+
+    it('warns and drops leading hr after traits', () => {
+      const warn = vi
+        .spyOn(console, 'warn')
+        .mockImplementation(() => undefined);
+      const doc = parseScribe('item(\n# Cool Feat\n-\n; uncommon\n-\nBody\n)');
+      const item = doc.body.find((n) => n.type === 'item');
+      if (item?.type === 'item') {
+        expect(item.content).toEqual([{ kind: 'text', content: 'Body' }]);
+      }
+      expect(warn).toHaveBeenCalledWith(
+        expect.stringContaining('leading hr is invalid'),
+      );
+      warn.mockRestore();
+    });
+
+    it('warns and drops trailing column-break', () => {
+      const warn = vi
+        .spyOn(console, 'warn')
+        .mockImplementation(() => undefined);
+      const doc = parseScribe('item(\n# Cool Feat\n-\n; uncommon\nBody\n|\n)');
+      const item = doc.body.find((n) => n.type === 'item');
+      if (item?.type === 'item') {
+        expect(item.content).toEqual([{ kind: 'text', content: 'Body' }]);
+      }
+      expect(warn).toHaveBeenCalledWith(
+        expect.stringContaining('trailing column-break is invalid'),
+      );
+      warn.mockRestore();
+    });
+  });
+
+  describe('info block parsing', () => {
+    it('parses info content into single text segment', () => {
+      const doc = parseScribe('info (\n## Title\nBody text\n)');
+      const info = doc.body.find((n) => n.type === 'info');
+      expect(info?.type).toBe('info');
+      if (info?.type === 'info') {
+        expect(info.content).toEqual([
+          { kind: 'text', content: '## Title Body text' },
+        ]);
+      }
+    });
+
+    it('splits info content on column-break', () => {
+      const doc = parseScribe('info (\nLeft\n|\nRight\n)');
+      const info = doc.body.find((n) => n.type === 'info');
+      if (info?.type === 'info') {
+        expect(info.content).toEqual([
+          { kind: 'text', content: 'Left' },
+          { kind: 'column-break' },
+          { kind: 'text', content: 'Right' },
+        ]);
+      }
+    });
+  });
+
+  describe('note and rules block parsing', () => {
+    it('splits note content on column-break', () => {
+      const doc = parseScribe('note(\nFirst half\n|\nSecond half\n)');
+      const note = doc.body.find((n) => n.type === 'note');
+      if (note?.type === 'note') {
+        expect(note.content).toEqual([
+          { kind: 'text', content: 'First half' },
+          { kind: 'column-break' },
+          { kind: 'text', content: 'Second half' },
+        ]);
+      }
+    });
+
+    it('splits rules content on hr and column-break', () => {
+      const doc = parseScribe('rules (\nA\n-\nB\n|\nC\n)');
+      const rules = doc.body.find((n) => n.type === 'rules');
+      if (rules?.type === 'rules') {
+        expect(rules.content).toEqual([
+          { kind: 'text', content: 'A' },
+          { kind: 'hr' },
+          { kind: 'text', content: 'B' },
+          { kind: 'column-break' },
+          { kind: 'text', content: 'C' },
+        ]);
       }
     });
   });
