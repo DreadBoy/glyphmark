@@ -99,7 +99,6 @@ export type BodyNode =
 
 export interface ScribeDocument {
   watermark?: string;
-  title?: string;
   customCss?: string;
   fonts?: string[];
   pageNumbers: boolean;

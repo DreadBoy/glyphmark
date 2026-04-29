@@ -17,8 +17,7 @@ const fixtures = fs
     const inputPath = path.join(HERE, dir, 'input.scribe');
     if (fs.existsSync(skipPath))
       return [{ dir, inputPath: skipPath, skip: true }];
-    if (fs.existsSync(inputPath))
-      return [{ dir, inputPath, skip: false }];
+    if (fs.existsSync(inputPath)) return [{ dir, inputPath, skip: false }];
     return [];
   })
   .sort((a, b) => a.dir.localeCompare(b.dir));

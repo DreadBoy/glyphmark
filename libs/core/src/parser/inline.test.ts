@@ -110,4 +110,13 @@ describe('parseInline', () => {
       { kind: 'text', text: ' equals level × 2' },
     ]);
   });
+
+  it('does not support escape syntax — backslash is literal', () => {
+    // TODO Add escape support. For now, `\*` does NOT suppress emphasis;
+    // the backslash is a regular character and the `*` is still a delimiter.
+    expect(parseInline('\\*not bold\\*')).toEqual([
+      { kind: 'text', text: '\\' },
+      { kind: 'em', children: [{ kind: 'text', text: 'not bold\\' }] },
+    ]);
+  });
 });
