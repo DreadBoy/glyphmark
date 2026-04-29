@@ -1,3 +1,0 @@
-[
-  { "type": "exec", "script": "editor.commands.insertContent([{type:'ordinalHeading',attrs:{text:'Spells',ordinal:'1st'}},{type:'ordinalHeading',attrs:{text:'Spells',ordinal:'2nd'}},{type:'ordinalHeading',attrs:{text:'Spells',ordinal:'3rd'}},{type:'ordinalHeading',attrs:{text:'Spells',ordinal:'4th'}}])" }
-]

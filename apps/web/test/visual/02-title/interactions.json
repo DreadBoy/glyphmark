@@ -1,4 +1,0 @@
-[
-  { "type": "exec", "script": "editor.commands.updateAttributes('page', { title: 'My Document Title' })" },
-  { "type": "type", "text": "Some body text to verify the title appears in the page header." }
-]

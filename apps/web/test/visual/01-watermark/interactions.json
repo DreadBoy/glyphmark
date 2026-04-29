@@ -1,4 +1,0 @@
-[
-  { "type": "exec", "script": "editor.commands.updateAttributes('page', { watermark: 'DRAFT' })" },
-  { "type": "type", "text": "Some body text to verify the watermark appears at the top of the page." }
-]

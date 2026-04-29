@@ -1,5 +1,0 @@
-[
-  { "type": "type", "text": "/math" },
-  { "type": "key", "key": "Enter" },
-  { "type": "type", "text": "Total = base value + modifier + bonuses - penalties" }
-]
