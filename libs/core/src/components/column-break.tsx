@@ -1,6 +1,4 @@
-import type { ColumnBreakNode } from '../parser';
-
-export function ColumnBreak({ node: _node }: { node: ColumnBreakNode }) {
+export function ColumnBreak() {
   return (
     <div
       css={{

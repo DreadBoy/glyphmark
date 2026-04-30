@@ -47,10 +47,14 @@ export interface TableNode {
   caption?: Inline[];
   footnotes: Inline[][];
 }
+// Action symbols recognised on item headings. Mirrors the keys of
+// ACTION_SYMBOLS in vendor/action-symbols.ts — keep the two in sync.
+export type ActionSymbol = ':a:' | ':aa:' | ':aaa:' | ':r:' | ':f:';
+
 export interface ItemBlockNode {
   type: 'item';
   name: Inline[];
-  nameActions?: string;
+  action?: ActionSymbol;
   subtitle?: Inline[];
   traits: string[];
   content: Segment[];

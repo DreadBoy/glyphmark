@@ -173,7 +173,7 @@ describe('parse — item block', () => {
     expect(item?.type).toBe('item');
     if (item?.type === 'item') {
       expect(item.name).toEqual([{ kind: 'text', text: 'Power Strike' }]);
-      expect(item.nameActions).toBe(':a:');
+      expect(item.action).toBe(':a:');
       expect(item.subtitle).toEqual([{ kind: 'text', text: 'Feat 4' }]);
       expect(item.traits).toEqual(['uncommon', 'class']);
     }
@@ -372,7 +372,7 @@ describe('parse — action glyph variants (book p102 area)', () => {
       const doc = parse(`item(\n# Foo ${glyph}\n-\nBody\n)`);
       const item = doc.body.find((n) => n.type === 'item');
       if (item?.type === 'item') {
-        expect(item.nameActions).toBe(glyph);
+        expect(item.action).toBe(glyph);
         expect(item.name).toEqual([{ kind: 'text', text: 'Foo' }]);
       }
     });

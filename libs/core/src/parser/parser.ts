@@ -1,4 +1,5 @@
 import type {
+  ActionSymbol,
   BodyNode,
   Inline,
   ItemBlockNode,
@@ -227,7 +228,7 @@ function parseItem(raw: string): ItemBlockNode {
   const tokens = tokenize(raw);
   let i = 0;
   let name: Inline[] = [];
-  let nameActions: string | undefined;
+  let action: ActionSymbol | undefined;
   let subtitle: Inline[] | undefined;
   const traits: string[] = [];
 
@@ -238,10 +239,10 @@ function parseItem(raw: string): ItemBlockNode {
     const t = tokens[i]!;
     if (t.kind === 'heading' && t.level === 1) {
       let text = t.text;
-      const action = text.match(/\s+(:(?:aaa|aa|a|r|f):)\s*$/);
-      if (action) {
-        nameActions = action[1];
-        text = text.replace(action[0], '').trim();
+      const m = text.match(/\s+(:(?:aaa|aa|a|r|f):)\s*$/);
+      if (m) {
+        action = m[1] as ActionSymbol;
+        text = text.replace(m[0], '').trim();
       }
       name = parseInline(text);
       i++;
@@ -284,7 +285,7 @@ function parseItem(raw: string): ItemBlockNode {
   return {
     type: 'item',
     name,
-    nameActions,
+    action,
     subtitle,
     traits,
     content,
