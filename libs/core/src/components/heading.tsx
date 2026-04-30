@@ -2,6 +2,7 @@ import type { HeadingNode } from '../parser';
 import { pt } from './size-helper';
 import styled from '@emotion/styled';
 import { tighterMargin } from './style-helpers';
+import { renderInlines } from './inline';
 
 const H4_BORDER = 1;
 const H4_BORDER_GAP = 0.5;
@@ -65,5 +66,5 @@ export function Heading({ node }: { node: HeadingNode }) {
   const level = Math.min(Math.max(node.level, 1), 6);
   const Comp = TAGS[level - 1];
 
-  return <Comp>{node.text}</Comp>;
+  return <Comp>{renderInlines(node.content)}</Comp>;
 }

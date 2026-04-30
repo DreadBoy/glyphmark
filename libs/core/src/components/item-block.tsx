@@ -2,6 +2,7 @@ import type { ItemBlockNode, Segment } from '../parser';
 import { pt } from './size-helper';
 import { Hr } from './hr';
 import { tighterMargin } from './style-helpers';
+import { renderInlines } from './inline';
 
 export function ItemBlock({ node }: { node: ItemBlockNode }) {
   return (
@@ -24,7 +25,7 @@ export function ItemBlock({ node }: { node: ItemBlockNode }) {
             margin: 0,
           }}
         >
-          {node.name}
+          {renderInlines(node.name)}
         </h4>
         {node.subtitle && (
           <h4
@@ -37,7 +38,7 @@ export function ItemBlock({ node }: { node: ItemBlockNode }) {
               margin: 0,
             }}
           >
-            {node.subtitle}
+            {renderInlines(node.subtitle)}
           </h4>
         )}
       </div>
@@ -49,22 +50,25 @@ export function ItemBlock({ node }: { node: ItemBlockNode }) {
   );
 }
 
-// TODO make this reusable
 function ItemSegment({ segment }: { segment: Segment }) {
   if (segment.kind === 'hr') return <Hr />;
   if (segment.kind === 'column-break') {
     return <div css={{ breakAfter: 'column' }} />;
   }
-  return (
-    <p
-      css={{
-        fontFamily: 'ff-good-web-pro',
-        fontSize: pt(8).toRem(),
-        lineHeight: pt(12).toRem(),
-        margin: 0,
-      }}
-    >
-      {segment.content}
-    </p>
-  );
+  if (segment.kind === 'paragraph') {
+    return (
+      <p
+        css={{
+          fontFamily: 'ff-good-web-pro',
+          fontSize: pt(8).toRem(),
+          lineHeight: pt(12).toRem(),
+          margin: 0,
+        }}
+      >
+        {renderInlines(segment.content)}
+      </p>
+    );
+  }
+  // 'heading', 'list', 'centered-paragraph' segments don't have renderers yet.
+  return null;
 }

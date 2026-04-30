@@ -1,6 +1,7 @@
 import type { TableNode } from '../parser';
 import { pt } from './size-helper';
 import { tighterMargin } from './style-helpers';
+import { renderInlines } from './inline';
 
 const HEADER_BG = '#083D41';
 const ROW_DARK = '#EFE3C8';
@@ -26,7 +27,7 @@ export function Table({ node }: { node: TableNode }) {
             color: '#000',
           }}
         >
-          {node.caption}
+          {renderInlines(node.caption)}
         </div>
       )}
       <table
@@ -53,7 +54,7 @@ export function Table({ node }: { node: TableNode }) {
                   textAlign: node.alignments[i] ?? 'left',
                 }}
               >
-                {h}
+                {renderInlines(h)}
               </th>
             ))}
           </tr>
@@ -75,7 +76,7 @@ export function Table({ node }: { node: TableNode }) {
                     textAlign: node.alignments[ci] ?? 'left',
                   }}
                 >
-                  {cell}
+                  {renderInlines(cell)}
                 </td>
               ))}
             </tr>
@@ -90,7 +91,7 @@ export function Table({ node }: { node: TableNode }) {
                   background: `${ROW_LIGHT} !important`,
                 }}
               >
-                * {fn}
+                * {renderInlines(fn)}
               </td>
             </tr>
           ))}

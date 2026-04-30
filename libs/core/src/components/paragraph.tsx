@@ -1,6 +1,7 @@
 import type { ParagraphNode } from '../parser';
 import { pt } from './size-helper';
 import styled from '@emotion/styled';
+import { renderInlines } from './inline';
 
 const P = styled.p({
   fontFamily: 'linotype-sabon',
@@ -18,7 +19,7 @@ export function Paragraph({ node }: { node: ParagraphNode }) {
         },
       }}
     >
-      {node.content}
+      {renderInlines(node.content)}
     </P>
   );
 }
