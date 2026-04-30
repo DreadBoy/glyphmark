@@ -1,0 +1,4 @@
+Second rich-rules variant from later in the book.
+Source: Player Core book p268 (PDF p269).
+Deferred for the same reason as rich-rules-1 — Segment[] support inside
+rules() needs design work for sub-headings / list indents.

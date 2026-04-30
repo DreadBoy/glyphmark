@@ -1,0 +1,5 @@
+A rules() block with rich internal layout — multiple sub-sections
+joined by sub-headings, deeply nested examples.
+Source: Player Core book p188 (PDF p189).
+Same gap as rich-info: IR allows Segment[] inside rules() but the
+in-block heading + indent rules haven't been finalised.

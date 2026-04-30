@@ -1,0 +1,15 @@
+A short opening paragraph in the first column.
+
+|
+
+A much longer second column. Without an explicit column break the
+auto-balancer would split this content roughly evenly across both
+columns; the leading `|` forces the break so the first column stays
+short and everything from here on flows into the second column.
+
+The second paragraph keeps going to give the renderer enough text to
+demonstrate that wrapping happens inside the second column, not back
+across into the first.
+
+A third paragraph for good measure — short columns on the left, a tall
+stack on the right.

@@ -1,0 +1,15 @@
+sample(
+^ **Melee attack roll result = d20 roll + Strength modifier** (or optionally Dexterity modifier for a finesse weapon) **+ proficiency bonus + other bonuses + penalties**
+)
+
+sample(
+^ **Ranged attack roll result = d20 roll + Dexterity modifier + proficiency bonus + other bonuses + penalties**
+)
+
+sample(
+^ **Melee damage roll = damage die of weapon or unarmed attack + Strength modifier + bonuses + penalties**
+)
+
+sample(
+^ **Ranged damage roll = damage die of weapon** (+ Strength modifier for a thrown weapon or half Strength modifier for a propulsive weapon) **+ bonuses + penalties**
+)

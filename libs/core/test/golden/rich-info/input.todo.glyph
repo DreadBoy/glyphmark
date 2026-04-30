@@ -1,0 +1,6 @@
+An info() callout with internal structure: sub-headings, multiple
+paragraphs, possibly a list — beyond the simple "single paragraph" form.
+Source: Player Core book p93 (PDF p94).
+The IR allows Segment[] inside info() but the styling story (heading
+levels inside a callout, list indents, bolded-leading paragraphs) hasn't
+been worked out yet.

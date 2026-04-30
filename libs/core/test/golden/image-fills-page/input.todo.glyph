@@ -1,0 +1,4 @@
+A page whose body is a single full-bleed illustration (used in book to
+fill space when text doesn't reach the next page break).
+Source: Player Core book p75 (PDF p76).
+DSL has no syntax for embedded images, let alone full-bleed; deferred.
