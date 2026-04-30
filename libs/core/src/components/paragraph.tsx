@@ -1,4 +1,4 @@
-import type { ParagraphNode } from '../parser/scribe-parser';
+import type { ParagraphNode } from '../parser';
 import { pt } from './size-helper';
 import styled from '@emotion/styled';
 

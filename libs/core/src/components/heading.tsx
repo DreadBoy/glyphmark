@@ -1,4 +1,4 @@
-import type { HeadingNode } from '../parser/scribe-parser';
+import type { HeadingNode } from '../parser';
 import { pt } from './size-helper';
 import styled from '@emotion/styled';
 import { tighterMargin } from './style-helpers';

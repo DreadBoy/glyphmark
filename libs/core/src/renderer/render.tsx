@@ -3,7 +3,7 @@ import type { FC } from 'react';
 import { CacheProvider } from '@emotion/react';
 import createCache from '@emotion/cache';
 import createEmotionServer from '@emotion/server/create-instance';
-import type { ScribeDocument, ScribeNode } from '../parser/scribe-parser';
+import type { ScribeDocument, BodyNode } from '../parser';
 import { FONT_CSS } from '../vendor/font-css';
 import { Document } from '../components/document';
 import { ItemBlock } from '../components/item-block';
@@ -12,9 +12,9 @@ import { ColumnBreak } from '../components/column-break';
 import { Paragraph } from '../components/paragraph';
 import { Table } from '../components/table';
 
-type NodeOf<T extends ScribeNode['type']> = Extract<ScribeNode, { type: T }>;
+type NodeOf<T extends BodyNode['type']> = Extract<BodyNode, { type: T }>;
 type Renderers = {
-  [K in ScribeNode['type']]?: FC<{ node: NodeOf<K> }>;
+  [K in BodyNode['type']]?: FC<{ node: NodeOf<K> }>;
 };
 
 const RENDERERS: Renderers = {
@@ -45,9 +45,7 @@ function Body({ doc }: { doc: ScribeDocument }) {
   return (
     <Document>
       {doc.body.map((node, index) => {
-        const Comp = RENDERERS[node.type] as
-          | FC<{ node: ScribeNode }>
-          | undefined;
+        const Comp = RENDERERS[node.type] as FC<{ node: BodyNode }> | undefined;
         return Comp ? <Comp key={index} node={node} /> : null;
       })}
     </Document>

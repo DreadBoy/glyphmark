@@ -1,4 +1,4 @@
-import type { TableNode } from '../parser/scribe-parser';
+import type { TableNode } from '../parser';
 import { pt } from './size-helper';
 import { tighterMargin } from './style-helpers';
 

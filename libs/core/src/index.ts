@@ -1,3 +1,3 @@
 export { convert } from './pipeline.js';
-export { parseScribe } from './parser/scribe-parser.js';
-export type { ScribeDocument, ScribeNode } from './parser/scribe-parser.js';
+export { parseScribe } from './parser/index.js';
+export type { ScribeDocument, BodyNode } from './parser/index.js';

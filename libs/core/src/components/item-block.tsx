@@ -1,4 +1,4 @@
-import type { ItemBlockNode, Segment } from '../parser/scribe-parser';
+import type { ItemBlockNode, Segment } from '../parser';
 import { pt } from './size-helper';
 import { Hr } from './hr';
 import { tighterMargin } from './style-helpers';

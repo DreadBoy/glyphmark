@@ -1,4 +1,4 @@
-import type { ColumnBreakNode } from '../parser/scribe-parser';
+import type { ColumnBreakNode } from '../parser';
 
 export function ColumnBreak({ node: _node }: { node: ColumnBreakNode }) {
   return (
