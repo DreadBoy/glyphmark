@@ -6,6 +6,15 @@ import { convert } from '../../src/pipeline';
 const HERE = path.resolve(import.meta.dirname, '.');
 const OUTPUT_HTML = !!process.env.OUTPUT_HTML;
 
+// Pull every fixture into the Vite module graph so vitest's watcher reruns
+// when any of them change. The test still reads them via fs.readFileSync to
+// keep file paths handy for writing OUTPUT_HTML next to the input — the eager
+// import is purely for change tracking.
+import.meta.glob('./*/input{,.skip,.todo}.glyph', {
+  query: '?raw',
+  eager: true,
+});
+
 // Discover fixture directories. A fixture marker file decides its mode:
 // - `input.glyph`        → regular test
 // - `input.skip.glyph`   → skipped (it.skip)
@@ -44,7 +53,13 @@ describe('golden snapshots', { timeout: 120_000 }, () => {
       const html = convert(input);
       expect(html.length).toBeGreaterThan(0);
       if (OUTPUT_HTML)
-        fs.writeFileSync(path.join(HERE, dir, 'output.html'), html);
+        fs.writeFileSync(
+          path.join(HERE, dir, 'output.html'),
+          html.replace(
+            '</head>',
+            '<script type="text/javascript" src="https://livejs.com/live.js"></script></head>',
+          ),
+        );
     });
   }
 });
