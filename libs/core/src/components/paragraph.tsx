@@ -1,25 +1,28 @@
-import type { ParagraphNode } from '../parser';
+import type { ParagraphIndent, ParagraphNode } from '../parser';
 import { pt } from './size-helper';
-import styled from '@emotion/styled';
 import { renderInlines } from './inline';
 
-const P = styled.p({
-  fontFamily: 'linotype-sabon',
-  fontSize: pt(8).toRem(),
-  lineHeight: pt(12).toRem(),
-  margin: 0,
-});
+const INDENT_AMOUNT = '1rem';
+
+export function indentStyle(indent: ParagraphIndent) {
+  if (indent === 'first-line') return { textIndent: INDENT_AMOUNT };
+  if (indent === 'hanging')
+    return { paddingLeft: INDENT_AMOUNT, textIndent: `-${INDENT_AMOUNT}` };
+  return undefined;
+}
 
 export function Paragraph({ node }: { node: ParagraphNode }) {
   return (
-    <P
+    <p
       css={{
-        [`${P} + &${P}`]: {
-          textIndent: '1rem',
-        },
+        fontFamily: 'linotype-sabon',
+        fontSize: pt(8).toRem(),
+        lineHeight: pt(12).toRem(),
+        margin: 0,
+        ...indentStyle(node.indent),
       }}
     >
       {renderInlines(node.content)}
-    </P>
+    </p>
   );
 }

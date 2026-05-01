@@ -3,11 +3,56 @@ import type {
   BodyNode,
   Inline,
   ItemBlockNode,
+  ListIndent,
+  ParagraphIndent,
   ScribeDocument,
   Segment,
 } from './ir';
 import { parseInline } from './inline';
 import { tokenize, type Token } from './lexer';
+
+// Container kinds drive per-block indent decisions. "body" is the document
+// level (normal text); the rest correspond to block-open keywords.
+type ContainerKind =
+  | 'body'
+  | 'item'
+  | 'rules'
+  | 'sample'
+  | 'info'
+  | 'note'
+  | 'head'
+  | 'right';
+
+function isBoldLead(content: Inline[]): boolean {
+  return content[0]?.kind === 'strong';
+}
+
+function paragraphIndent(
+  kind: ContainerKind,
+  firstInSection: boolean,
+  boldLead: boolean,
+): ParagraphIndent {
+  // item content uses a hanging indent for bold-leading "definition list"
+  // paragraphs (e.g. **Critical Success** ...) and a first-line indent for
+  // every paragraph after the first in a section.
+  if (kind === 'item') {
+    if (boldLead) return 'hanging';
+    return firstInSection ? 'none' : 'first-line';
+  }
+  // body and rules use the standard prose rule: 1st flush, 2nd+ first-line.
+  if (kind === 'body' || kind === 'rules') {
+    return firstInSection ? 'none' : 'first-line';
+  }
+  // sample, info, note, head, right — paragraphs sit flush.
+  return 'none';
+}
+
+function listIndent(kind: ContainerKind): ListIndent {
+  // Lists hang in by one indent step in body and item containers; everywhere
+  // else they sit flush with the column edge.
+  if (kind === 'body' || kind === 'item') return 'block';
+  return 'none';
+}
 
 export function parse(input: string): ScribeDocument {
   const tokens = tokenize(input);
@@ -28,6 +73,10 @@ export function parse(input: string): ScribeDocument {
 
 function parseBody(tokens: Token[], doc: ScribeDocument): void {
   let i = 0;
+  // "First in section" means: this is the first paragraph since the start of
+  // the body or since the last semantic reset (heading, full-width toggle, or
+  // a container block). It controls whether we apply the first-line indent.
+  let firstInSection = true;
   while (i < tokens.length) {
     const tok = tokens[i]!;
 
@@ -74,6 +123,7 @@ function parseBody(tokens: Token[], doc: ScribeDocument): void {
 
       case 'full-width-toggle':
         doc.body.push({ type: 'full-width-toggle' });
+        firstInSection = true;
         i++;
         continue;
 
@@ -83,6 +133,7 @@ function parseBody(tokens: Token[], doc: ScribeDocument): void {
           level: tok.level,
           content: parseInline(tok.text),
         });
+        firstInSection = true;
         i++;
         continue;
 
@@ -108,7 +159,8 @@ function parseBody(tokens: Token[], doc: ScribeDocument): void {
             } else break;
           } else break;
         }
-        doc.body.push({ type: 'list', items });
+        doc.body.push({ type: 'list', items, indent: listIndent('body') });
+        firstInSection = false;
         continue;
       }
 
@@ -125,14 +177,16 @@ function parseBody(tokens: Token[], doc: ScribeDocument): void {
         } else if (tok.type === 'right') {
           doc.body.push({
             type: 'right-sidebar',
-            content: parseSegments(tok.raw, 'right block'),
+            content: parseSegments(tok.raw, 'right block', 'right'),
           });
         } else {
           doc.body.push({
             type: tok.type,
-            content: parseSegments(tok.raw, `${tok.type} block`),
+            content: parseSegments(tok.raw, `${tok.type} block`, tok.type),
           });
         }
+        // A container block begins a new section on either side.
+        firstInSection = true;
         i++;
         continue;
       }
@@ -145,10 +199,13 @@ function parseBody(tokens: Token[], doc: ScribeDocument): void {
           i++;
         }
         const joined = lines.map((l) => l.trim()).join(' ');
+        const content = parseInline(joined);
         doc.body.push({
           type: 'paragraph',
-          content: parseInline(joined),
+          content,
+          indent: paragraphIndent('body', firstInSection, isBoldLead(content)),
         });
+        firstInSection = false;
         continue;
       }
 
@@ -280,7 +337,7 @@ function parseItem(raw: string): ItemBlockNode {
   }
 
   const ctxLabel = `item${name.length ? ` "${inlineToString(name)}"` : ''}`;
-  const content = parseSegmentsFromTokens(tokens.slice(i), ctxLabel);
+  const content = parseSegmentsFromTokens(tokens.slice(i), ctxLabel, 'item');
 
   return {
     type: 'item',
@@ -292,16 +349,24 @@ function parseItem(raw: string): ItemBlockNode {
   };
 }
 
-function parseSegments(raw: string, contextLabel: string): Segment[] {
-  return parseSegmentsFromTokens(tokenize(raw), contextLabel);
+function parseSegments(
+  raw: string,
+  contextLabel: string,
+  kind: ContainerKind,
+): Segment[] {
+  return parseSegmentsFromTokens(tokenize(raw), contextLabel, kind);
 }
 
 function parseSegmentsFromTokens(
   tokens: Token[],
   contextLabel: string,
+  kind: ContainerKind,
 ): Segment[] {
   const segments: Segment[] = [];
   let i = 0;
+  // Tracks paragraph position within the current section. A section is reset
+  // by hr (segment-level divider) or heading.
+  let firstInSection = true;
 
   while (i < tokens.length) {
     const tok = tokens[i]!;
@@ -311,6 +376,7 @@ function parseSegmentsFromTokens(
         continue;
       case 'hr':
         segments.push({ kind: 'hr' });
+        firstInSection = true;
         i++;
         continue;
       case 'column-break':
@@ -323,6 +389,7 @@ function parseSegmentsFromTokens(
           level: tok.level,
           content: parseInline(tok.text),
         });
+        firstInSection = true;
         i++;
         continue;
       case 'centered-text':
@@ -344,7 +411,8 @@ function parseSegmentsFromTokens(
             else break;
           } else break;
         }
-        segments.push({ kind: 'list', items });
+        segments.push({ kind: 'list', items, indent: listIndent(kind) });
+        firstInSection = false;
         continue;
       }
       case 'text': {
@@ -355,7 +423,13 @@ function parseSegmentsFromTokens(
           i++;
         }
         const joined = lines.map((l) => l.trim()).join(' ');
-        segments.push({ kind: 'paragraph', content: parseInline(joined) });
+        const content = parseInline(joined);
+        segments.push({
+          kind: 'paragraph',
+          content,
+          indent: paragraphIndent(kind, firstInSection, isBoldLead(content)),
+        });
+        firstInSection = false;
         continue;
       }
       default:

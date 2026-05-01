@@ -193,11 +193,23 @@ describe('parse — item block', () => {
     const item = doc.body.find((n) => n.type === 'item');
     if (item?.type === 'item') {
       expect(item.content).toEqual([
-        { kind: 'paragraph', content: [{ kind: 'text', text: 'First' }] },
+        {
+          kind: 'paragraph',
+          content: [{ kind: 'text', text: 'First' }],
+          indent: 'none',
+        },
         { kind: 'hr' },
-        { kind: 'paragraph', content: [{ kind: 'text', text: 'Second' }] },
+        {
+          kind: 'paragraph',
+          content: [{ kind: 'text', text: 'Second' }],
+          indent: 'none',
+        },
         { kind: 'hr' },
-        { kind: 'paragraph', content: [{ kind: 'text', text: 'Third' }] },
+        {
+          kind: 'paragraph',
+          content: [{ kind: 'text', text: 'Third' }],
+          indent: 'none',
+        },
       ]);
     }
   });
@@ -229,6 +241,7 @@ describe('parse — item block', () => {
               text: 'Line one of paragraph. Line two of same paragraph.',
             },
           ],
+          indent: 'none',
         },
       ]);
     }
@@ -238,10 +251,20 @@ describe('parse — item block', () => {
     const doc = parse('item(\n# Foo\n-\n; t\nLeft\n|\nRight\n)');
     const item = doc.body.find((n) => n.type === 'item');
     if (item?.type === 'item') {
+      // The second paragraph is "2nd+ in its section" — column-break is a
+      // layout marker, not a section reset — so it picks up first-line indent.
       expect(item.content).toEqual([
-        { kind: 'paragraph', content: [{ kind: 'text', text: 'Left' }] },
+        {
+          kind: 'paragraph',
+          content: [{ kind: 'text', text: 'Left' }],
+          indent: 'none',
+        },
         { kind: 'column-break' },
-        { kind: 'paragraph', content: [{ kind: 'text', text: 'Right' }] },
+        {
+          kind: 'paragraph',
+          content: [{ kind: 'text', text: 'Right' }],
+          indent: 'first-line',
+        },
       ]);
     }
   });
@@ -271,9 +294,17 @@ describe('parse — info / note / rules / sample / head / right', () => {
     const info = doc.body.find((n) => n.type === 'info');
     if (info?.type === 'info') {
       expect(info.content).toEqual([
-        { kind: 'paragraph', content: [{ kind: 'text', text: 'Left' }] },
+        {
+          kind: 'paragraph',
+          content: [{ kind: 'text', text: 'Left' }],
+          indent: 'none',
+        },
         { kind: 'column-break' },
-        { kind: 'paragraph', content: [{ kind: 'text', text: 'Right' }] },
+        {
+          kind: 'paragraph',
+          content: [{ kind: 'text', text: 'Right' }],
+          indent: 'none',
+        },
       ]);
     }
   });
@@ -377,4 +408,81 @@ describe('parse — action glyph variants (book p102 area)', () => {
       }
     });
   }
+});
+
+describe('parse — paragraph indent rules', () => {
+  it('body: first paragraph is none, second gets first-line indent', () => {
+    const doc = parse('First.\n\nSecond.');
+    const paras = doc.body.filter((n) => n.type === 'paragraph');
+    if (paras[0]?.type === 'paragraph') expect(paras[0].indent).toBe('none');
+    if (paras[1]?.type === 'paragraph')
+      expect(paras[1].indent).toBe('first-line');
+  });
+
+  it('body: a heading resets the section, so the next paragraph is none', () => {
+    const doc = parse('First.\n\n# Title\n\nAfter heading.');
+    const paras = doc.body.filter((n) => n.type === 'paragraph');
+    if (paras[1]?.type === 'paragraph') expect(paras[1].indent).toBe('none');
+  });
+
+  it('body: bold-leading paragraph behaves like any 2nd+ paragraph (first-line)', () => {
+    const doc = parse('First.\n\n**Bold** lead.');
+    const second = doc.body[2];
+    if (second?.type === 'paragraph') expect(second.indent).toBe('first-line');
+  });
+
+  it('item: bold-leading paragraphs get hanging indent', () => {
+    const doc = parse(
+      'item(\n# Foo\n-\n;t\nFirst para.\n\n**Crit** does X.\n)',
+    );
+    const item = doc.body.find((n) => n.type === 'item');
+    if (item?.type === 'item') {
+      const p2 = item.content[1];
+      if (p2 && p2.kind === 'paragraph') expect(p2.indent).toBe('hanging');
+    }
+  });
+
+  it('item: hr resets first-paragraph state', () => {
+    const doc = parse('item(\n# Foo\n-\n;t\nA.\n\nB.\n\n-\n\nC.\n)');
+    const item = doc.body.find((n) => n.type === 'item');
+    if (item?.type === 'item') {
+      const paras = item.content.filter((s) => s.kind === 'paragraph');
+      // A: first → none; B: 2nd+ → first-line; C: post-hr first → none.
+      if (paras[0]?.kind === 'paragraph') expect(paras[0].indent).toBe('none');
+      if (paras[1]?.kind === 'paragraph')
+        expect(paras[1].indent).toBe('first-line');
+      if (paras[2]?.kind === 'paragraph') expect(paras[2].indent).toBe('none');
+    }
+  });
+
+  it('rules: bold-leading paragraphs get first-line (not hanging) indent', () => {
+    const doc = parse('rules(\nFirst.\n\n**Bold** lead.\n)');
+    const r = doc.body.find((n) => n.type === 'rules');
+    if (r?.type === 'rules') {
+      const p2 = r.content[1];
+      if (p2 && p2.kind === 'paragraph') expect(p2.indent).toBe('first-line');
+    }
+  });
+
+  it('sample: every paragraph indent is none', () => {
+    const doc = parse('sample(\nA.\n\nB.\n\n**Bold.**\n)');
+    const s = doc.body.find((n) => n.type === 'sample');
+    if (s?.type === 'sample') {
+      for (const seg of s.content)
+        if (seg.kind === 'paragraph') expect(seg.indent).toBe('none');
+    }
+  });
+
+  it('lists: block-indented in body, flush in rules', () => {
+    const docBody = parse('* a\n* b');
+    const list = docBody.body.find((n) => n.type === 'list');
+    if (list?.type === 'list') expect(list.indent).toBe('block');
+
+    const docRules = parse('rules(\n* a\n* b\n)');
+    const r = docRules.body.find((n) => n.type === 'rules');
+    if (r?.type === 'rules') {
+      const inner = r.content[0];
+      if (inner && inner.kind === 'list') expect(inner.indent).toBe('none');
+    }
+  });
 });

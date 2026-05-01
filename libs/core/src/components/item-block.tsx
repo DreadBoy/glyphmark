@@ -5,6 +5,7 @@ import { tighterMargin } from './style-helpers';
 import { renderInlines } from './inline';
 import { ColumnBreak } from './column-break';
 import { ACTION_SYMBOLS } from '../vendor/action-symbols';
+import { indentStyle } from './paragraph';
 
 export function ItemBlock({ node }: { node: ItemBlockNode }) {
   return (
@@ -82,13 +83,31 @@ function ItemSegment({ segment }: { segment: Segment }) {
           fontSize: pt(8).toRem(),
           lineHeight: pt(12).toRem(),
           margin: 0,
+          ...indentStyle(segment.indent),
         }}
       >
         {renderInlines(segment.content)}
       </p>
     );
   }
-  // 'heading', 'list', 'centered-paragraph' segments don't have renderers yet.
+  if (segment.kind === 'list') {
+    return (
+      <ul
+        css={{
+          margin: 0,
+          paddingLeft: segment.indent === 'block' ? pt(18).toRem() : 0,
+          fontFamily: 'ff-good-web-pro',
+          fontSize: pt(8).toRem(),
+          lineHeight: pt(12).toRem(),
+        }}
+      >
+        {segment.items.map((item, i) => (
+          <li key={i}>{renderInlines(item)}</li>
+        ))}
+      </ul>
+    );
+  }
+  // 'heading', 'centered-paragraph' segments don't have renderers yet.
   return null;
 }
 
