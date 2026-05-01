@@ -1,4 +1,4 @@
-import type { ItemBlockNode, Segment } from '../parser';
+import type { ItemBlockNode, ItemSegment } from '../parser';
 import { pt } from './size-helper';
 import { Hr } from './hr';
 import { tighterMargin } from './style-helpers';
@@ -70,7 +70,7 @@ export function ItemBlock({ node }: { node: ItemBlockNode }) {
   );
 }
 
-function ItemSegment({ segment }: { segment: Segment }) {
+function ItemSegment({ segment }: { segment: ItemSegment }) {
   if (segment.kind === 'hr') return <Hr />;
   if (segment.kind === 'column-break') {
     return <ColumnBreak />;

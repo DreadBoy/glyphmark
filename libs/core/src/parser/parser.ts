@@ -2,9 +2,13 @@ import type {
   ActionSymbol,
   BodyNode,
   Inline,
+  InfoSegment,
   ItemBlockNode,
+  ItemSegment,
   ListIndent,
   ParagraphIndent,
+  RulesSegment,
+  SampleSegment,
   ScribeDocument,
   Segment,
 } from './ir';
@@ -22,6 +26,46 @@ type ContainerKind =
   | 'note'
   | 'head'
   | 'right';
+
+// Widest possible segment shape the parser can emit. Each caller narrows to
+// its concrete container segment type via a (provably sound) cast — the
+// parser only emits kinds that the container's allowed-set permits.
+type AnySegment = ItemSegment | SampleSegment | RulesSegment | InfoSegment;
+type SegmentKind = AnySegment['kind'];
+
+// Single source of truth for "which segment kinds may appear in which
+// container." Anything else is dropped with a warning at parse time. To
+// tighten or loosen a container, edit only this table — the parser doesn't
+// need per-kind branches. Exported so tests can drive a matrix of negative
+// cases (warn-and-drop) directly off this table without restating it.
+export const ALLOWED_SEGMENTS: Record<
+  Exclude<ContainerKind, 'body'>,
+  Set<SegmentKind>
+> = {
+  item: new Set(['paragraph', 'heading', 'list', 'column-break', 'hr']),
+  sample: new Set(['paragraph', 'heading', 'centered-paragraph']),
+  rules: new Set(['paragraph', 'heading', 'list', 'column-break']),
+  info: new Set(['paragraph', 'heading', 'column-break']),
+  note: new Set(['paragraph', 'heading']),
+  head: new Set(['paragraph', 'heading']),
+  right: new Set(['paragraph', 'heading']),
+};
+
+function tryPushSegment(
+  segments: AnySegment[],
+  seg: AnySegment,
+  kind: Exclude<ContainerKind, 'body'>,
+  contextLabel: string,
+): boolean {
+  if (ALLOWED_SEGMENTS[kind].has(seg.kind)) {
+    segments.push(seg);
+    return true;
+  }
+  console.warn(
+    `[scribe] ${contextLabel}: ${seg.kind} is not valid inside ${kind}(); ignoring`,
+  );
+  return false;
+}
 
 function isBoldLead(content: Inline[]): boolean {
   return content[0]?.kind === 'strong';
@@ -172,17 +216,57 @@ function parseBody(tokens: Token[], doc: ScribeDocument): void {
       }
 
       case 'block-open': {
+        // Each branch casts the parser's wide `AnySegment[]` to the narrow
+        // segment type the target node accepts. The casts are sound because
+        // `parseSegments` only emits kinds that `ALLOWED_SEGMENTS[kind]`
+        // permits — anything else is dropped with a warning.
         if (tok.type === 'item') {
           doc.body.push(parseItem(tok.raw));
+        } else if (tok.type === 'sample') {
+          doc.body.push({
+            type: 'sample',
+            content: parseSegments(
+              tok.raw,
+              'sample block',
+              'sample',
+            ) as SampleSegment[],
+          });
+        } else if (tok.type === 'rules') {
+          doc.body.push({
+            type: 'rules',
+            content: parseSegments(
+              tok.raw,
+              'rules block',
+              'rules',
+            ) as RulesSegment[],
+          });
+        } else if (tok.type === 'info') {
+          doc.body.push({
+            type: 'info',
+            content: parseSegments(
+              tok.raw,
+              'info block',
+              'info',
+            ) as InfoSegment[],
+          });
         } else if (tok.type === 'right') {
           doc.body.push({
             type: 'right-sidebar',
-            content: parseSegments(tok.raw, 'right block', 'right'),
+            content: parseSegments(
+              tok.raw,
+              'right block',
+              'right',
+            ) as Segment[],
           });
         } else {
+          // 'note' | 'head' — both use the floor Segment[].
           doc.body.push({
             type: tok.type,
-            content: parseSegments(tok.raw, `${tok.type} block`, tok.type),
+            content: parseSegments(
+              tok.raw,
+              `${tok.type} block`,
+              tok.type,
+            ) as Segment[],
           });
         }
         // A container block begins a new section on either side.
@@ -337,7 +421,14 @@ function parseItem(raw: string): ItemBlockNode {
   }
 
   const ctxLabel = `item${name.length ? ` "${inlineToString(name)}"` : ''}`;
-  const content = parseSegmentsFromTokens(tokens.slice(i), ctxLabel, 'item');
+  // Narrowing cast: parseSegmentsFromTokens with kind='item' provably emits
+  // only ItemSegment kinds (no centered-paragraph, since that's gated to
+  // kind='sample'). Same logic applies to the other narrowing casts below.
+  const content = parseSegmentsFromTokens(
+    tokens.slice(i),
+    ctxLabel,
+    'item',
+  ) as ItemSegment[];
 
   return {
     type: 'item',
@@ -352,17 +443,17 @@ function parseItem(raw: string): ItemBlockNode {
 function parseSegments(
   raw: string,
   contextLabel: string,
-  kind: ContainerKind,
-): Segment[] {
+  kind: Exclude<ContainerKind, 'body'>,
+): AnySegment[] {
   return parseSegmentsFromTokens(tokenize(raw), contextLabel, kind);
 }
 
 function parseSegmentsFromTokens(
   tokens: Token[],
   contextLabel: string,
-  kind: ContainerKind,
-): Segment[] {
-  const segments: Segment[] = [];
+  kind: Exclude<ContainerKind, 'body'>,
+): AnySegment[] {
+  const segments: AnySegment[] = [];
   let i = 0;
   // Tracks paragraph position within the current section. A section is reset
   // by hr (segment-level divider) or heading.
@@ -375,28 +466,42 @@ function parseSegmentsFromTokens(
         i++;
         continue;
       case 'hr':
-        segments.push({ kind: 'hr' });
-        firstInSection = true;
+        if (tryPushSegment(segments, { kind: 'hr' }, kind, contextLabel)) {
+          firstInSection = true;
+        }
         i++;
         continue;
       case 'column-break':
-        segments.push({ kind: 'column-break' });
+        tryPushSegment(segments, { kind: 'column-break' }, kind, contextLabel);
         i++;
         continue;
       case 'heading':
-        segments.push({
-          kind: 'heading',
-          level: tok.level,
-          content: parseInline(tok.text),
-        });
-        firstInSection = true;
+        if (
+          tryPushSegment(
+            segments,
+            {
+              kind: 'heading',
+              level: tok.level,
+              content: parseInline(tok.text),
+            },
+            kind,
+            contextLabel,
+          )
+        ) {
+          firstInSection = true;
+        }
         i++;
         continue;
       case 'centered-text':
-        segments.push({
-          kind: 'centered-paragraph',
-          content: parseInline(tok.content),
-        });
+        tryPushSegment(
+          segments,
+          {
+            kind: 'centered-paragraph',
+            content: parseInline(tok.content),
+          },
+          kind,
+          contextLabel,
+        );
         i++;
         continue;
       case 'list-item': {
@@ -411,8 +516,16 @@ function parseSegmentsFromTokens(
             else break;
           } else break;
         }
-        segments.push({ kind: 'list', items, indent: listIndent(kind) });
-        firstInSection = false;
+        if (
+          tryPushSegment(
+            segments,
+            { kind: 'list', items, indent: listIndent(kind) },
+            kind,
+            contextLabel,
+          )
+        ) {
+          firstInSection = false;
+        }
         continue;
       }
       case 'text': {
@@ -424,12 +537,20 @@ function parseSegmentsFromTokens(
         }
         const joined = lines.map((l) => l.trim()).join(' ');
         const content = parseInline(joined);
-        segments.push({
-          kind: 'paragraph',
-          content,
-          indent: paragraphIndent(kind, firstInSection, isBoldLead(content)),
-        });
-        firstInSection = false;
+        if (
+          tryPushSegment(
+            segments,
+            {
+              kind: 'paragraph',
+              content,
+              indent: paragraphIndent(kind, firstInSection, isBoldLead(content)),
+            },
+            kind,
+            contextLabel,
+          )
+        ) {
+          firstInSection = false;
+        }
         continue;
       }
       default:

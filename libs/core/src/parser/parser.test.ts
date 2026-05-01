@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { parse } from './parser';
+import { ALLOWED_SEGMENTS, parse } from './parser';
 
 describe('parse — preamble', () => {
   it('extracts watermark', () => {
@@ -309,20 +309,6 @@ describe('parse — info / note / rules / sample / head / right', () => {
     }
   });
 
-  it('rules() supports hr and column-break', () => {
-    const doc = parse('rules(\nA\n-\nB\n|\nC\n)');
-    const r = doc.body.find((n) => n.type === 'rules');
-    if (r?.type === 'rules') {
-      expect(r.content.map((s) => s.kind)).toEqual([
-        'paragraph',
-        'hr',
-        'paragraph',
-        'column-break',
-        'paragraph',
-      ]);
-    }
-  });
-
   it('note() retains heading inside', () => {
     const doc = parse('note(\n# Title\nBody text.\n)');
     const n = doc.body.find((n) => n.type === 'note');
@@ -356,13 +342,6 @@ describe('parse — info / note / rules / sample / head / right', () => {
     expect(r?.type).toBe('right-sidebar');
   });
 
-  it('list inside info() stays a list segment', () => {
-    const doc = parse('info(\n* one\n* two\n)');
-    const info = doc.body.find((n) => n.type === 'info');
-    if (info?.type === 'info') {
-      expect(info.content[0]?.kind).toBe('list');
-    }
-  });
 });
 
 describe('parse — tables', () => {
@@ -485,4 +464,77 @@ describe('parse — paragraph indent rules', () => {
       if (inner && inner.kind === 'list') expect(inner.indent).toBe('none');
     }
   });
+});
+
+// Matrix-driven negative cases for the per-container allow-list. For every
+// (container, kind) pair where `kind` is *not* in `ALLOWED_SEGMENTS[container]`
+// the parser should warn and drop the segment. Driving this off the same
+// table the parser uses keeps tests in lock-step with the implementation —
+// adding a kind or tightening a container is a single-line change.
+describe('parse — segment allow-list (warn-and-drop matrix)', () => {
+  // Minimal source snippet that produces each segment kind. Used as the
+  // payload inside each container during testing.
+  const KIND_INPUT: Record<string, string> = {
+    paragraph: 'A paragraph.',
+    heading: '# A heading',
+    list: '* one\n* two',
+    'column-break': '|',
+    hr: '-',
+    'centered-paragraph': '^ centered text',
+  };
+
+  // How to wrap a snippet in each container's block syntax. `item` requires
+  // a leading heading + hr before its content.
+  type Container = keyof typeof ALLOWED_SEGMENTS;
+  const wrap: Record<Container, (inner: string) => string> = {
+    item: (i) => `item(\n# Foo\n-\n${i}\n)`,
+    sample: (i) => `sample(\n${i}\n)`,
+    rules: (i) => `rules(\n${i}\n)`,
+    info: (i) => `info(\n${i}\n)`,
+    note: (i) => `note(\n${i}\n)`,
+    head: (i) => `head(\n${i}\n)`,
+    right: (i) => `right(\n${i}\n)`,
+  };
+
+  // Container keyword → matching `BodyNode.type`.
+  const blockType: Record<Container, string> = {
+    item: 'item',
+    sample: 'sample',
+    rules: 'rules',
+    info: 'info',
+    note: 'note',
+    head: 'head',
+    right: 'right-sidebar',
+  };
+
+  for (const [container, allowed] of Object.entries(ALLOWED_SEGMENTS) as [
+    Container,
+    Set<string>,
+  ][]) {
+    for (const kind of Object.keys(KIND_INPUT)) {
+      if (allowed.has(kind)) continue;
+
+      it(`${container}() warns and drops ${kind}`, () => {
+        const warn = vi
+          .spyOn(console, 'warn')
+          .mockImplementation(() => undefined);
+
+        const doc = parse(wrap[container](KIND_INPUT[kind]!));
+        const block = doc.body.find((n) => n.type === blockType[container]);
+
+        // Block must exist; its content must contain no segment of `kind`.
+        expect(block).toBeDefined();
+        if (block && 'content' in block && Array.isArray(block.content)) {
+          expect(
+            (block.content as { kind: string }[]).some((s) => s.kind === kind),
+          ).toBe(false);
+        }
+        expect(warn).toHaveBeenCalledWith(
+          expect.stringContaining(`${kind} is not valid inside ${container}()`),
+        );
+
+        warn.mockRestore();
+      });
+    }
+  }
 });

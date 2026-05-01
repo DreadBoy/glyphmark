@@ -11,6 +11,7 @@ import { Heading } from '../components/heading';
 import { ColumnBreak } from '../components/column-break';
 import { Paragraph } from '../components/paragraph';
 import { Table } from '../components/table';
+import { SampleBlock } from '../components/sample-block';
 
 type NodeOf<T extends BodyNode['type']> = Extract<BodyNode, { type: T }>;
 type Renderers = {
@@ -23,6 +24,7 @@ const RENDERERS: Renderers = {
   'column-break': ColumnBreak,
   paragraph: Paragraph,
   table: Table,
+  sample: SampleBlock,
 };
 
 export function renderScribeDocument(doc: ScribeDocument): string {

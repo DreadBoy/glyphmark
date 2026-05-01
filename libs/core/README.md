@@ -43,7 +43,7 @@ In rules block, 2nd+ paragraphs are indented as well (245), bolded as well (232)
 
 In sample block, bolded paragraphs are not indented (231).
 
-# Scribe syntax
+# Glyphmark syntax
 Will also include
 
 * page break

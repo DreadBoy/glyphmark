@@ -24,13 +24,45 @@ export type ParagraphIndent = 'none' | 'first-line' | 'hanging';
  */
 export type ListIndent = 'none' | 'block';
 
+/**
+ * The smallest set of segment kinds that every container block accepts. Wider
+ * unions (`ItemSegment`, `SampleSegment`) extend this for blocks that admit
+ * extra kinds, so that nodes outside those containers can never carry the
+ * extras at the type level.
+ */
 export type Segment =
   | { kind: 'paragraph'; content: Inline[]; indent: ParagraphIndent }
-  | { kind: 'centered-paragraph'; content: Inline[] }
-  | { kind: 'heading'; level: number; content: Inline[] }
+  | { kind: 'heading'; content: Inline[]; level: number };
+
+/**
+ * Item blocks add lists, the section-divider `hr`, and column breaks.
+ */
+export type ItemSegment =
+  | Segment
   | { kind: 'list'; items: Inline[][]; indent: ListIndent }
   | { kind: 'hr' }
   | { kind: 'column-break' };
+
+/**
+ * Sample blocks add `centered-paragraph` (the `^ ...` line marker, used for
+ * centered formula display).
+ */
+export type SampleSegment =
+  | Segment
+  | { kind: 'centered-paragraph'; content: Inline[] };
+
+/**
+ * Rules blocks add lists and column breaks.
+ */
+export type RulesSegment =
+  | Segment
+  | { kind: 'list'; items: Inline[][]; indent: ListIndent }
+  | { kind: 'column-break' };
+
+/**
+ * Info blocks add column breaks (used to split a callout across two columns).
+ */
+export type InfoSegment = Segment | { kind: 'column-break' };
 
 export interface PageBreakNode {
   type: 'page-break';
@@ -81,11 +113,11 @@ export interface ItemBlockNode {
   action?: ActionSymbol;
   subtitle?: Inline[];
   traits: string[];
-  content: Segment[];
+  content: ItemSegment[];
 }
 export interface InfoBlockNode {
   type: 'info';
-  content: Segment[];
+  content: InfoSegment[];
 }
 export interface NoteBlockNode {
   type: 'note';
@@ -93,11 +125,11 @@ export interface NoteBlockNode {
 }
 export interface RulesBlockNode {
   type: 'rules';
-  content: Segment[];
+  content: RulesSegment[];
 }
 export interface SampleBlockNode {
   type: 'sample';
-  content: Segment[];
+  content: SampleSegment[];
 }
 export interface HeadBlockNode {
   type: 'head';
