@@ -1,36 +1,36 @@
 # About block names
 
 There seems to be
-* headers (h1-h4) (39)
+* [x] headers (h1-h4) (39)
   * can have images that act as decorated first letter (38)
-* sample/example block (page 228)
+* [x] sample/example block (page 228)
   * have 2 levels of heading (276).
-* GM advice / rule explanation (230, 232)
+* [x] math / formula (275)
+  * math seems visually similar to sample, just without heading and with centered text. Does it warrant separate block type? Specially because sample could also contain centered text that looks like formula (276)
+* [ ] GM advice / rule explanation (230, 232)
   * have 2 levels of heading (245)
   * can be very rich (188, 268)
   * can have a table (272).
-* callout / info (rarely used, 165)
+* [ ] callout / info (rarely used, 165)
   * can be rich (93)
-* math / formula (275)
-  * math seems visually similar to sample, just without heading and with centered text. Does it warrant separate block type? Specially because sample could also contain centered text that looks like formula (276)
-* table (274)
+* [x] table (274)
   * can be column-wide (270) or full-wide (274). Tables can also have footnotes (270, 274)
-* item block (also used for spells, monsters, feats etc.) (102)
+* [ ] item block (also used for spells, monsters, feats etc.) (102)
   * has a heading, optional subheading, optional action icon
   * horizontal line below the heading
   * has optional traits
   * no horizontal line below the traits
   * at least 1 section, multiple of them separated by horizontal line 
-* head (50), sometimes with description (84)
-* right sidebar (123)
+* [ ] head (50), sometimes with description (84)
+* [ ] right sidebar (123)
   * there doesn't appear to be left sidebar
-* horizontal lines don't appear anywhere except as part of item block.
-* column break
+* [ ] horizontal lines don't appear anywhere except as part of item block.
+* [ ] column break
   * indicates start of new column
-* page break
+* [ ] page break
   * I couldn't find page break in wild, the closest is (75) but it coveres lack of text with an image
   * still, let's implement it
-* unordered list
+* [ ] unordered list
   * can appear in normal text (244), items (259), rules (245)
 
 # On paragraphs indents

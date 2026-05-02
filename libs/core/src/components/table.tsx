@@ -1,11 +1,9 @@
-import type { TableNode } from '../parser';
+import { Fragment, type ReactNode } from 'react';
+import type { CellInline, TableNode } from '../parser';
 import { pt } from './size-helper';
 import { tighterMargin } from './style-helpers';
 import { renderInlines } from './inline';
 
-const HEADER_BG = '#083D41';
-const ROW_DARK = '#EFE3C8';
-const ROW_LIGHT = '#F5F0E0';
 const CELL_PAD = `0 ${pt(4).toRem()}`;
 
 export function Table({ node }: { node: TableNode }) {
@@ -27,7 +25,7 @@ export function Table({ node }: { node: TableNode }) {
             color: '#000',
           }}
         >
-          {renderInlines(node.caption)}
+          {renderCell(node.caption)}
         </div>
       )}
       <table
@@ -45,26 +43,20 @@ export function Table({ node }: { node: TableNode }) {
               <th
                 key={i}
                 css={{
-                  background: HEADER_BG,
+                  background: '#002B16',
                   color: '#fff',
                   fontWeight: 700,
                   padding: CELL_PAD,
-                  verticalAlign: 'top',
-                  whiteSpace: 'nowrap',
-                  textAlign: node.alignments[i] ?? 'left',
+                  verticalAlign: 'bottom',
+                  textAlign: node.alignments[i],
                 }}
               >
-                {renderInlines(h)}
+                {renderCell(h)}
               </th>
             ))}
           </tr>
         </thead>
-        <tbody
-          css={{
-            '> tr:nth-of-type(odd) > td': { background: ROW_DARK },
-            '> tr:nth-of-type(even) > td': { background: ROW_LIGHT },
-          }}
-        >
+        <tbody css={{}}>
           {node.rows.map((row, ri) => (
             <tr key={ri}>
               {row.map((cell, ci) => (
@@ -72,11 +64,13 @@ export function Table({ node }: { node: TableNode }) {
                   key={ci}
                   css={{
                     padding: CELL_PAD,
-                    verticalAlign: 'top',
-                    textAlign: node.alignments[ci] ?? 'left',
+                    verticalAlign: 'bottom',
+                    textAlign: node.alignments[ci],
+                    'tr:nth-of-type(odd) > &': { background: '#F0E2C6' },
+                    'tr:nth-of-type(even) > &': { background: '#F6EEDF' },
                   }}
                 >
-                  {renderInlines(cell)}
+                  {renderCell(cell)}
                 </td>
               ))}
             </tr>
@@ -88,15 +82,39 @@ export function Table({ node }: { node: TableNode }) {
                 css={{
                   padding: CELL_PAD,
                   verticalAlign: 'top',
-                  background: `${ROW_LIGHT} !important`,
+                  background: `#EBD7AE`,
                 }}
               >
-                * {renderInlines(fn)}
+                {renderFootnoteRef(fn)} {renderInlines(fn.children)}
               </td>
             </tr>
           ))}
         </tbody>
       </table>
     </div>
+  );
+}
+
+function renderCell(nodes: CellInline[]): ReactNode {
+  return nodes.map((n, i) => {
+    if (n.kind === 'footnote-ref') {
+      return (
+        <Fragment key={i}>
+          {renderInlines(n.children)}
+          {renderFootnoteRef(n)}
+        </Fragment>
+      );
+    }
+    return <Fragment key={i}>{renderInlines([n])}</Fragment>;
+  });
+}
+
+function renderFootnoteRef(
+  m: { type: 'unnumbered' } | { type: 'numbered'; value: string },
+): ReactNode {
+  return m.type === 'unnumbered' ? (
+    '*'
+  ) : (
+    <sup css={{ fontSize: pt(5.2).toRem() }}>{m.value}</sup>
   );
 }

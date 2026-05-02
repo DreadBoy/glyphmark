@@ -6,8 +6,10 @@ export type {
   ActionSymbol,
   Align,
   BodyNode,
+  CellInline,
   CenteredParagraphNode,
   ColumnBreakNode,
+  FootnoteRef,
   FullWidthToggleNode,
   HeadBlockNode,
   HeadingNode,
@@ -29,5 +31,6 @@ export type {
   SampleSegment,
   ScribeDocument,
   Segment,
+  TableFootnote,
   TableNode,
 } from './ir';

@@ -3,6 +3,29 @@ export type Inline =
   | { kind: 'strong'; children: Inline[] }
   | { kind: 'em'; children: Inline[] };
 
+/**
+ * A footnote reference inside a table. The parser detects the kind from DSL
+ * syntax (currently `[*]` vs `[N]`); the renderer chooses the glyph (currently
+ * `*` vs `<sup>N</sup>`). Either side can change independently.
+ */
+export type FootnoteRef =
+  | { kind: 'footnote-ref'; type: 'unnumbered'; children: Inline[] }
+  | {
+      kind: 'footnote-ref';
+      type: 'numbered';
+      value: string;
+      children: Inline[];
+    };
+
+/**
+ * Inlines as they appear inside table cells, headers, and captions — a flat
+ * sequence mixing plain `Inline` nodes with `FootnoteRef` markers. By
+ * convention a cell carries at most one trailing `FootnoteRef` whose
+ * `children` hold the rest of the cell's inline content; cells without refs
+ * stay as plain inlines.
+ */
+export type CellInline = Inline | FootnoteRef;
+
 export type Align = 'left' | 'center' | 'right';
 
 /**
@@ -72,6 +95,11 @@ export interface ColumnBreakNode {
 }
 export interface FullWidthToggleNode {
   type: 'full-width-toggle';
+  /**
+   * 1-based monotonic position among all toggles in the document. Odd indexes
+   * enter full-width; even indexes leave it.
+   */
+  index: number;
 }
 export interface ParagraphNode {
   type: 'paragraph';
@@ -92,13 +120,22 @@ export interface ListNode {
   items: Inline[][];
   indent: ListIndent;
 }
+/**
+ * Footnote definition at the bottom of a table. Mirrors `FootnoteRef`: the
+ * parser tags each one as numbered or unnumbered; the renderer decides how
+ * to display the marker.
+ */
+export type TableFootnote =
+  | { type: 'unnumbered'; children: Inline[] }
+  | { type: 'numbered'; value: string; children: Inline[] };
+
 export interface TableNode {
   type: 'table';
-  headers: Inline[][];
+  headers: CellInline[][];
   alignments: Align[];
-  rows: Inline[][][];
-  caption?: Inline[];
-  footnotes: Inline[][];
+  rows: CellInline[][][];
+  caption?: CellInline[];
+  footnotes: TableFootnote[];
 }
 /**
  * Action symbols recognised on item headings, e.g. `# Strike :aa:` adds the

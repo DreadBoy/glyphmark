@@ -80,9 +80,13 @@ describe('parse — markers', () => {
     expect(doc.body.some((n) => n.type === 'column-break')).toBe(true);
   });
 
-  it('parses full-width-toggle', () => {
-    const doc = parse('A\n\n/\n\nB');
-    expect(doc.body.some((n) => n.type === 'full-width-toggle')).toBe(true);
+  it('parses full-width-toggle and numbers each occurrence', () => {
+    const doc = parse('A\n\n/\n\nB\n\n/\n\nC');
+    const toggles = doc.body.filter((n) => n.type === 'full-width-toggle');
+    expect(toggles).toEqual([
+      { type: 'full-width-toggle', index: 1 },
+      { type: 'full-width-toggle', index: 2 },
+    ]);
   });
 
   it('warns and skips top-level lone -', () => {
@@ -341,7 +345,6 @@ describe('parse — info / note / rules / sample / head / right', () => {
     const r = doc.body.find((n) => n.type === 'right-sidebar');
     expect(r?.type).toBe('right-sidebar');
   });
-
 });
 
 describe('parse — tables', () => {
@@ -356,12 +359,59 @@ describe('parse — tables', () => {
     }
   });
 
-  it('captures footnotes', () => {
-    const doc = parse('A | B\n--- | ---\n1 | 2\n. * note text');
+  it('captures unnumbered footnotes', () => {
+    const doc = parse('A | B\n--- | ---\n1[*] | 2\n. [*] note text');
     const table = doc.body.find((n) => n.type === 'table');
     if (table?.type === 'table') {
       expect(table.footnotes).toHaveLength(1);
-      expect(table.footnotes[0]).toEqual([{ kind: 'text', text: 'note text' }]);
+      expect(table.footnotes[0]).toEqual({
+        type: 'unnumbered',
+        children: [{ kind: 'text', text: 'note text' }],
+      });
+    }
+  });
+
+  it('captures numbered footnotes with their markers', () => {
+    const doc = parse(
+      'A[1] | B[2]\n--- | ---\n1 | 2\n. [1] first\n. [2] second',
+    );
+    const table = doc.body.find((n) => n.type === 'table');
+    if (table?.type === 'table') {
+      expect(table.footnotes).toEqual([
+        {
+          type: 'numbered',
+          value: '1',
+          children: [{ kind: 'text', text: 'first' }],
+        },
+        {
+          type: 'numbered',
+          value: '2',
+          children: [{ kind: 'text', text: 'second' }],
+        },
+      ]);
+    }
+  });
+
+  it('wraps cell text in a single trailing FootnoteRef', () => {
+    const doc = parse('A | B[1]\n--- | ---\n1 | 2[1]\n. [1] note');
+    const table = doc.body.find((n) => n.type === 'table');
+    if (table?.type === 'table') {
+      expect(table.headers[1]).toEqual([
+        {
+          kind: 'footnote-ref',
+          type: 'numbered',
+          value: '1',
+          children: [{ kind: 'text', text: 'B' }],
+        },
+      ]);
+      expect(table.rows[0]?.[1]).toEqual([
+        {
+          kind: 'footnote-ref',
+          type: 'numbered',
+          value: '1',
+          children: [{ kind: 'text', text: '2' }],
+        },
+      ]);
     }
   });
 

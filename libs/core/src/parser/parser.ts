@@ -1,6 +1,7 @@
 import type {
   ActionSymbol,
   BodyNode,
+  CellInline,
   Inline,
   InfoSegment,
   ItemBlockNode,
@@ -11,6 +12,7 @@ import type {
   SampleSegment,
   ScribeDocument,
   Segment,
+  TableFootnote,
 } from './ir';
 import { parseInline } from './inline';
 import { tokenize, type Token } from './lexer';
@@ -121,6 +123,7 @@ function parseBody(tokens: Token[], doc: ScribeDocument): void {
   // the body or since the last semantic reset (heading, full-width toggle, or
   // a container block). It controls whether we apply the first-line indent.
   let firstInSection = true;
+  let fullWidthToggleIdx = 0;
   while (i < tokens.length) {
     const tok = tokens[i]!;
 
@@ -166,7 +169,10 @@ function parseBody(tokens: Token[], doc: ScribeDocument): void {
         continue;
 
       case 'full-width-toggle':
-        doc.body.push({ type: 'full-width-toggle' });
+        doc.body.push({
+          type: 'full-width-toggle',
+          index: ++fullWidthToggleIdx,
+        });
         firstInSection = true;
         i++;
         continue;
@@ -318,6 +324,56 @@ function parseBody(tokens: Token[], doc: ScribeDocument): void {
   }
 }
 
+// Footnote markers in cell text. The DSL syntax — brackets, `*` for
+// unnumbered, digits for numbered — is encapsulated here. The IR exposes only
+// the `FootnoteRef` discriminator (`type: 'numbered' | 'unnumbered'` plus a
+// `value` for numbered), so the renderer can pick its own glyphs without
+// knowing this regex.
+const FOOTNOTE_REF_RE = /\[(\*|\d+)]/g;
+
+// Parses a raw cell string. If the cell contains a footnote ref the cell
+// becomes a single `FootnoteRef` node wrapping the rest of the text as its
+// children. Cells without refs stay as plain `Inline[]`.
+//
+// Asserts (warns) when the constraints "exactly one ref per cell, trailing
+// the text" are violated. Best-effort fallback: keep the last ref's value
+// and strip every bracket from the wrapped text.
+function parseCellInline(raw: string): CellInline[] {
+  const matches = [...raw.matchAll(FOOTNOTE_REF_RE)];
+  if (matches.length === 0) return parseInline(raw);
+
+  if (matches.length > 1) {
+    console.warn(
+      `[scribe] table cell "${raw}" has multiple footnote refs; expected one trailing the text`,
+    );
+  }
+  const last = matches[matches.length - 1]!;
+  const tail = raw.slice(last.index + last[0].length).trim();
+  if (tail.length > 0) {
+    console.warn(
+      `[scribe] table cell "${raw}" has a footnote ref that does not trail the text`,
+    );
+  }
+
+  const stripped = raw.replace(FOOTNOTE_REF_RE, '').trimEnd();
+  const children = parseInline(stripped);
+  const marker = last[1]!;
+  return [
+    marker === '*'
+      ? { kind: 'footnote-ref', type: 'unnumbered', children }
+      : { kind: 'footnote-ref', type: 'numbered', value: marker, children },
+  ];
+}
+
+function footnoteFromMarker(
+  marker: string,
+  children: Inline[],
+): TableFootnote {
+  return marker === '*'
+    ? { type: 'unnumbered', children }
+    : { type: 'numbered', value: marker, children };
+}
+
 function consumeTable(
   tokens: Token[],
   start: number,
@@ -328,24 +384,55 @@ function consumeTable(
     tokens[start + 1]?.kind === 'table-sep'
       ? (tokens[start + 1] as Extract<Token, { kind: 'table-sep' }>)
       : undefined;
-  const rows: Inline[][][] = [];
-  const footnotes: Inline[][] = [];
+  const rawRows: string[][] = [];
+  const rawFootnotes: { marker: string; text: string }[] = [];
 
   let i = sepTok ? start + 2 : start + 1;
   while (i < tokens.length) {
     const t = tokens[i]!;
     if (t.kind === 'table-row') {
-      rows.push(t.cells.map((c) => parseInline(c)));
+      rawRows.push(t.cells);
       i++;
     } else if (t.kind === 'table-footnote') {
-      footnotes.push(parseInline(t.text));
+      rawFootnotes.push({ marker: t.marker, text: t.text });
       i++;
     } else {
       break;
     }
   }
 
-  let caption: Inline[] | undefined;
+  // Footnote refs are scoped to tables. We collect referenced markers from
+  // raw cell text (before parseInline strips the brackets) and cross-check
+  // against defined footnotes — warning on either side of a mismatch.
+  const referenced = new Set<string>();
+  const collectRefs = (s: string) => {
+    for (const m of s.matchAll(FOOTNOTE_REF_RE)) referenced.add(m[1]!);
+  };
+  for (const c of headerTok.cells) collectRefs(c);
+  for (const row of rawRows) for (const c of row) collectRefs(c);
+  const defined = new Set(rawFootnotes.map((f) => f.marker));
+  for (const ref of referenced) {
+    if (!defined.has(ref)) {
+      console.warn(
+        `[scribe] table cell references [${ref}] but no footnote defines it`,
+      );
+    }
+  }
+  for (const def of defined) {
+    if (!referenced.has(def)) {
+      console.warn(
+        `[scribe] table footnote [${def}] is defined but never referenced`,
+      );
+    }
+  }
+
+  const headers = headerTok.cells.map((c) => parseCellInline(c));
+  const rows = rawRows.map((row) => row.map((c) => parseCellInline(c)));
+  const footnotes: TableFootnote[] = rawFootnotes.map((f) =>
+    footnoteFromMarker(f.marker, parseInline(f.text)),
+  );
+
+  let caption: CellInline[] | undefined;
   const prev = body[body.length - 1];
   if (prev && prev.type === 'heading' && prev.level >= 4) {
     caption = prev.content;
@@ -355,7 +442,7 @@ function consumeTable(
   return {
     table: {
       type: 'table',
-      headers: headerTok.cells.map((c) => parseInline(c)),
+      headers,
       alignments: sepTok?.aligns ?? [],
       rows,
       caption,
@@ -543,7 +630,11 @@ function parseSegmentsFromTokens(
             {
               kind: 'paragraph',
               content,
-              indent: paragraphIndent(kind, firstInSection, isBoldLead(content)),
+              indent: paragraphIndent(
+                kind,
+                firstInSection,
+                isBoldLead(content),
+              ),
             },
             kind,
             contextLabel,

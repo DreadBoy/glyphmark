@@ -26,7 +26,7 @@ export type Token =
   | { kind: 'table-header'; cells: string[] }
   | { kind: 'table-sep'; aligns: Align[] }
   | { kind: 'table-row'; cells: string[] }
-  | { kind: 'table-footnote'; text: string }
+  | { kind: 'table-footnote'; marker: string; text: string }
   | { kind: 'list-item'; text: string }
   | { kind: 'trait-line'; traits: string[] }
   | { kind: 'text'; content: string }
@@ -196,6 +196,18 @@ export function tokenize(input: string): Token[] {
   return tokens;
 }
 
+// Footnote line: `. [<marker>] <text>` where marker is `*` (unnumbered) or one
+// or more digits. Anchored to the start of the trimmed line so prose dots
+// don't masquerade as footnotes.
+const FOOTNOTE_RE = /^\.\s*\[(\*|\d+)\]\s+(.+)$/;
+
+function matchFootnote(
+  trimmed: string,
+): { marker: string; text: string } | undefined {
+  const m = trimmed.match(FOOTNOTE_RE);
+  return m ? { marker: m[1]!, text: m[2]!.trim() } : undefined;
+}
+
 function consumeTableBody(
   lines: string[],
   start: number,
@@ -204,11 +216,9 @@ function consumeTableBody(
   let i = start;
   while (i < lines.length) {
     const t = lines[i]!.trim();
-    if (t.startsWith('. *') || t.startsWith('.*')) {
-      tokens.push({
-        kind: 'table-footnote',
-        text: t.replace(/^\.\s*\*\s*/, '').trim(),
-      });
+    const fn = matchFootnote(t);
+    if (fn) {
+      tokens.push({ kind: 'table-footnote', marker: fn.marker, text: fn.text });
       i++;
       continue;
     }
@@ -216,12 +226,9 @@ function consumeTableBody(
       // Blank lines stay part of the table only if a footnote follows.
       let peek = i + 1;
       while (peek < lines.length && lines[peek]!.trim() === '') peek++;
-      if (peek < lines.length) {
-        const pt = lines[peek]!.trim();
-        if (pt.startsWith('. *') || pt.startsWith('.*')) {
-          i = peek;
-          continue;
-        }
+      if (peek < lines.length && matchFootnote(lines[peek]!.trim())) {
+        i = peek;
+        continue;
       }
       break;
     }

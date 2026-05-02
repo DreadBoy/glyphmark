@@ -240,18 +240,31 @@ describe('tokenize', () => {
       });
     });
 
-    it('captures footnotes after rows', () => {
-      const tokens = lex('A | B\n--- | ---\n1 | 2\n. * footnote text');
+    it('captures unnumbered footnotes after rows', () => {
+      const tokens = lex('A | B\n--- | ---\n1 | 2\n. [*] footnote text');
       expect(tokens).toContainEqual({
         kind: 'table-footnote',
+        marker: '*',
         text: 'footnote text',
       });
     });
 
+    it('captures numbered footnotes', () => {
+      const tokens = lex(
+        'A | B\n--- | ---\n1 | 2\n. [1] first note\n. [2] second note',
+      );
+      const fns = tokens.filter((t) => t.kind === 'table-footnote');
+      expect(fns).toEqual([
+        { kind: 'table-footnote', marker: '1', text: 'first note' },
+        { kind: 'table-footnote', marker: '2', text: 'second note' },
+      ]);
+    });
+
     it('captures footnotes after a blank line', () => {
-      const tokens = lex('A | B\n--- | ---\n1 | 2\n\n. * tail footnote');
+      const tokens = lex('A | B\n--- | ---\n1 | 2\n\n. [*] tail footnote');
       expect(tokens).toContainEqual({
         kind: 'table-footnote',
+        marker: '*',
         text: 'tail footnote',
       });
     });
