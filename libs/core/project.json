@@ -9,21 +9,14 @@
     "test:visual": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "vitest run --config libs/core/vitest.config.ts libs/core/test/visual/visual.test.ts",
+        "command": "vitest run --config libs/core/vite.config.mts libs/core/test/golden/golden.test.ts",
         "cwd": "{workspaceRoot}"
       }
     },
     "test:update-goldens": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "UPDATE_SNAPSHOTS=1 vitest run --config libs/core/vitest.config.ts libs/core/test/visual/visual.test.ts",
-        "cwd": "{workspaceRoot}"
-      }
-    },
-    "test:import-goldens": {
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "IMPORT_GOLDENS=1 vitest run --config libs/core/vitest.config.ts libs/core/test/visual/visual.test.ts",
+        "command": "UPDATE_GOLDENS=1 vitest run --config libs/core/vite.config.mts libs/core/test/golden/golden.test.ts",
         "cwd": "{workspaceRoot}"
       }
     }
