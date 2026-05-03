@@ -164,7 +164,7 @@ describe('tokenize', () => {
         'item',
         'info',
         'note',
-        'rules',
+        'rule',
         'sample',
         'head',
         'right',
@@ -182,10 +182,10 @@ describe('tokenize', () => {
     });
 
     it('preserves nested parens inside block content', () => {
-      expect(lex('rules(\nSee (page 295) for details\n)')).toEqual([
+      expect(lex('rule(\nSee (page 295) for details\n)')).toEqual([
         {
           kind: 'block-open',
-          type: 'rules',
+          type: 'rule',
           raw: 'See (page 295) for details',
         },
       ]);

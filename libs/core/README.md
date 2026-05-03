@@ -8,9 +8,9 @@ There seems to be
 * [x] math / formula (275)
   * math seems visually similar to sample, just without heading and with centered text. Does it warrant separate block type? Specially because sample could also contain centered text that looks like formula (276)
 * [ ] GM advice / rule explanation (230, 232)
-  * have 2 levels of heading (245)
-  * can be very rich (188, 268)
-  * can have a table (272).
+  * [x] have 2 levels of heading (245)
+  * [ ] can be very rich (188, 268)
+  * [x] can have a table (272).
 * [ ] callout / info (rarely used, 165)
   * can be rich (93)
 * [x] table (274)
@@ -25,7 +25,7 @@ There seems to be
 * [ ] right sidebar (123)
   * there doesn't appear to be left sidebar
 * [ ] horizontal lines don't appear anywhere except as part of item block.
-* [ ] column break
+* [x] column break
   * indicates start of new column
 * [ ] page break
   * I couldn't find page break in wild, the closest is (75) but it coveres lack of text with an image
@@ -39,7 +39,7 @@ In normal text, paragraphs, except first one, are indented in first line (274). 
 In item block, first paragraph isn't indented in first line while each following paragraph is. This resets after <hr>. If it starts with bolded words, it is indented in every line except first line. Page 247 demonstrates indented paragraph, followed by bolded paragraph.  
 In item block, lists are indented as well. (259, Pet).
 
-In rules block, 2nd+ paragraphs are indented as well (245), bolded as well (232), lists are not (245).
+In rule block, 2nd+ paragraphs are indented as well (245), bolded as well (232), lists are not (245).
 
 In sample block, bolded paragraphs are not indented (231).
 

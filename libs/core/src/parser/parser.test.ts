@@ -292,7 +292,7 @@ describe('parse — item block', () => {
   });
 });
 
-describe('parse — info / note / rules / sample / head / right', () => {
+describe('parse — info / note / rule / sample / head / right', () => {
   it('info() splits on column-break', () => {
     const doc = parse('info(\nLeft\n|\nRight\n)');
     const info = doc.body.find((n) => n.type === 'info');
@@ -344,6 +344,46 @@ describe('parse — info / note / rules / sample / head / right', () => {
     const doc = parse('right(\n# Sidebar\nText.\n)');
     const r = doc.body.find((n) => n.type === 'right-sidebar');
     expect(r?.type).toBe('right-sidebar');
+  });
+
+  it('rule() outside full-width strips column-break with a warning', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    const doc = parse('rule(\nLeft\n|\nRight\n)');
+    const r = doc.body.find((n) => n.type === 'rule');
+    if (r?.type === 'rule') {
+      expect(r.fullWidth).toBe(false);
+      expect(r.content.some((s) => s.kind === 'column-break')).toBe(false);
+    }
+    expect(warn).toHaveBeenCalledWith(
+      expect.stringContaining('only valid inside a full-width rule block'),
+    );
+    warn.mockRestore();
+  });
+
+  it('rule() inside full-width retains column-break and is marked fullWidth', () => {
+    const doc = parse('/\n\nrule(\nLeft\n|\nRight\n)\n\n/');
+    const r = doc.body.find((n) => n.type === 'rule');
+    if (r?.type === 'rule') {
+      expect(r.fullWidth).toBe(true);
+      expect(r.content.map((s) => s.kind)).toEqual([
+        'paragraph',
+        'column-break',
+        'paragraph',
+      ]);
+    }
+  });
+
+  it('rule() supports a table segment with a lifted caption', () => {
+    const doc = parse('rule(\n#### Caption\n\nA | B\n--- | ---\n1 | 2\n)');
+    const r = doc.body.find((n) => n.type === 'rule');
+    if (r?.type === 'rule') {
+      expect(r.content).toHaveLength(1);
+      const seg = r.content[0]!;
+      expect(seg.kind).toBe('table');
+      if (seg.kind === 'table') {
+        expect(seg.node.caption).toEqual([{ kind: 'text', text: 'Caption' }]);
+      }
+    }
   });
 });
 
@@ -484,10 +524,10 @@ describe('parse — paragraph indent rules', () => {
     }
   });
 
-  it('rules: bold-leading paragraphs get first-line (not hanging) indent', () => {
-    const doc = parse('rules(\nFirst.\n\n**Bold** lead.\n)');
-    const r = doc.body.find((n) => n.type === 'rules');
-    if (r?.type === 'rules') {
+  it('rule: bold-leading paragraphs get first-line (not hanging) indent', () => {
+    const doc = parse('rule(\nFirst.\n\n**Bold** lead.\n)');
+    const r = doc.body.find((n) => n.type === 'rule');
+    if (r?.type === 'rule') {
       const p2 = r.content[1];
       if (p2 && p2.kind === 'paragraph') expect(p2.indent).toBe('first-line');
     }
@@ -502,14 +542,14 @@ describe('parse — paragraph indent rules', () => {
     }
   });
 
-  it('lists: block-indented in body, flush in rules', () => {
+  it('lists: block-indented in body, flush in rule', () => {
     const docBody = parse('* a\n* b');
     const list = docBody.body.find((n) => n.type === 'list');
     if (list?.type === 'list') expect(list.indent).toBe('block');
 
-    const docRules = parse('rules(\n* a\n* b\n)');
-    const r = docRules.body.find((n) => n.type === 'rules');
-    if (r?.type === 'rules') {
+    const docRule = parse('rule(\n* a\n* b\n)');
+    const r = docRule.body.find((n) => n.type === 'rule');
+    if (r?.type === 'rule') {
       const inner = r.content[0];
       if (inner && inner.kind === 'list') expect(inner.indent).toBe('none');
     }
@@ -531,6 +571,7 @@ describe('parse — segment allow-list (warn-and-drop matrix)', () => {
     'column-break': '|',
     hr: '-',
     'centered-paragraph': '^ centered text',
+    table: 'A | B\n--- | ---\n1 | 2',
   };
 
   // How to wrap a snippet in each container's block syntax. `item` requires
@@ -539,7 +580,7 @@ describe('parse — segment allow-list (warn-and-drop matrix)', () => {
   const wrap: Record<Container, (inner: string) => string> = {
     item: (i) => `item(\n# Foo\n-\n${i}\n)`,
     sample: (i) => `sample(\n${i}\n)`,
-    rules: (i) => `rules(\n${i}\n)`,
+    rule: (i) => `rule(\n${i}\n)`,
     info: (i) => `info(\n${i}\n)`,
     note: (i) => `note(\n${i}\n)`,
     head: (i) => `head(\n${i}\n)`,
@@ -550,7 +591,7 @@ describe('parse — segment allow-list (warn-and-drop matrix)', () => {
   const blockType: Record<Container, string> = {
     item: 'item',
     sample: 'sample',
-    rules: 'rules',
+    rule: 'rule',
     info: 'info',
     note: 'note',
     head: 'head',

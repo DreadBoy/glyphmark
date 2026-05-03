@@ -1,0 +1,16 @@
+rule(
+# Materials
+Most suits of armor and weapons are made from ordinary, commonly available materials like iron, leather, steel, and wood. If you’re not sure what a suit of armor is made of, the GM determines the details.
+
+Some armor, shields, and weapons are instead made of precious materials. These often have inherent supernatural properties. Cold iron, for example, harms fey, and silver can damage werecreatures. These materials are detailed in GM Core beginning on page 252.
+
+# Damaging Armor
+
+Your armor's statistics are based on the material it's predominantly made from. It's not likely your armor will take damage, as explained in Item Damage on page 269.
+
+Material | Hardness | HP | BT | Armors
+--- | :--: | :--: | :--: | ---
+Cloth | 1 | 4 | 2 | Explorer's clothing, padded armor
+Leather | 4 | 16 | 8 | Hide, leather, studded leather
+Metal | 9 | 36 | 18 | Breastplate, chain mail, chain shirt, full plate, half plate, scale mail, splint mail
+)

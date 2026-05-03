@@ -1,6 +1,0 @@
-A table appearing inside a rules() block.
-Source: Player Core book p272 (PDF p273).
-Segment[] (the content type for container blocks) currently only
-includes paragraph / centered-paragraph / heading / list / hr /
-column-break — not table. Adding `table` as a Segment kind is the next
-step. Deferred until then.

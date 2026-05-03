@@ -1,0 +1,37 @@
+/
+
+rule(
+# Recall Knowledge Skills
+
+The following skills can be used to Recall Knowledge about the listed topics. Some topics might appear on multiple lists, but the skills could give different information. For example, Arcana might tell you about the magical defenses of a construct, whereas Crafting could tell you about its sturdy resistance to physical attacks.
+
+* **Arcana:** Arcane theories, magical traditions, creatures of arcane significance, and arcane planes.
+* **Crafting:** Alchemical reactions and creatures, item value, engineering, unusual materials, and constructs.
+* **Lore:** The subject of the Lore skill’s subcategory.
+* **Medicine:** Diseases, poisons, wounds, and forensics.
+* **Nature:** The environment, flora, geography, weather, creatures of natural origin, and natural planes.
+* **Occultism:** Ancient mysteries, folk superstition, obscure philosophy, creatures of occult significance, and esoteric planes.
+* **Religion:** Divine agents, divine planes, theology, obscure myths, and creatures of religious significance.
+* **Society:** Local history, key personalities, legal institutions, societal structure, and humanoid culture.
+
+
+Using an applicable Lore to Recall Knowledge about a topic, such as Engineering Lore instead of Crafting to find structural weaknesses in a bridge, typically comes with a lower DC. Your special interests can pay off! In some cases, you can get the GM’s permission to use a different but related skill, usually against a higher DC than normal. The GM might allow checks to Recall Knowledge using other skills. For example, you might assess the skill of an acrobat using Acrobatics. If you’re using a physical skill (like in this example), the GM will most likely have you use a mental modifier—typically Intelligence—instead of the skill’s normal physical attribute modifier.
+
+|
+
+# Recall Knowledge Questions
+
+When encountering a subject for the first time, your first question will likely be a basic "What is it?", which the GM can answer with a name and basic description like, "That's an ogre, a tough and cruel giant" or "This is the symbol of Urgathoa, a goddess of disease, gluttony, and undeath." If you already know this base level of detail on the subject, the list below includes some reasonable questions. The GM determines what other questions to allow. Usually this is simple as long as you stick to *one* question. Any question must be about something observable in the game world, not the abstract numbers of the rules. The GM might tell you a lumbering monster’s Reflex save is its weakest—translating a concept your character could understand using the game term for clarity—but wouldn’t reveal the exact Reflex modifier. The GM can find more guidance on page 54 of *GM Core*.
+
+**Creatures:** "Can it be reasoned with?" "What environments does it live in?" "What's its most notable offensive ability?" "Is it highly vulnerable or resistant to anything?" "Are any of its defenses weak?"
+
+**Magic:** "How can it be avoided?" "What type of people use this magic?" "How long does it last?"
+
+**Organizations:** "What kind of influence does it have?" "Where is it headquartered?" "How large is it?" "What kind of members does it have?" "Who are its major authorities?" "Do they have any notable allies and enemies?"
+
+**People:** "What's their personality like?" "What do they look like?" "Do they have any notable talents?" "Do they have notable allies and enemies?" "What kind of influence do they have?" "Do they have any vices?"
+
+**Sites:** "What's its general location?" "How large is it?" "What's the government like?" "Do any notable people live there?" "What kind of monsters dwell there?" "What's the environment and terrain like?"
+)
+
+/

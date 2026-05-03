@@ -75,12 +75,15 @@ export type SampleSegment =
   | { kind: 'centered-paragraph'; content: Inline[] };
 
 /**
- * Rules blocks add lists and column breaks.
+ * Rule blocks add lists, tables, and column breaks. Column breaks are only
+ * valid in full-width rule blocks (where they split inner content into two
+ * columns *inside* the block, rather than ending the page column).
  */
-export type RulesSegment =
+export type RuleSegment =
   | Segment
   | { kind: 'list'; items: Inline[][]; indent: ListIndent }
-  | { kind: 'column-break' };
+  | { kind: 'column-break' }
+  | { kind: 'table'; node: TableNode };
 
 /**
  * Info blocks add column breaks (used to split a callout across two columns).
@@ -160,9 +163,15 @@ export interface NoteBlockNode {
   type: 'note';
   content: Segment[];
 }
-export interface RulesBlockNode {
-  type: 'rules';
-  content: RulesSegment[];
+export interface RuleBlockNode {
+  type: 'rule';
+  /**
+   * `true` when the block is rendered full-width (i.e. between two `/`
+   * full-width-toggle markers). Inner column breaks are only honoured when
+   * full-width is `true`; outside of that they're stripped with a warning.
+   */
+  fullWidth: boolean;
+  content: RuleSegment[];
 }
 export interface SampleBlockNode {
   type: 'sample';
@@ -189,7 +198,7 @@ export type BodyNode =
   | ItemBlockNode
   | InfoBlockNode
   | NoteBlockNode
-  | RulesBlockNode
+  | RuleBlockNode
   | SampleBlockNode
   | HeadBlockNode
   | RightSidebarNode;

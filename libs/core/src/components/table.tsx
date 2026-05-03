@@ -47,7 +47,7 @@ export function Table({ node }: { node: TableNode }) {
                   color: '#fff',
                   fontWeight: 700,
                   padding: CELL_PAD,
-                  verticalAlign: 'bottom',
+                  verticalAlign: 'top',
                   textAlign: node.alignments[i],
                 }}
               >
@@ -64,7 +64,7 @@ export function Table({ node }: { node: TableNode }) {
                   key={ci}
                   css={{
                     padding: CELL_PAD,
-                    verticalAlign: 'bottom',
+                    verticalAlign: 'top',
                     textAlign: node.alignments[ci],
                     'tr:nth-of-type(odd) > &': { background: '#F0E2C6' },
                     'tr:nth-of-type(even) > &': { background: '#F6EEDF' },

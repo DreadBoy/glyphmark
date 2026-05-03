@@ -8,11 +8,13 @@ import type {
   ItemSegment,
   ListIndent,
   ParagraphIndent,
-  RulesSegment,
+  RuleBlockNode,
+  RuleSegment,
   SampleSegment,
   ScribeDocument,
   Segment,
   TableFootnote,
+  TableNode,
 } from './ir';
 import { parseInline } from './inline';
 import { tokenize, type Token } from './lexer';
@@ -22,7 +24,7 @@ import { tokenize, type Token } from './lexer';
 type ContainerKind =
   | 'body'
   | 'item'
-  | 'rules'
+  | 'rule'
   | 'sample'
   | 'info'
   | 'note'
@@ -32,7 +34,7 @@ type ContainerKind =
 // Widest possible segment shape the parser can emit. Each caller narrows to
 // its concrete container segment type via a (provably sound) cast — the
 // parser only emits kinds that the container's allowed-set permits.
-type AnySegment = ItemSegment | SampleSegment | RulesSegment | InfoSegment;
+type AnySegment = ItemSegment | SampleSegment | RuleSegment | InfoSegment;
 type SegmentKind = AnySegment['kind'];
 
 // Single source of truth for "which segment kinds may appear in which
@@ -46,7 +48,7 @@ export const ALLOWED_SEGMENTS: Record<
 > = {
   item: new Set(['paragraph', 'heading', 'list', 'column-break', 'hr']),
   sample: new Set(['paragraph', 'heading', 'centered-paragraph']),
-  rules: new Set(['paragraph', 'heading', 'list', 'column-break']),
+  rule: new Set(['paragraph', 'heading', 'list', 'column-break', 'table']),
   info: new Set(['paragraph', 'heading', 'column-break']),
   note: new Set(['paragraph', 'heading']),
   head: new Set(['paragraph', 'heading']),
@@ -85,8 +87,8 @@ function paragraphIndent(
     if (boldLead) return 'hanging';
     return firstInSection ? 'none' : 'first-line';
   }
-  // body and rules use the standard prose rule: 1st flush, 2nd+ first-line.
-  if (kind === 'body' || kind === 'rules') {
+  // body and rule use the standard prose rule: 1st flush, 2nd+ first-line.
+  if (kind === 'body' || kind === 'rule') {
     return firstInSection ? 'none' : 'first-line';
   }
   // sample, info, note, head, right — paragraphs sit flush.
@@ -124,6 +126,10 @@ function parseBody(tokens: Token[], doc: ScribeDocument): void {
   // a container block). It controls whether we apply the first-line indent.
   let firstInSection = true;
   let fullWidthToggleIdx = 0;
+  // Tracks whether subsequent body nodes will render in the full-width band.
+  // Each `/` toggle flips this, matching how FullWidthStyles cascades. Used to
+  // gate column-break inside rule() blocks — those are only valid full-width.
+  let fullWidth = false;
   while (i < tokens.length) {
     const tok = tokens[i]!;
 
@@ -173,6 +179,7 @@ function parseBody(tokens: Token[], doc: ScribeDocument): void {
           type: 'full-width-toggle',
           index: ++fullWidthToggleIdx,
         });
+        fullWidth = !fullWidth;
         firstInSection = true;
         i++;
         continue;
@@ -237,15 +244,8 @@ function parseBody(tokens: Token[], doc: ScribeDocument): void {
               'sample',
             ) as SampleSegment[],
           });
-        } else if (tok.type === 'rules') {
-          doc.body.push({
-            type: 'rules',
-            content: parseSegments(
-              tok.raw,
-              'rules block',
-              'rules',
-            ) as RulesSegment[],
-          });
+        } else if (tok.type === 'rule') {
+          doc.body.push(parseRule(tok.raw, fullWidth));
         } else if (tok.type === 'info') {
           doc.body.push({
             type: 'info',
@@ -365,20 +365,19 @@ function parseCellInline(raw: string): CellInline[] {
   ];
 }
 
-function footnoteFromMarker(
-  marker: string,
-  children: Inline[],
-): TableFootnote {
+function footnoteFromMarker(marker: string, children: Inline[]): TableFootnote {
   return marker === '*'
     ? { type: 'unnumbered', children }
     : { type: 'numbered', value: marker, children };
 }
 
-function consumeTable(
+// Builds a TableNode from a `table-header` token and the rows/footnotes that
+// follow it. Caller is responsible for caption lifting (the preceding
+// heading4+ in its own array — body or segment list).
+function buildTable(
   tokens: Token[],
   start: number,
-  body: BodyNode[],
-): { table: Extract<BodyNode, { type: 'table' }>; next: number } {
+): { node: TableNode; next: number } {
   const headerTok = tokens[start] as Extract<Token, { kind: 'table-header' }>;
   const sepTok =
     tokens[start + 1]?.kind === 'table-sep'
@@ -432,24 +431,52 @@ function consumeTable(
     footnoteFromMarker(f.marker, parseInline(f.text)),
   );
 
-  let caption: CellInline[] | undefined;
-  const prev = body[body.length - 1];
-  if (prev && prev.type === 'heading' && prev.level >= 4) {
-    caption = prev.content;
-    body.pop();
-  }
-
   return {
-    table: {
+    node: {
       type: 'table',
       headers,
       alignments: sepTok?.aligns ?? [],
       rows,
-      caption,
       footnotes,
     },
     next: i,
   };
+}
+
+function consumeTable(
+  tokens: Token[],
+  start: number,
+  body: BodyNode[],
+): { table: TableNode; next: number } {
+  const { node, next } = buildTable(tokens, start);
+  const prev = body[body.length - 1];
+  if (prev && prev.type === 'heading' && prev.level >= 4) {
+    node.caption = prev.content;
+    body.pop();
+  }
+  return { table: node, next };
+}
+
+function parseRule(raw: string, fullWidth: boolean): RuleBlockNode {
+  const content = parseSegments(raw, 'rule block', 'rule') as RuleSegment[];
+  // Column breaks inside rule() create a 2-column inner layout, but only when
+  // the block is rendered full-width. Outside of full-width they have no
+  // sensible meaning (the surrounding 2-column flow already handles that), so
+  // we strip them with a warning.
+  if (!fullWidth) {
+    const filtered: RuleSegment[] = [];
+    for (const seg of content) {
+      if (seg.kind === 'column-break') {
+        console.warn(
+          '[scribe] rule block: column-break is only valid inside a full-width rule block; ignoring',
+        );
+        continue;
+      }
+      filtered.push(seg);
+    }
+    return { type: 'rule', fullWidth, content: filtered };
+  }
+  return { type: 'rule', fullWidth, content };
 }
 
 function parseItem(raw: string): ItemBlockNode {
@@ -642,6 +669,23 @@ function parseSegmentsFromTokens(
         ) {
           firstInSection = false;
         }
+        continue;
+      }
+      case 'table-header': {
+        const { node, next } = buildTable(tokens, i);
+        // Caption-lift: a preceding heading4+ segment becomes the table's
+        // caption. Same rule as body-level tables (see consumeTable).
+        const prev = segments[segments.length - 1];
+        if (prev && prev.kind === 'heading' && prev.level >= 4) {
+          node.caption = prev.content;
+          segments.pop();
+        }
+        if (
+          tryPushSegment(segments, { kind: 'table', node }, kind, contextLabel)
+        ) {
+          firstInSection = false;
+        }
+        i = next;
         continue;
       }
       default:

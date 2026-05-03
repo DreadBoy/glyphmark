@@ -1,4 +1,4 @@
-rules(
+rule(
 # Being Stealthy
 
 If you want to sneak around when there are creatures that can see you, you can use a combination of Hide and Sneak to do so.
@@ -23,4 +23,8 @@ The creature knows your location but can't see you.
 ## Undetected (page 446)
 
 The creature doesn't know your location.
+
+# Unobservable Stealth
+
+In some cases, it can be impossible for a creature to fully observe you. Typically this happens if you’re invisible, the observer is blinded, or you’re in darkness and the creature can’t see in darkness. In such cases, any critical failure you roll on a check to Sneak is a failure instead. You also continue to be undetected if you lose cover or greater cover against or are no longer concealed from such a creature.
 )

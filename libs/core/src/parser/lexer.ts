@@ -4,7 +4,7 @@ export type BlockType =
   | 'item'
   | 'info'
   | 'note'
-  | 'rules'
+  | 'rule'
   | 'sample'
   | 'head'
   | 'right';
@@ -41,7 +41,7 @@ const BLOCK_KEYWORDS: readonly BlockType[] = [
   'item',
   'info',
   'note',
-  'rules',
+  'rule',
   'sample',
   'head',
   'right',

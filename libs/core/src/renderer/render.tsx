@@ -12,6 +12,7 @@ import { ColumnBreak } from '../components/column-break';
 import { Paragraph } from '../components/paragraph';
 import { Table } from '../components/table';
 import { SampleBlock } from '../components/sample-block';
+import { RuleBlock } from '../components/rule-block';
 import {
   FullWidthStyles,
   FullWidthToggle,
@@ -30,6 +31,7 @@ const RENDERERS: Renderers = {
   paragraph: Paragraph,
   table: Table,
   sample: SampleBlock,
+  rule: RuleBlock,
 };
 
 export function renderScribeDocument(doc: ScribeDocument): string {
