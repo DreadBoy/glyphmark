@@ -7,12 +7,6 @@ There seems to be
   * have 2 levels of heading (276).
 * [x] math / formula (275)
   * math seems visually similar to sample, just without heading and with centered text. Does it warrant separate block type? Specially because sample could also contain centered text that looks like formula (276)
-* [ ] GM advice / rule explanation (230, 232)
-  * [x] have 2 levels of heading (245)
-  * [ ] can be very rich (188, 268)
-  * [x] can have a table (272).
-* [ ] callout / info (rarely used, 165)
-  * can be rich (93)
 * [x] table (274)
   * can be column-wide (270) or full-wide (274). Tables can also have footnotes (270, 274)
 * [x] item block (also used for spells, monsters, feats etc.) (102)
@@ -20,18 +14,26 @@ There seems to be
   * horizontal line below the heading
   * has optional traits
   * no horizontal line below the traits
-  * at least 1 section, multiple of them separated by horizontal line 
+  * at least 1 section, multiple of them separated by horizontal line
+* [x] unordered list
+  * can appear in normal text (244), items (259), rules (245)
+* [x] column break
+  * indicates start of new column
+* [x] horizontal lines don't appear anywhere except as part of item block.
 * [ ] head (50), sometimes with description (84)
 * [ ] right sidebar (123)
   * there doesn't appear to be left sidebar
-* [ ] horizontal lines don't appear anywhere except as part of item block.
-* [x] column break
-  * indicates start of new column
+* [ ] GM advice / rule explanation (230, 232)
+  * [x] have 2 levels of heading (245)
+  * [ ] can be very rich (188, 268)
+  * [x] can have a table (272).
+* [ ] callout / info (rarely used, 165)
+  * can be rich (93)
 * [ ] page break
   * I couldn't find page break in wild, the closest is (75) but it coveres lack of text with an image
   * still, let's implement it
-* [x] unordered list
-  * can appear in normal text (244), items (259), rules (245)
+* [ ] content reference
+* [ ] page chrome
 
 # On paragraphs indents
 In normal text, paragraphs, except first one, are indented in first line (274). Lists are indented in all lines of the list, also if they are first paragraph (109). Paragraphs with bolded first words are indented just in first line (274). 
