@@ -95,6 +95,13 @@ export interface PageBreakNode {
 }
 export interface ColumnBreakNode {
   type: 'column-break';
+  /**
+   * `true` when no real body content follows this break. Set by the parser in
+   * a post-pass; the renderer uses it to emit a sentinel element so the CSS
+   * column balancer still honours the break (otherwise balance mode pulls
+   * content back across the break when column 2 would be empty).
+   */
+  trailing: boolean;
 }
 export interface FullWidthToggleNode {
   type: 'full-width-toggle';

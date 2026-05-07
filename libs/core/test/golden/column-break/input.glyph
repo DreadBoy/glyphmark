@@ -13,3 +13,20 @@ across into the first.
 
 A third paragraph for good measure — short columns on the left, a tall
 stack on the right.
+
+/
+
+rule()
+
+/
+
+After the full-width rule, body flow resumes in two columns. This
+paragraph sits in the first column and runs long enough that the
+balancer would normally split it across both — but the trailing `|`
+below forces everything here to stay on the left.
+
+A second paragraph keeps the column tall so the break has visible
+effect. Without the parser's trailing-break sentinel the balancer would
+ignore the final `|` and pull half of this text into the right column.
+
+|

@@ -2,6 +2,7 @@ import type {
   ActionSymbol,
   BodyNode,
   CellInline,
+  ColumnBreakNode,
   Inline,
   InfoSegment,
   ItemBlockNode,
@@ -116,6 +117,14 @@ export function parse(input: string): ScribeDocument {
   const visible = hiddenIdx === -1 ? tokens : tokens.slice(0, hiddenIdx);
   parseBody(visible, doc);
 
+  // Flag every column-break in the trailing run (no real body content after
+  // it). The renderer uses this to decide whether to emit the balancer-defeat
+  // sentinel.
+  const lastReal = doc.body.findLastIndex((n) => n.type !== 'column-break');
+  doc.body.slice(lastReal + 1).forEach((n) => {
+    (n as ColumnBreakNode).trailing = true;
+  });
+
   return doc;
 }
 
@@ -170,7 +179,7 @@ function parseBody(tokens: Token[], doc: ScribeDocument): void {
         continue;
 
       case 'column-break':
-        doc.body.push({ type: 'column-break' });
+        doc.body.push({ type: 'column-break', trailing: false });
         i++;
         continue;
 
