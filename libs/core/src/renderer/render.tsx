@@ -10,6 +10,7 @@ import { ItemBlock } from '../components/item-block';
 import { Heading } from '../components/heading';
 import { ColumnBreak } from '../components/column-break';
 import { Paragraph } from '../components/paragraph';
+import { List } from '../components/list';
 import { Table } from '../components/table';
 import { SampleBlock } from '../components/sample-block';
 import { RuleBlock } from '../components/rule-block';
@@ -29,6 +30,7 @@ const RENDERERS: Renderers = {
   'column-break': ColumnBreak,
   'full-width-toggle': FullWidthToggle,
   paragraph: Paragraph,
+  list: List,
   table: Table,
   sample: SampleBlock,
   rule: RuleBlock,

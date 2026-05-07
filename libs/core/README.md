@@ -15,7 +15,7 @@ There seems to be
   * can be rich (93)
 * [x] table (274)
   * can be column-wide (270) or full-wide (274). Tables can also have footnotes (270, 274)
-* [ ] item block (also used for spells, monsters, feats etc.) (102)
+* [x] item block (also used for spells, monsters, feats etc.) (102)
   * has a heading, optional subheading, optional action icon
   * horizontal line below the heading
   * has optional traits
@@ -30,7 +30,7 @@ There seems to be
 * [ ] page break
   * I couldn't find page break in wild, the closest is (75) but it coveres lack of text with an image
   * still, let's implement it
-* [ ] unordered list
+* [x] unordered list
   * can appear in normal text (244), items (259), rules (245)
 
 # On paragraphs indents
