@@ -64,7 +64,8 @@ export type ItemSegment =
   | Segment
   | { kind: 'list'; items: Inline[][]; indent: ListIndent }
   | { kind: 'hr' }
-  | { kind: 'column-break' };
+  | { kind: 'column-break' }
+  | { kind: 'page-break' };
 
 /**
  * Sample blocks add `centered-paragraph` (the `^ ...` line marker, used for

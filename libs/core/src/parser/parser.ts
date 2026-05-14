@@ -47,7 +47,14 @@ export const ALLOWED_SEGMENTS: Record<
   Exclude<ContainerKind, 'body'>,
   Set<SegmentKind>
 > = {
-  item: new Set(['paragraph', 'heading', 'list', 'column-break', 'hr']),
+  item: new Set([
+    'paragraph',
+    'heading',
+    'list',
+    'column-break',
+    'page-break',
+    'hr',
+  ]),
   sample: new Set(['paragraph', 'heading', 'centered-paragraph']),
   rule: new Set(['paragraph', 'heading', 'list', 'column-break', 'table']),
   info: new Set(['paragraph', 'heading', 'column-break']),
@@ -596,6 +603,10 @@ function parseSegmentsFromTokens(
         continue;
       case 'column-break':
         tryPushSegment(segments, { kind: 'column-break' }, kind, contextLabel);
+        i++;
+        continue;
+      case 'page-break':
+        tryPushSegment(segments, { kind: 'page-break' }, kind, contextLabel);
         i++;
         continue;
       case 'heading':

@@ -4,6 +4,7 @@ import { Hr } from './hr';
 import { tighterMargin } from './style-helpers';
 import { renderInlines } from './inline';
 import { ColumnBreak } from './column-break';
+import { PageBreak } from './page-break';
 import { ACTION_SYMBOLS } from '../vendor/action-symbols';
 import { indentStyle } from './paragraph';
 
@@ -74,6 +75,9 @@ function ItemSegment({ segment }: { segment: ItemSegment }) {
   if (segment.kind === 'hr') return <Hr />;
   if (segment.kind === 'column-break') {
     return <ColumnBreak />;
+  }
+  if (segment.kind === 'page-break') {
+    return <PageBreak />;
   }
   if (segment.kind === 'paragraph') {
     return (
