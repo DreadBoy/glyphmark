@@ -21,7 +21,7 @@ export function Document({ children }: PropsWithChildren) {
           },
           '@page': {
             size: 'A4',
-            margin: `${pt(60).toRem()} ${pt(86.5).toRem()} ${pt(51).toRem()} ${pt(60).toRem()}`,
+            margin: pt(72).toRem(),
           },
           body: {
             margin: 0,

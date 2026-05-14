@@ -20,6 +20,7 @@ import {
   FullWidthStyles,
   FullWidthToggle,
 } from '../components/full-width-toggle';
+import { renderPageShadowTags } from '../components/page-shadow';
 
 type NodeOf<T extends BodyNode['type']> = Extract<BodyNode, { type: T }>;
 type Renderers = {
@@ -52,7 +53,9 @@ export function renderScribeDocument(doc: ScribeDocument): string {
 
   const styleTags = constructStyleTagsFromChunks(extractCriticalToChunks(body));
 
-  return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><style>${FONT_CSS}</style>${styleTags}<script>${PAGEDJS_POLYFILL}</script></head><body>${body}</body></html>`;
+  const pageChrome = renderPageShadowTags();
+
+  return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><style>${FONT_CSS}</style>${styleTags}${pageChrome}</head><body>${body}<script>${PAGEDJS_POLYFILL}</script></body></html>`;
 }
 
 function Body({ doc }: { doc: ScribeDocument }) {
