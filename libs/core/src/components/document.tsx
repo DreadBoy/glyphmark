@@ -8,10 +8,6 @@ export function Document({ children }: PropsWithChildren) {
       css={{
         columnCount: 2,
         columnGap: pt(14).toRem(),
-        margin: `${pt(60).toRem()} ${pt(86.5).toRem()} ${pt(51).toRem()} ${pt(60).toRem()}`,
-        '@page': {
-          margin: `${pt(60).toRem()} ${pt(86.5).toRem()} ${pt(51).toRem()} ${pt(60).toRem()}`,
-        },
       }}
     >
       <Global
@@ -23,10 +19,9 @@ export function Document({ children }: PropsWithChildren) {
             fontSize: pt(BASE_PT).toPt(),
             lineHeight: 1,
           },
-          '@media screen': {
-            ':root': {
-              fontSize: pt(BASE_PT * 1.5).toPt(),
-            },
+          '@page': {
+            size: 'A4',
+            margin: `${pt(60).toRem()} ${pt(86.5).toRem()} ${pt(51).toRem()} ${pt(60).toRem()}`,
           },
           body: {
             margin: 0,

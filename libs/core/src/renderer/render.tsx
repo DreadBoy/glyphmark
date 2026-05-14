@@ -5,10 +5,12 @@ import createCache from '@emotion/cache';
 import createEmotionServer from '@emotion/server/create-instance';
 import type { ScribeDocument, BodyNode } from '../parser';
 import { FONT_CSS } from '../vendor/font-css';
+import { PAGEDJS_POLYFILL } from '../vendor/pagedjs';
 import { Document } from '../components/document';
 import { ItemBlock } from '../components/item-block';
 import { Heading } from '../components/heading';
 import { ColumnBreak } from '../components/column-break';
+import { PageBreak } from '../components/page-break';
 import { Paragraph } from '../components/paragraph';
 import { List } from '../components/list';
 import { Table } from '../components/table';
@@ -28,6 +30,7 @@ const RENDERERS: Renderers = {
   item: ItemBlock,
   heading: Heading,
   'column-break': ColumnBreak,
+  'page-break': PageBreak,
   'full-width-toggle': FullWidthToggle,
   paragraph: Paragraph,
   list: List,
@@ -49,7 +52,7 @@ export function renderScribeDocument(doc: ScribeDocument): string {
 
   const styleTags = constructStyleTagsFromChunks(extractCriticalToChunks(body));
 
-  return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><style>${FONT_CSS}</style>${styleTags}</head><body>${body}</body></html>`;
+  return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><style>${FONT_CSS}</style>${styleTags}<script>${PAGEDJS_POLYFILL}</script></head><body>${body}</body></html>`;
 }
 
 function Body({ doc }: { doc: ScribeDocument }) {

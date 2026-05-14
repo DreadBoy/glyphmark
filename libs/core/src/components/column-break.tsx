@@ -8,9 +8,11 @@ export function ColumnBreak({ node }: { node?: ColumnBreakNode }) {
   return (
     <>
       <div
-        css={{
-          breakAfter: 'column',
-        }}
+        // Inline style — emotion-emitted CSS rules go through Paged.js's
+        // preprocessor, which strips `break-after: column` (it only re-applies
+        // page/always/left/right/recto/verso values; see pagedjs/src/polisher/
+        // base.js:643). Inline `style=` attributes are left untouched.
+        style={{ breakAfter: 'column' }}
       />
       {node?.trailing && (
         // Sentinel: when nothing real follows the break, the CSS column

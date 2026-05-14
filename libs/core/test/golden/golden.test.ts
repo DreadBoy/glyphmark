@@ -21,12 +21,12 @@ const UPDATE_GOLDENS = !!process.env.UPDATE_GOLDENS;
 // alone or in environments where chromium can't launch.
 const SKIP_SCREENSHOTS = !!process.env.SKIP_SCREENSHOTS;
 
-// Viewport in CSS pixels — US Letter at 96 DPI (8.5in × 11in × 96). The
-// renderer's sizing is mostly pt-based, so we want a viewport that mirrors
-// the printed page so that print media @page margins and column flow render
-// against the same canvas every run.
-const PRINT_VIEWPORT = { width: 816, height: 1056 };
-const SCREEN_VIEWPORT = { width: 816, height: 1056 };
+// Print viewport — A4 at 96 DPI (210mm × 297mm). Matches @page size so
+const PRINT_VIEWPORT = { width: 794, height: 1123 };
+// Screen viewport — wider so the per-page drop shadow has room on both
+// sides (and so any horizontal overflow shows up in the screenshot instead
+// of being clipped by the viewport).
+const SCREEN_VIEWPORT = { width: 994, height: 1123 };
 
 // Tolerance for pixel diffs. `ratio` is mismatched-pixels / total; sub-pixel
 // font hinting can flip a few pixels even on identical input, so allow a
@@ -89,10 +89,12 @@ async function renderPng(html: string, media: Media): Promise<Buffer> {
     deviceScaleFactor: 1,
   });
   const page = await ctx.newPage();
-  // Print media so @page margins and `column-span` rules apply, matching the
-  // intended PDF output instead of the screen-mode 1.5× scaled view.
+  // Set media BEFORE setContent so @media rules are correct from first paint.
+  // Paged.js paginates either way (it processes @page directly), but @media
+  // print/screen rules layer on top — print mode strips screen-only chrome.
   await page.emulateMedia({ media });
   await page.setContent(html, { waitUntil: 'networkidle' });
+  await page.waitForSelector('.pagedjs_pages', { timeout: 30_000 });
   const buf = await page.screenshot({ fullPage: true, type: 'png' });
   await ctx.close();
   return buf;
