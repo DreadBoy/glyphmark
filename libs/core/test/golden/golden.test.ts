@@ -25,7 +25,8 @@ const SKIP_SCREENSHOTS = !!process.env.SKIP_SCREENSHOTS;
 // renderer's sizing is mostly pt-based, so we want a viewport that mirrors
 // the printed page so that print media @page margins and column flow render
 // against the same canvas every run.
-const VIEWPORT = { width: 816, height: 1056 };
+const PRINT_VIEWPORT = { width: 816, height: 1056 };
+const SCREEN_VIEWPORT = { width: 816, height: 1056 };
 
 // Tolerance for pixel diffs. `ratio` is mismatched-pixels / total; sub-pixel
 // font hinting can flip a few pixels even on identical input, so allow a
@@ -79,16 +80,18 @@ afterAll(async () => {
   await browser?.close();
 });
 
-async function renderPng(html: string): Promise<Buffer> {
+type Media = 'screen' | 'print';
+
+async function renderPng(html: string, media: Media): Promise<Buffer> {
   if (!browser) throw new Error('browser not initialised');
   const ctx = await browser.newContext({
-    viewport: VIEWPORT,
+    viewport: media === 'print' ? PRINT_VIEWPORT : SCREEN_VIEWPORT,
     deviceScaleFactor: 1,
   });
   const page = await ctx.newPage();
   // Print media so @page margins and `column-span` rules apply, matching the
   // intended PDF output instead of the screen-mode 1.5× scaled view.
-  await page.emulateMedia({ media: 'print' });
+  await page.emulateMedia({ media });
   await page.setContent(html, { waitUntil: 'networkidle' });
   const buf = await page.screenshot({ fullPage: true, type: 'png' });
   await ctx.close();
@@ -148,43 +151,51 @@ describe('golden snapshots', { timeout: 120_000 }, () => {
 
       if (SKIP_SCREENSHOTS) return;
 
-      const outputPng = await renderPng(html);
-      const outputPngPath = path.join(fixtureDir, 'output.png');
-      fs.writeFileSync(outputPngPath, outputPng);
+      // Each fixture compares two media: screen (with preview chrome) and
+      // print (paginated as it would print). Both are checked; the test only
+      // passes if both are within tolerance.
+      const failures: string[] = [];
+      for (const media of ['screen', 'print'] as const) {
+        const outputPng = await renderPng(html, media);
+        const outputPngPath = path.join(fixtureDir, `output.${media}.png`);
+        fs.writeFileSync(outputPngPath, outputPng);
 
-      const goldenPath = path.join(fixtureDir, 'golden.png');
-      const diffPath = path.join(fixtureDir, 'diff.png');
+        const goldenPath = path.join(fixtureDir, `golden.${media}.png`);
+        const diffPath = path.join(fixtureDir, `diff.${media}.png`);
 
-      if (UPDATE_GOLDENS) {
-        fs.writeFileSync(goldenPath, outputPng);
-        // Stale diff from a prior failing run isn't meaningful any more.
-        if (fs.existsSync(diffPath)) fs.unlinkSync(diffPath);
-        return;
+        if (UPDATE_GOLDENS) {
+          fs.writeFileSync(goldenPath, outputPng);
+          // Stale diff from a prior failing run isn't meaningful any more.
+          if (fs.existsSync(diffPath)) fs.unlinkSync(diffPath);
+          continue;
+        }
+
+        if (!fs.existsSync(goldenPath)) {
+          // No golden yet — the fixture is in "produce, don't compare" mode.
+          // Drop any stale diff from earlier runs so it doesn't mislead.
+          if (fs.existsSync(diffPath)) fs.unlinkSync(diffPath);
+          continue;
+        }
+
+        const expected = fs.readFileSync(goldenPath);
+        const { mismatched, total, diffPng } = diffPngs(outputPng, expected);
+
+        if (mismatched === 0) {
+          if (fs.existsSync(diffPath)) fs.unlinkSync(diffPath);
+          continue;
+        }
+
+        fs.writeFileSync(diffPath, diffPng);
+        const ratio = mismatched / total;
+        if (ratio > MAX_DIFF_RATIO) {
+          failures.push(
+            `${media}: drifted from golden (${mismatched}/${total} px = ${(
+              ratio * 100
+            ).toFixed(3)}%); see ${path.relative(HERE, diffPath)}`,
+          );
+        }
       }
-
-      if (!fs.existsSync(goldenPath)) {
-        // No golden yet — the fixture is in "produce, don't compare" mode.
-        // Drop any stale diff from earlier runs so it doesn't mislead.
-        if (fs.existsSync(diffPath)) fs.unlinkSync(diffPath);
-        return;
-      }
-
-      const expected = fs.readFileSync(goldenPath);
-      const { mismatched, total, diffPng } = diffPngs(outputPng, expected);
-
-      if (mismatched === 0) {
-        if (fs.existsSync(diffPath)) fs.unlinkSync(diffPath);
-        return;
-      }
-
-      fs.writeFileSync(diffPath, diffPng);
-      const ratio = mismatched / total;
-      expect(
-        ratio,
-        `screenshot drifted from golden (${mismatched}/${total} px = ${(
-          ratio * 100
-        ).toFixed(3)}%); see ${path.relative(HERE, diffPath)}`,
-      ).toBeLessThanOrEqual(MAX_DIFF_RATIO);
+      expect(failures, failures.join('\n')).toEqual([]);
     });
   }
 });
