@@ -16,6 +16,7 @@ import { List } from '../components/list';
 import { Table } from '../components/table';
 import { SampleBlock } from '../components/sample-block';
 import { RuleBlock } from '../components/rule-block';
+import { HeadBlock } from '../components/head-block';
 import {
   FullWidthStyles,
   FullWidthToggle,
@@ -38,6 +39,7 @@ const RENDERERS: Renderers = {
   table: Table,
   sample: SampleBlock,
   rule: RuleBlock,
+  head: HeadBlock,
 };
 
 export function renderScribeDocument(doc: ScribeDocument): string {

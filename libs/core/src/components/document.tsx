@@ -21,7 +21,7 @@ export function Document({ children }: PropsWithChildren) {
           },
           '@page': {
             size: 'A4',
-            margin: pt(72).toRem(),
+            margin: pt(MARGIN).toRem(),
           },
           body: {
             margin: 0,
@@ -32,3 +32,5 @@ export function Document({ children }: PropsWithChildren) {
     </div>
   );
 }
+
+export const MARGIN = 72;

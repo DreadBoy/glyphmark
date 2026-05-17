@@ -15,25 +15,27 @@ There seems to be
   * has optional traits
   * no horizontal line below the traits
   * at least 1 section, multiple of them separated by horizontal line
+  * [ ] can be interrupted by other blocks (eg. rule )
 * [x] unordered list
   * can appear in normal text (244), items (259), rules (245)
 * [x] column break
   * indicates start of new column
 * [x] horizontal lines don't appear anywhere except as part of item block.
-* [ ] head (50), sometimes with description (84)
+* [x] head (50), sometimes with description (84)
 * [ ] right sidebar (123)
   * there doesn't appear to be left sidebar
-* [ ] GM advice / rule explanation (230, 232)
+* [x] GM advice / rule explanation (230, 232)
   * [x] have 2 levels of heading (245)
-  * [ ] can be very rich (188, 268)
+  * [x] can be very rich (188, 268) - won't do for now
   * [x] can have a table (272).
 * [ ] callout / info (rarely used, 165)
   * can be rich (93)
-* [ ] page break
+* [x] page break
   * I couldn't find page break in wild, the closest is (75) but it coveres lack of text with an image
   * still, let's implement it
 * [ ] content reference
 * [ ] page chrome
+  * decided to skip for now as it's complicated and less usefull for shorter documents
 
 # On paragraphs indents
 In normal text, paragraphs, except first one, are indented in first line (274). Lists are indented in all lines of the list, also if they are first paragraph (109). Paragraphs with bolded first words are indented just in first line (274). 
