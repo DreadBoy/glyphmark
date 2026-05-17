@@ -34,9 +34,15 @@ describe('parse — preamble', () => {
 });
 
 describe('parse — content references', () => {
-  it('extracts content-ref definitions', () => {
+  it('extracts content-ref definitions as pre-parsed body nodes', () => {
     const doc = parse('myref {\nHello world\n}\n\nBody');
-    expect(doc.contentRefs.get('myref')).toBe('Hello world');
+    const nodes = doc.contentRefs.get('myref');
+    expect(nodes).toHaveLength(1);
+    const [node] = nodes!;
+    expect(node?.type).toBe('paragraph');
+    if (node?.type === 'paragraph') {
+      expect(node.content).toEqual([{ kind: 'text', text: 'Hello world' }]);
+    }
   });
 
   it('strips definitions from body', () => {
@@ -55,17 +61,84 @@ describe('parse — content references', () => {
     expect(doc.contentRefs.has('secret')).toBe(true);
   });
 
-  it('keeps {{key}} placeholders in body', () => {
+  it('expands a standalone {{key}} paragraph to the ref content', () => {
     const doc = parse('myref {\nHi\n}\n\n{{myref}}');
     const para = doc.body.find((n) => n.type === 'paragraph');
+    expect(para?.type).toBe('paragraph');
     if (para?.type === 'paragraph') {
-      expect(para.content).toEqual([{ kind: 'text', text: '{{myref}}' }]);
+      expect(para.content).toEqual([{ kind: 'text', text: 'Hi' }]);
     }
   });
 
-  it('extracts refs from inside block contents', () => {
+  it('keeps {{key}} literal when used inline inside a paragraph', () => {
+    const doc = parse('name {\nWorld\n}\n\nHello {{name}}!');
+    const para = doc.body.find((n) => n.type === 'paragraph');
+    if (para?.type === 'paragraph') {
+      expect(para.content).toEqual([{ kind: 'text', text: 'Hello {{name}}!' }]);
+    }
+  });
+
+  it('keeps unknown {{key}} references as literal text', () => {
+    const doc = parse('{{unknown}}');
+    const para = doc.body.find((n) => n.type === 'paragraph');
+    if (para?.type === 'paragraph') {
+      expect(para.content).toEqual([{ kind: 'text', text: '{{unknown}}' }]);
+    }
+  });
+
+  it('expands a standalone reference into a block', () => {
+    const doc = parse(
+      'sidebar {\nnote(\n# Title\nBody.\n)\n}\n\nIntro.\n\n{{sidebar}}',
+    );
+    const note = doc.body.find((n) => n.type === 'note');
+    expect(note?.type).toBe('note');
+    if (note?.type === 'note') {
+      const heading = note.content[0];
+      expect(heading?.kind).toBe('heading');
+      if (heading?.kind === 'heading') {
+        expect(heading.content).toEqual([{ kind: 'text', text: 'Title' }]);
+      }
+    }
+  });
+
+  it('expands two adjacent reference-only lines independently', () => {
+    const doc = parse('a {\nA\n}\n\nb {\nB\n}\n\n{{a}}\n{{b}}');
+    const paras = doc.body.filter((n) => n.type === 'paragraph');
+    expect(paras).toHaveLength(2);
+    if (paras[0]?.type === 'paragraph' && paras[1]?.type === 'paragraph') {
+      expect(paras[0].content).toEqual([{ kind: 'text', text: 'A' }]);
+      expect(paras[1].content).toEqual([{ kind: 'text', text: 'B' }]);
+    }
+  });
+
+  it('does not nest: references inside a definition stay literal', () => {
+    const doc = parse('a {\n{{b}}\n}\n\nb {\nworld\n}\n\n{{a}}');
+    const para = doc.body.find((n) => n.type === 'paragraph');
+    expect(para?.type).toBe('paragraph');
+    if (para?.type === 'paragraph') {
+      expect(para.content).toEqual([{ kind: 'text', text: '{{b}}' }]);
+    }
+  });
+
+  it('warns when a definition contains a non-Node-level construct', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    // A trait line (`;...`) is only valid inside an item block — at the body
+    // level (which is what a ref definition is) it's invalid and dropped.
+    parse('bad {\n;trait\n}');
+    expect(warn).toHaveBeenCalledWith(
+      expect.stringContaining('trait line'),
+    );
+    warn.mockRestore();
+  });
+
+  it('warns and ignores a definition nested inside a block', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
     const doc = parse('note(\nmyref {\nInside\n}\n)');
-    expect(doc.contentRefs.get('myref')).toBe('Inside');
+    expect(doc.contentRefs.has('myref')).toBe(false);
+    expect(warn).toHaveBeenCalledWith(
+      expect.stringContaining('must live at the body level'),
+    );
+    warn.mockRestore();
   });
 });
 

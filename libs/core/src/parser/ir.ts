@@ -216,6 +216,14 @@ export interface ScribeDocument {
   customCss?: string;
   fonts?: string[];
   pageNumbers: boolean;
-  contentRefs: Map<string, string>;
+  /**
+   * Map of `key` → the pre-parsed body nodes that a `{{key}}` reference
+   * expands to. Reference definitions (`key { ... }`) are parsed into
+   * Node-level body content at collection time, so any segment-only tokens
+   * in a definition (lone `hr`, trait lines, etc.) are warned about and
+   * dropped at parse time — even if the reference is never used. References
+   * inside a definition stay literal: references don't nest.
+   */
+  contentRefs: Map<string, BodyNode[]>;
   body: BodyNode[];
 }

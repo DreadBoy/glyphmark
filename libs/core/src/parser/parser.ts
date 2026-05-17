@@ -129,6 +129,9 @@ export function parse(input: string): ScribeDocument {
     body: [],
   };
 
+  // Collect top-level ref definitions. A definition may sit in the visible
+  // body or in the hidden section past `%`, but not nested inside a block —
+  // nested ones are rejected with a warning by the segment parser.
   collectContentRefs(tokens, doc.contentRefs);
 
   const hiddenIdx = tokens.findIndex((t) => t.kind === 'hidden-delimiter');
@@ -304,6 +307,29 @@ function parseBody(tokens: Token[], doc: ScribeDocument): void {
         }
         // A container block begins a new section on either side.
         firstInSection = true;
+        i++;
+        continue;
+      }
+
+      case 'reference': {
+        // Block-level content reference. The reference definition's body
+        // nodes were parsed and validated at collection time, so expansion
+        // is just appending a clone of those nodes here. Unknown keys emit
+        // the reference as literal text so the user can spot the typo.
+        const refNodes = doc.contentRefs.get(tok.key);
+        if (refNodes !== undefined) {
+          for (const n of refNodes) doc.body.push(structuredClone(n));
+          firstInSection = true;
+          i++;
+          continue;
+        }
+        const literal = parseInline(`{{${tok.key}}}`);
+        doc.body.push({
+          type: 'paragraph',
+          content: literal,
+          indent: paragraphIndent('body', firstInSection, isBoldLead(literal)),
+        });
+        firstInSection = false;
         i++;
         continue;
       }
@@ -728,9 +754,37 @@ function parseSegmentsFromTokens(
         i = next;
         continue;
       }
+      case 'content-ref':
+        console.warn(
+          `[scribe] ${contextLabel}: content reference "${tok.key} { ... }" must live at the body level, not inside a block; ignoring`,
+        );
+        i++;
+        continue;
+      case 'reference': {
+        // References only expand at the body level. Inside a block we surface
+        // the reference as literal text so the user can spot it instead of
+        // having it silently dropped.
+        const literal = parseInline(`{{${tok.key}}}`);
+        if (
+          tryPushSegment(
+            segments,
+            {
+              kind: 'paragraph',
+              content: literal,
+              indent: paragraphIndent(kind, firstInSection, false),
+            },
+            kind,
+            contextLabel,
+          )
+        ) {
+          firstInSection = false;
+        }
+        i++;
+        continue;
+      }
       default:
-        // Drop block-opens, content-refs, page/column break tokens that don't
-        // belong inside a segment list. Content-refs are already collected.
+        // Drop block-opens and stray page/column break tokens that don't
+        // belong inside a segment list.
         i++;
         continue;
     }
@@ -759,13 +813,29 @@ function parseSegmentsFromTokens(
   return segments;
 }
 
-function collectContentRefs(tokens: Token[], refs: Map<string, string>): void {
+function collectContentRefs(
+  tokens: Token[],
+  refs: Map<string, BodyNode[]>,
+): void {
+  // Top-level only. Definitions sit at the same level as other blocks (visible
+  // body or the hidden section past `%`). A `key { ... }` inside a block body
+  // is rejected by the block's segment parser with a warning — we don't pull
+  // it up into the refs map.
+  //
+  // Each definition is parsed into Node-level body content via a throwaway
+  // sub-doc whose own refs map is empty: that simultaneously validates the
+  // definition (any non-Node-level constructs warn at parse time) and ensures
+  // that references inside a definition stay literal, so references can't
+  // nest.
   for (const t of tokens) {
-    if (t.kind === 'content-ref') {
-      refs.set(t.key, t.content);
-    } else if (t.kind === 'block-open') {
-      collectContentRefs(tokenize(t.raw), refs);
-    }
+    if (t.kind !== 'content-ref') continue;
+    const subDoc: ScribeDocument = {
+      pageNumbers: false,
+      contentRefs: new Map(),
+      body: [],
+    };
+    parseBody(tokenize(t.content), subDoc);
+    refs.set(t.key, subDoc.body);
   }
 }
 

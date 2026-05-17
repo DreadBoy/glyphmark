@@ -29,6 +29,7 @@ export type Token =
   | { kind: 'table-footnote'; marker: string; text: string }
   | { kind: 'list-item'; text: string }
   | { kind: 'trait-line'; traits: string[] }
+  | { kind: 'reference'; key: string }
   | { kind: 'text'; content: string }
   | { kind: 'blank' };
 
@@ -160,6 +161,17 @@ export function tokenize(input: string): Token[] {
         .map((s) => s.trim())
         .filter(Boolean);
       tokens.push({ kind: 'trait-line', traits });
+      i++;
+      continue;
+    }
+
+    // Content reference. A line that's *only* `{{key}}` is its own token so
+    // the parser can expand it as a block; inline uses like "Hello {{name}}!"
+    // fall through to the text branch and stay literal (references are
+    // block-level, defined elsewhere as `key { ... }`).
+    const refMatchUse = trimmed.match(/^\{\{(\w+)}}$/);
+    if (refMatchUse) {
+      tokens.push({ kind: 'reference', key: refMatchUse[1]! });
       i++;
       continue;
     }
