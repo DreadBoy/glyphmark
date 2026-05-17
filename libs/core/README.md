@@ -15,7 +15,7 @@ There seems to be
   * has optional traits
   * no horizontal line below the traits
   * at least 1 section, multiple of them separated by horizontal line
-  * [ ] can be interrupted by other blocks (eg. rule )
+  * [ ] can be interrupted by other blocks (eg. rule ) (245)
 * [x] unordered list
   * can appear in normal text (244), items (259), rules (245)
 * [x] column break
@@ -28,7 +28,7 @@ There seems to be
   * [x] have 2 levels of heading (245)
   * [x] can be very rich (188, 268) - won't do for now
   * [x] can have a table (272).
-* [ ] callout / info (rarely used, 165)
+* [x] callout / info (rarely used, 165)
   * can be rich (93)
 * [x] page break
   * I couldn't find page break in wild, the closest is (75) but it coveres lack of text with an image

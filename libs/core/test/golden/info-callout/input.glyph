@@ -1,15 +1,19 @@
-info(
-#### Key Attribute
+/
 
-**Dexterity or other**
+info(
+# Key Attribute
+
+## Dexterity or other
 
 At 1st level, your class gives you an attribute boost to Dexterity or an option from rogue's racket.
-)
 
-info(
-#### Hit Points
+|
 
-**8 plus your Constitution modifier**
+# Hit Points
+
+## 8 plus your Constitution modifier
 
 You increase your maximum number of HP by this number at 1st level and every level thereafter.
 )
+
+/

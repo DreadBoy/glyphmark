@@ -1,6 +1,5 @@
 import type { HeadBlockNode, Segment } from '../parser';
 import { pt } from './size-helper';
-import { tighterMargin } from './style-helpers';
 import { renderInlines } from './inline';
 import { Ornament } from './ornament';
 import { MARGIN } from './document';

@@ -63,6 +63,17 @@ export const ALLOWED_SEGMENTS: Record<
   right: new Set(['paragraph', 'heading']),
 };
 
+// Per-container cap on heading levels. Containers absent from the map accept
+// every level the lexer can emit (h1..h6). Headings above the cap are dropped
+// with a warning — analogous to ALLOWED_SEGMENTS but for heading depth.
+// Exported so tests can drive a level matrix off the same table.
+export const MAX_HEADING_LEVEL: Partial<
+  Record<Exclude<ContainerKind, 'body'>, number>
+> = {
+  head: 1,
+  info: 2,
+};
+
 function tryPushSegment(
   segments: AnySegment[],
   seg: AnySegment,
@@ -609,7 +620,15 @@ function parseSegmentsFromTokens(
         tryPushSegment(segments, { kind: 'page-break' }, kind, contextLabel);
         i++;
         continue;
-      case 'heading':
+      case 'heading': {
+        const maxLevel = MAX_HEADING_LEVEL[kind];
+        if (maxLevel !== undefined && tok.level > maxLevel) {
+          console.warn(
+            `[scribe] ${contextLabel}: h${tok.level} is not valid inside ${kind}() (only h1..h${maxLevel}); ignoring`,
+          );
+          i++;
+          continue;
+        }
         if (
           tryPushSegment(
             segments,
@@ -626,6 +645,7 @@ function parseSegmentsFromTokens(
         }
         i++;
         continue;
+      }
       case 'centered-text':
         tryPushSegment(
           segments,

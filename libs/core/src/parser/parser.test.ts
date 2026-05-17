@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { ALLOWED_SEGMENTS, parse } from './parser';
+import { ALLOWED_SEGMENTS, MAX_HEADING_LEVEL, parse } from './parser';
 
 describe('parse — preamble', () => {
   it('extracts watermark', () => {
@@ -623,6 +623,84 @@ describe('parse — segment allow-list (warn-and-drop matrix)', () => {
         expect(warn).toHaveBeenCalledWith(
           expect.stringContaining(`${kind} is not valid inside ${container}()`),
         );
+
+        warn.mockRestore();
+      });
+    }
+  }
+});
+
+// Matrix-driven cases for the per-container heading-level cap. For every
+// (container, level) pair where `level` exceeds `MAX_HEADING_LEVEL[container]`
+// the parser should warn and drop the heading; for levels at or below the cap
+// the heading is retained. Containers without an entry in MAX_HEADING_LEVEL
+// (item, sample, rule, note, right) are unconstrained and aren't exercised
+// here — they're covered indirectly by the allow-list matrix above.
+describe('parse — heading-level cap (warn-and-drop matrix)', () => {
+  type Container = keyof typeof ALLOWED_SEGMENTS;
+  const wrap: Record<Container, (inner: string) => string> = {
+    item: (i) => `item(\n# Foo\n-\n${i}\n)`,
+    sample: (i) => `sample(\n${i}\n)`,
+    rule: (i) => `rule(\n${i}\n)`,
+    info: (i) => `info(\n${i}\n)`,
+    note: (i) => `note(\n${i}\n)`,
+    head: (i) => `head(\n${i}\n)`,
+    right: (i) => `right(\n${i}\n)`,
+  };
+  const blockType: Record<Container, string> = {
+    item: 'item',
+    sample: 'sample',
+    rule: 'rule',
+    info: 'info',
+    note: 'note',
+    head: 'head',
+    right: 'right-sidebar',
+  };
+  const LEVELS = [1, 2, 3, 4, 5, 6] as const;
+
+  for (const [container, maxLevel] of Object.entries(MAX_HEADING_LEVEL) as [
+    Container,
+    number,
+  ][]) {
+    for (const level of LEVELS) {
+      const hashes = '#'.repeat(level);
+      const shouldDrop = level > maxLevel;
+
+      it(`${container}() ${
+        shouldDrop ? 'warns and drops' : 'retains'
+      } h${level}`, () => {
+        const warn = vi
+          .spyOn(console, 'warn')
+          .mockImplementation(() => undefined);
+
+        const doc = parse(wrap[container](`${hashes} Title`));
+        const block = doc.body.find((n) => n.type === blockType[container]);
+        expect(block).toBeDefined();
+
+        const headings =
+          block && 'content' in block && Array.isArray(block.content)
+            ? (block.content as { kind: string; level?: number }[]).filter(
+                (s) => s.kind === 'heading',
+              )
+            : [];
+
+        if (shouldDrop) {
+          expect(headings).toHaveLength(0);
+          expect(warn).toHaveBeenCalledWith(
+            expect.stringContaining(
+              `h${level} is not valid inside ${container}()`,
+            ),
+          );
+        } else {
+          expect(headings).toHaveLength(1);
+          expect(headings[0]?.level).toBe(level);
+          // No level-cap warning should fire for an in-range heading. Other
+          // warnings could legitimately fire (unrelated to the cap), so we
+          // assert only that no `h{N} is not valid` message was emitted.
+          for (const call of warn.mock.calls) {
+            expect(String(call[0])).not.toMatch(/h\d is not valid inside/);
+          }
+        }
 
         warn.mockRestore();
       });
