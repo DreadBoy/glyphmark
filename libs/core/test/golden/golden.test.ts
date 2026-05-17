@@ -4,7 +4,8 @@ import path from 'node:path';
 import { chromium, type Browser } from 'playwright';
 import { PNG } from 'pngjs';
 import pixelmatch from 'pixelmatch';
-import { convert } from '../../src/pipeline';
+import { parseGlyph } from '../../src/parser';
+import { renderToHtml } from '../../src/renderer/render';
 
 const HERE = path.resolve(import.meta.dirname, '.');
 
@@ -137,18 +138,12 @@ describe('golden snapshots', { timeout: 120_000 }, () => {
 
     test(`${dir}`, async () => {
       const input = fs.readFileSync(inputPath, 'utf-8');
-      const html = convert(input);
+      const html = renderToHtml(parseGlyph(input));
       expect(html.length).toBeGreaterThan(0);
 
       const fixtureDir = path.join(HERE, dir);
       if (OUTPUT_HTML) {
-        fs.writeFileSync(
-          path.join(fixtureDir, 'output.html'),
-          html.replace(
-            '</head>',
-            '<script type="text/javascript" src="https://livejs.com/live.js"></script></head>',
-          ),
-        );
+        fs.writeFileSync(path.join(fixtureDir, 'output.html'), html);
       }
 
       if (SKIP_SCREENSHOTS) return;
@@ -157,6 +152,7 @@ describe('golden snapshots', { timeout: 120_000 }, () => {
       // print (paginated as it would print). Both are checked; the test only
       // passes if both are within tolerance.
       const failures: string[] = [];
+      // TODO renderToPdf and convert to image, as 3rd media option
       for (const media of ['screen', 'print'] as const) {
         const outputPng = await renderPng(html, media);
         const outputPngPath = path.join(fixtureDir, `output.${media}.png`);

@@ -44,7 +44,7 @@ const RENDERERS: Renderers = {
   info: InfoBlock,
 };
 
-export function renderGlyphDocument(doc: GlyphDocument): string {
+export function renderToHtml(doc: GlyphDocument): string {
   const cache = createCache({ key: 'gm' });
   const { extractCriticalToChunks, constructStyleTagsFromChunks } =
     createEmotionServer(cache);
@@ -72,4 +72,34 @@ function Body({ doc }: { doc: GlyphDocument }) {
       })}
     </Document>
   );
+}
+
+// PDF rendering reuses the HTML output and lets Chromium paginate it. We
+// import Playwright lazily (via a dynamic import) so consumers that only
+// need `renderToHtml` don't pay the cost of loading Playwright at module
+// init — and so the import doesn't run in browser-side consumers of the
+// library at all.
+export async function renderToPdf(doc: GlyphDocument): Promise<Buffer> {
+  const html = renderToHtml(doc);
+  const { chromium } = await import('playwright');
+  const browser = await chromium.launch();
+  try {
+    const context = await browser.newContext({ deviceScaleFactor: 1 });
+    const page = await context.newPage();
+    // Print media first so screen-only chrome (page shadows) is excluded
+    // before paged.js paginates against the print stylesheet.
+    await page.emulateMedia({ media: 'print' });
+    await page.setContent(html, { waitUntil: 'networkidle' });
+    await page.waitForSelector('.pagedjs_pages', { timeout: 30_000 });
+    // `preferCSSPageSize` honours the document's own `@page { size: ... }`,
+    // which paged.js already drives — so the PDF page geometry matches the
+    // HTML preview exactly. `printBackground` keeps the styled backgrounds
+    // (item-block headers, table stripes, etc.) from being stripped.
+    return await page.pdf({
+      preferCSSPageSize: true,
+      printBackground: true,
+    });
+  } finally {
+    await browser.close();
+  }
 }

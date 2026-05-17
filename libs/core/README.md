@@ -1,4 +1,6 @@
-# About block names
+# Glyphmark core library
+
+## Supported blocks
 
 There seems to be
 * [x] headers (h1-h4) (39)
@@ -32,13 +34,8 @@ There seems to be
   * still, let's implement it
 * [x] content reference
   * wrap the reference in `key {}` and later reuse with `{{key}}`
-* [ ] page chrome
-  * decided to skip for now as it's complicated and less usefull for shorter documents
-* [ ] right sidebar (123)
-  * there doesn't appear to be left sidebar
-* [ ] item block interrupted by other blocks (eg. rule ) (245)
 
-# On paragraphs indents
+## On paragraphs indents
 In normal text, paragraphs, except first one, are indented in first line (274). Lists are indented in all lines of the list, also if they are first paragraph (109). Paragraphs with bolded first words are indented just in first line (274). 
 
 In item block, first paragraph isn't indented in first line while each following paragraph is. This resets after <hr>. If it starts with bolded words, it is indented in every line except first line. Page 247 demonstrates indented paragraph, followed by bolded paragraph.  
@@ -48,7 +45,14 @@ In rule block, 2nd+ paragraphs are indented as well (245), bolded as well (232),
 
 In sample block, bolded paragraphs are not indented (231).
 
-# Syntax that still needs to be decided
+## Block that are planned
+* [ ] page chrome
+  * decided to skip for now as it's complicated and less usefull for shorter documents
+* [ ] right sidebar (123)
+  * there doesn't appear to be left sidebar
+* [ ] item block interrupted by other blocks (eg. rule ) (245)
+
+## Syntax that still needs to be decided and implemented
 * drop-caps (38)
 * rich rules (188, 268)
 * rich info (93)
