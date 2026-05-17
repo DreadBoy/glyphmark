@@ -1,6 +1,6 @@
 # Glyphmark
 
-Convert Pathfinder 2e Scribe markup to styled, self-contained HTML. Zero runtime dependencies.
+Convert Pathfinder 2e Glyph markup to styled, self-contained HTML. Zero runtime dependencies.
 
 ## Install
 
@@ -59,10 +59,10 @@ Or use the VS Code [Live Preview](https://marketplace.visualstudio.com/items?ite
 ```js
 import { convert } from "glyphmark";
 
-const html = convert(scribeSource);
+const html = convert(glyphSource);
 ```
 
-## Scribe DSL Reference
+## Glyph DSL Reference
 
 TODO
 

@@ -211,7 +211,7 @@ export type BodyNode =
   | HeadBlockNode
   | RightSidebarNode;
 
-export interface ScribeDocument {
+export interface GlyphDocument {
   watermark?: string;
   customCss?: string;
   fonts?: string[];

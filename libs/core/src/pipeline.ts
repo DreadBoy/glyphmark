@@ -1,6 +1,6 @@
-import { parseScribe } from './parser';
-import { renderScribeDocument } from './renderer/render';
+import { parseGlyph } from './parser';
+import { renderGlyphDocument } from './renderer/render';
 
 export function convert(input: string): string {
-  return renderScribeDocument(parseScribe(input));
+  return renderGlyphDocument(parseGlyph(input));
 }

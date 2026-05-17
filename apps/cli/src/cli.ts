@@ -6,7 +6,7 @@ import { convert } from "@glyphmark/core";
 const [input, output] = process.argv.slice(2);
 
 if (!input || !output) {
-  console.error("Usage: glyphmark <input.scribe> <output.html>");
+  console.error("Usage: glyphmark <input.glyph> <output.html>");
   process.exit(1);
 }
 

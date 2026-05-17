@@ -12,7 +12,7 @@ import type {
   RuleBlockNode,
   RuleSegment,
   SampleSegment,
-  ScribeDocument,
+  GlyphDocument,
   Segment,
   TableFootnote,
   TableNode,
@@ -85,7 +85,7 @@ function tryPushSegment(
     return true;
   }
   console.warn(
-    `[scribe] ${contextLabel}: ${seg.kind} is not valid inside ${kind}(); ignoring`,
+    `[glyph] ${contextLabel}: ${seg.kind} is not valid inside ${kind}(); ignoring`,
   );
   return false;
 }
@@ -121,9 +121,9 @@ function listIndent(kind: ContainerKind): ListIndent {
   return 'none';
 }
 
-export function parse(input: string): ScribeDocument {
+export function parse(input: string): GlyphDocument {
   const tokens = tokenize(input);
-  const doc: ScribeDocument = {
+  const doc: GlyphDocument = {
     pageNumbers: false,
     contentRefs: new Map(),
     body: [],
@@ -149,7 +149,7 @@ export function parse(input: string): ScribeDocument {
   return doc;
 }
 
-function parseBody(tokens: Token[], doc: ScribeDocument): void {
+function parseBody(tokens: Token[], doc: GlyphDocument): void {
   let i = 0;
   // "First in section" means: this is the first paragraph since the start of
   // the body or since the last semantic reset (heading, full-width toggle, or
@@ -354,12 +354,12 @@ function parseBody(tokens: Token[], doc: ScribeDocument): void {
 
       // Tokens that don't belong at the body level — drop with a warning.
       case 'hr':
-        console.warn('[scribe] top-level hr (lone -) is not valid; ignoring');
+        console.warn('[glyph] top-level hr (lone -) is not valid; ignoring');
         i++;
         continue;
       case 'trait-line':
         console.warn(
-          '[scribe] trait line (;) is only valid inside item(); ignoring',
+          '[glyph] trait line (;) is only valid inside item(); ignoring',
         );
         i++;
         continue;
@@ -397,14 +397,14 @@ function parseCellInline(raw: string): CellInline[] {
 
   if (matches.length > 1) {
     console.warn(
-      `[scribe] table cell "${raw}" has multiple footnote refs; expected one trailing the text`,
+      `[glyph] table cell "${raw}" has multiple footnote refs; expected one trailing the text`,
     );
   }
   const last = matches[matches.length - 1]!;
   const tail = raw.slice(last.index + last[0].length).trim();
   if (tail.length > 0) {
     console.warn(
-      `[scribe] table cell "${raw}" has a footnote ref that does not trail the text`,
+      `[glyph] table cell "${raw}" has a footnote ref that does not trail the text`,
     );
   }
 
@@ -466,14 +466,14 @@ function buildTable(
   for (const ref of referenced) {
     if (!defined.has(ref)) {
       console.warn(
-        `[scribe] table cell references [${ref}] but no footnote defines it`,
+        `[glyph] table cell references [${ref}] but no footnote defines it`,
       );
     }
   }
   for (const def of defined) {
     if (!referenced.has(def)) {
       console.warn(
-        `[scribe] table footnote [${def}] is defined but never referenced`,
+        `[glyph] table footnote [${def}] is defined but never referenced`,
       );
     }
   }
@@ -521,7 +521,7 @@ function parseRule(raw: string, fullWidth: boolean): RuleBlockNode {
     for (const seg of content) {
       if (seg.kind === 'column-break') {
         console.warn(
-          '[scribe] rule block: column-break is only valid inside a full-width rule block; ignoring',
+          '[glyph] rule block: column-break is only valid inside a full-width rule block; ignoring',
         );
         continue;
       }
@@ -574,7 +574,7 @@ function parseItem(raw: string): ItemBlockNode {
   if (i < tokens.length && tokens[i]!.kind === 'hr') {
     i++;
   } else {
-    console.warn('[scribe] item: missing hr separator after heading');
+    console.warn('[glyph] item: missing hr separator after heading');
   }
 
   while (i < tokens.length && tokens[i]!.kind === 'blank') i++;
@@ -650,7 +650,7 @@ function parseSegmentsFromTokens(
         const maxLevel = MAX_HEADING_LEVEL[kind];
         if (maxLevel !== undefined && tok.level > maxLevel) {
           console.warn(
-            `[scribe] ${contextLabel}: h${tok.level} is not valid inside ${kind}() (only h1..h${maxLevel}); ignoring`,
+            `[glyph] ${contextLabel}: h${tok.level} is not valid inside ${kind}() (only h1..h${maxLevel}); ignoring`,
           );
           i++;
           continue;
@@ -756,7 +756,7 @@ function parseSegmentsFromTokens(
       }
       case 'content-ref':
         console.warn(
-          `[scribe] ${contextLabel}: content reference "${tok.key} { ... }" must live at the body level, not inside a block; ignoring`,
+          `[glyph] ${contextLabel}: content reference "${tok.key} { ... }" must live at the body level, not inside a block; ignoring`,
         );
         i++;
         continue;
@@ -795,7 +795,7 @@ function parseSegmentsFromTokens(
     const head = segments[0]!;
     if (head.kind === 'hr' || head.kind === 'column-break') {
       console.warn(
-        `[scribe] ${contextLabel}: leading ${head.kind} is invalid; content must start with text`,
+        `[glyph] ${contextLabel}: leading ${head.kind} is invalid; content must start with text`,
       );
       segments.shift();
     } else break;
@@ -804,7 +804,7 @@ function parseSegmentsFromTokens(
     const tail = segments[segments.length - 1]!;
     if (tail.kind === 'hr' || tail.kind === 'column-break') {
       console.warn(
-        `[scribe] ${contextLabel}: trailing ${tail.kind} is invalid`,
+        `[glyph] ${contextLabel}: trailing ${tail.kind} is invalid`,
       );
       segments.pop();
     } else break;
@@ -829,7 +829,7 @@ function collectContentRefs(
   // nest.
   for (const t of tokens) {
     if (t.kind !== 'content-ref') continue;
-    const subDoc: ScribeDocument = {
+    const subDoc: GlyphDocument = {
       pageNumbers: false,
       contentRefs: new Map(),
       body: [],

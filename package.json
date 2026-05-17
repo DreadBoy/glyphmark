@@ -1,7 +1,7 @@
 {
   "name": "glyphmark",
   "version": "0.1.0",
-  "description": "Convert Pathfinder 2e scribe markup to styled HTML",
+  "description": "Convert .glyph DSL to Pathfinder 2e-styled HTML",
   "private": true,
   "type": "module",
   "license": "MIT",
