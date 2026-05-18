@@ -7,15 +7,27 @@
     "build": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "tsc -p apps/cli/tsconfig.json"
+        "command": "tsc -p apps/cli/tsconfig.json",
+        "cwd": "{workspaceRoot}"
       },
-      "outputs": ["{projectRoot}/dist"]
+      "dependsOn": ["^build"],
+      "outputs": ["{workspaceRoot}/dist/apps/cli"]
     },
     "typecheck": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "tsc --noEmit -p apps/cli/tsconfig.json"
-      }
+        "command": "tsc --noEmit -p apps/cli/tsconfig.json",
+        "cwd": "{workspaceRoot}"
+      },
+      "dependsOn": ["^build"]
+    },
+    "run": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "node dist/apps/cli/cli.js",
+        "cwd": "{workspaceRoot}"
+      },
+      "dependsOn": ["build"]
     }
   }
 }

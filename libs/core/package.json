@@ -1,12 +1,14 @@
 {
   "name": "@glyphmark/core",
   "version": "0.0.1",
-  "main": "./index.js",
-  "types": "./index.d.ts",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/src/index.d.ts",
   "exports": {
     ".": {
-      "import": "./index.mjs",
-      "require": "./index.js"
+      "types": "./dist/src/index.d.ts",
+      "import": "./dist/index.js"
     }
-  }
+  },
+  "files": ["dist", "README.md"]
 }

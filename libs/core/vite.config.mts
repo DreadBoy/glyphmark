@@ -29,7 +29,7 @@ export default defineConfig(() => ({
   // Configuration for building your library.
   // See: https://vite.dev/guide/build.html#library-mode
   build: {
-    outDir: '../../dist/libs/core',
+    outDir: './dist',
     emptyOutDir: true,
     reportCompressedSize: true,
     commonjsOptions: {
@@ -49,13 +49,26 @@ export default defineConfig(() => ({
       external: [
         'react',
         'react-dom',
+        'react-dom/server',
         'react/jsx-runtime',
+        // React's scheduler picks `setImmediate` when available, which Node
+        // exposes — that path avoids the MessageChannel that otherwise
+        // keeps the event loop alive (React #20756). But the bundler can't
+        // see that `typeof setImmediate === "function"` is true on Node and
+        // dead-code-eliminates the branch, leaving only MessageChannel.
+        // Keeping scheduler external lets Node resolve and run the upstream
+        // code with both branches intact.
+        'scheduler',
         '@emotion/react',
         '@emotion/react/jsx-runtime',
         '@emotion/styled',
         '@emotion/cache',
         '@emotion/server',
         '@emotion/server/create-instance',
+        // Playwright is only loaded on demand inside renderToPdf via a
+        // dynamic import. Keeping it external avoids bundling its (large,
+        // node-only) runtime into core's ESM artifact.
+        'playwright',
       ],
     },
   },
