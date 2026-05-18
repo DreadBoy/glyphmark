@@ -58,10 +58,13 @@ export type Segment =
   | { kind: 'heading'; content: Inline[]; level: number };
 
 /**
- * Item blocks add lists, the section-divider `hr`, and column breaks.
+ * Item blocks add lists, the section-divider `hr`, and column breaks. They do
+ * *not* allow `heading` segments — the leading h1/h2 of an item are consumed
+ * by the parser into `ItemBlockNode.name` and `.subtitle`; any further
+ * heading inside the item body is a parse-time error and is warned/dropped.
  */
 export type ItemSegment =
-  | Segment
+  | { kind: 'paragraph'; content: Inline[]; indent: ParagraphIndent }
   | { kind: 'list'; items: Inline[][]; indent: ListIndent }
   | { kind: 'hr' }
   | { kind: 'column-break' }
@@ -117,10 +120,6 @@ export interface ParagraphNode {
   content: Inline[];
   indent: ParagraphIndent;
 }
-export interface CenteredParagraphNode {
-  type: 'centered-paragraph';
-  content: Inline[];
-}
 export interface HeadingNode {
   type: 'heading';
   level: number;
@@ -167,10 +166,6 @@ export interface InfoBlockNode {
   type: 'info';
   content: InfoSegment[];
 }
-export interface NoteBlockNode {
-  type: 'note';
-  content: Segment[];
-}
 export interface RuleBlockNode {
   type: 'rule';
   /**
@@ -189,33 +184,24 @@ export interface HeadBlockNode {
   type: 'head';
   content: Segment[];
 }
-export interface RightSidebarNode {
-  type: 'right-sidebar';
-  content: Segment[];
-}
 
 export type BodyNode =
   | PageBreakNode
   | ColumnBreakNode
   | FullWidthToggleNode
   | ParagraphNode
-  | CenteredParagraphNode
   | HeadingNode
   | ListNode
   | TableNode
   | ItemBlockNode
   | InfoBlockNode
-  | NoteBlockNode
   | RuleBlockNode
   | SampleBlockNode
-  | HeadBlockNode
-  | RightSidebarNode;
+  | HeadBlockNode;
 
 export interface GlyphDocument {
-  watermark?: string;
   customCss?: string;
   fonts?: string[];
-  pageNumbers: boolean;
   /**
    * Map of `key` → the pre-parsed body nodes that a `{{key}}` reference
    * expands to. Reference definitions (`key { ... }`) are parsed into

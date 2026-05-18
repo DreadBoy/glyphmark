@@ -1,19 +1,11 @@
 import type { Align } from './ir';
 
-export type BlockType =
-  | 'item'
-  | 'info'
-  | 'note'
-  | 'rule'
-  | 'sample'
-  | 'head'
-  | 'right';
+export type BlockType = 'item' | 'info' | 'rule' | 'sample' | 'head';
 
-export type PreambleType = 'watermark' | 'css' | 'fonts';
+export type PreambleType = 'css' | 'fonts';
 
 export type Token =
   | { kind: 'preamble'; type: PreambleType; content: string }
-  | { kind: 'pagenumbers' }
   | { kind: 'hidden-delimiter' }
   | { kind: 'content-ref'; key: string; content: string }
   | { kind: 'page-break' }
@@ -33,19 +25,13 @@ export type Token =
   | { kind: 'text'; content: string }
   | { kind: 'blank' };
 
-const PREAMBLE_KEYWORDS: readonly PreambleType[] = [
-  'watermark',
-  'css',
-  'fonts',
-];
+const PREAMBLE_KEYWORDS: readonly PreambleType[] = ['css', 'fonts'];
 const BLOCK_KEYWORDS: readonly BlockType[] = [
   'item',
   'info',
-  'note',
   'rule',
   'sample',
   'head',
-  'right',
 ];
 const ALL_KEYWORDS = [...PREAMBLE_KEYWORDS, ...BLOCK_KEYWORDS] as const;
 const KEYWORD_RE = new RegExp(`^(${ALL_KEYWORDS.join('|')})\\s*\\(`);
@@ -88,12 +74,6 @@ export function tokenize(input: string): Token[] {
     }
     if (line === '-') {
       tokens.push({ kind: 'hr' });
-      i++;
-      continue;
-    }
-
-    if (/^\s*pagenumbers\s*$/.test(line)) {
-      tokens.push({ kind: 'pagenumbers' });
       i++;
       continue;
     }

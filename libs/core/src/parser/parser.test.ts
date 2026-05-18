@@ -2,11 +2,6 @@ import { describe, it, expect, vi } from 'vitest';
 import { ALLOWED_SEGMENTS, MAX_HEADING_LEVEL, parse } from './parser';
 
 describe('parse — preamble', () => {
-  it('extracts watermark', () => {
-    const doc = parse('watermark(\nDRAFT\n)\n\nBody');
-    expect(doc.watermark).toBe('DRAFT');
-  });
-
   it('extracts custom CSS', () => {
     const doc = parse('css(\n.foo { color: red; }\n)\n\nBody');
     expect(doc.customCss).toBe('.foo { color: red; }');
@@ -20,16 +15,6 @@ describe('parse — preamble', () => {
   it('extracts fonts as one entry per line', () => {
     const doc = parse('fonts(\nRoboto\nOpen Sans\n)');
     expect(doc.fonts).toEqual(['Roboto', 'Open Sans']);
-  });
-
-  it('detects pagenumbers keyword', () => {
-    const doc = parse('pagenumbers\n\nBody');
-    expect(doc.pageNumbers).toBe(true);
-  });
-
-  it('defaults pagenumbers to false', () => {
-    const doc = parse('Body');
-    expect(doc.pageNumbers).toBe(false);
   });
 });
 
@@ -56,7 +41,7 @@ describe('parse — content references', () => {
 
   it('extracts refs from hidden section', () => {
     const doc = parse(
-      'Visible\n\n%\n\nsecret {\nnote(\n# Hidden\nContent\n)\n}',
+      'Visible\n\n%\n\nsecret {\nrule(\n# Hidden\nContent\n)\n}',
     );
     expect(doc.contentRefs.has('secret')).toBe(true);
   });
@@ -88,12 +73,12 @@ describe('parse — content references', () => {
 
   it('expands a standalone reference into a block', () => {
     const doc = parse(
-      'sidebar {\nnote(\n# Title\nBody.\n)\n}\n\nIntro.\n\n{{sidebar}}',
+      'sidebar {\nrule(\n# Title\nBody.\n)\n}\n\nIntro.\n\n{{sidebar}}',
     );
-    const note = doc.body.find((n) => n.type === 'note');
-    expect(note?.type).toBe('note');
-    if (note?.type === 'note') {
-      const heading = note.content[0];
+    const rule = doc.body.find((n) => n.type === 'rule');
+    expect(rule?.type).toBe('rule');
+    if (rule?.type === 'rule') {
+      const heading = rule.content[0];
       expect(heading?.kind).toBe('heading');
       if (heading?.kind === 'heading') {
         expect(heading.content).toEqual([{ kind: 'text', text: 'Title' }]);
@@ -133,7 +118,7 @@ describe('parse — content references', () => {
 
   it('warns and ignores a definition nested inside a block', () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
-    const doc = parse('note(\nmyref {\nInside\n}\n)');
+    const doc = parse('rule(\nmyref {\nInside\n}\n)');
     expect(doc.contentRefs.has('myref')).toBe(false);
     expect(warn).toHaveBeenCalledWith(
       expect.stringContaining('must live at the body level'),
@@ -192,6 +177,16 @@ describe('parse — headings and lists', () => {
     }
   });
 
+  it('warns and drops body-level headings above h4', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    const doc = parse('##### Too deep');
+    expect(doc.body).toHaveLength(0);
+    expect(warn).toHaveBeenCalledWith(
+      expect.stringContaining('h5 is not valid'),
+    );
+    warn.mockRestore();
+  });
+
   it('groups consecutive list items into one list node', () => {
     const doc = parse('* one\n* two\n* three');
     expect(doc.body).toHaveLength(1);
@@ -229,15 +224,14 @@ describe('parse — paragraphs', () => {
     expect(doc.body.every((n) => n.type === 'paragraph')).toBe(true);
   });
 
-  it('parses centered paragraph from ^ marker', () => {
+  it('warns and drops a body-level centered paragraph (^ is sample-only)', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
     const doc = parse('^ **Damage** equals level × 2');
-    expect(doc.body[0]?.type).toBe('centered-paragraph');
-    if (doc.body[0]?.type === 'centered-paragraph') {
-      expect(doc.body[0].content).toEqual([
-        { kind: 'strong', children: [{ kind: 'text', text: 'Damage' }] },
-        { kind: 'text', text: ' equals level × 2' },
-      ]);
-    }
+    expect(doc.body).toHaveLength(0);
+    expect(warn).toHaveBeenCalledWith(
+      expect.stringContaining('centered text (^) is only valid inside sample()'),
+    );
+    warn.mockRestore();
   });
 });
 
@@ -365,7 +359,7 @@ describe('parse — item block', () => {
   });
 });
 
-describe('parse — info / note / rule / sample / head / right', () => {
+describe('parse — info / rule / sample / head', () => {
   it('info() splits on column-break', () => {
     const doc = parse('info(\nLeft\n|\nRight\n)');
     const info = doc.body.find((n) => n.type === 'info');
@@ -386,19 +380,6 @@ describe('parse — info / note / rule / sample / head / right', () => {
     }
   });
 
-  it('note() retains heading inside', () => {
-    const doc = parse('note(\n# Title\nBody text.\n)');
-    const n = doc.body.find((n) => n.type === 'note');
-    if (n?.type === 'note') {
-      expect(n.content[0]).toEqual({
-        kind: 'heading',
-        level: 1,
-        content: [{ kind: 'text', text: 'Title' }],
-      });
-      expect(n.content[1]?.kind).toBe('paragraph');
-    }
-  });
-
   it('sample() supports centered paragraph', () => {
     const doc = parse(
       'sample(\n# Damage Formula\n\n^ **Damage** equals your level × 2\n\nThis is normal text.\n)',
@@ -411,12 +392,6 @@ describe('parse — info / note / rule / sample / head / right', () => {
         'paragraph',
       ]);
     }
-  });
-
-  it('right() becomes right-sidebar with content', () => {
-    const doc = parse('right(\n# Sidebar\nText.\n)');
-    const r = doc.body.find((n) => n.type === 'right-sidebar');
-    expect(r?.type).toBe('right-sidebar');
   });
 
   it('rule() outside full-width strips column-break with a warning', () => {
@@ -655,9 +630,7 @@ describe('parse — segment allow-list (warn-and-drop matrix)', () => {
     sample: (i) => `sample(\n${i}\n)`,
     rule: (i) => `rule(\n${i}\n)`,
     info: (i) => `info(\n${i}\n)`,
-    note: (i) => `note(\n${i}\n)`,
     head: (i) => `head(\n${i}\n)`,
-    right: (i) => `right(\n${i}\n)`,
   };
 
   // Container keyword → matching `BodyNode.type`.
@@ -666,9 +639,7 @@ describe('parse — segment allow-list (warn-and-drop matrix)', () => {
     sample: 'sample',
     rule: 'rule',
     info: 'info',
-    note: 'note',
     head: 'head',
-    right: 'right-sidebar',
   };
 
   for (const [container, allowed] of Object.entries(ALLOWED_SEGMENTS) as [
@@ -707,8 +678,8 @@ describe('parse — segment allow-list (warn-and-drop matrix)', () => {
 // (container, level) pair where `level` exceeds `MAX_HEADING_LEVEL[container]`
 // the parser should warn and drop the heading; for levels at or below the cap
 // the heading is retained. Containers without an entry in MAX_HEADING_LEVEL
-// (item, sample, rule, note, right) are unconstrained and aren't exercised
-// here — they're covered indirectly by the allow-list matrix above.
+// (item, sample, rule) are unconstrained and aren't exercised here — they're
+// covered indirectly by the allow-list matrix above.
 describe('parse — heading-level cap (warn-and-drop matrix)', () => {
   type Container = keyof typeof ALLOWED_SEGMENTS;
   const wrap: Record<Container, (inner: string) => string> = {
@@ -716,18 +687,14 @@ describe('parse — heading-level cap (warn-and-drop matrix)', () => {
     sample: (i) => `sample(\n${i}\n)`,
     rule: (i) => `rule(\n${i}\n)`,
     info: (i) => `info(\n${i}\n)`,
-    note: (i) => `note(\n${i}\n)`,
     head: (i) => `head(\n${i}\n)`,
-    right: (i) => `right(\n${i}\n)`,
   };
   const blockType: Record<Container, string> = {
     item: 'item',
     sample: 'sample',
     rule: 'rule',
     info: 'info',
-    note: 'note',
     head: 'head',
-    right: 'right-sidebar',
   };
   const LEVELS = [1, 2, 3, 4, 5, 6] as const;
 

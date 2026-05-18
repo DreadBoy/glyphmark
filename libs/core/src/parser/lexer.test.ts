@@ -55,16 +55,6 @@ describe('tokenize', () => {
     });
   });
 
-  describe('pagenumbers', () => {
-    it('emits pagenumbers token for the keyword', () => {
-      expect(lex('pagenumbers')).toEqual([{ kind: 'pagenumbers' }]);
-    });
-
-    it('allows surrounding whitespace', () => {
-      expect(lex('  pagenumbers  ')).toEqual([{ kind: 'pagenumbers' }]);
-    });
-  });
-
   describe('headings', () => {
     it('parses h1 through h6', () => {
       for (let n = 1; n <= 6; n++) {
@@ -131,11 +121,6 @@ describe('tokenize', () => {
   });
 
   describe('preamble blocks', () => {
-    it('parses watermark', () => {
-      expect(lex('watermark(\nDRAFT\n)')).toEqual([
-        { kind: 'preamble', type: 'watermark', content: 'DRAFT' },
-      ]);
-    });
 
     it('parses css', () => {
       expect(lex('css(\n.foo { color: red; }\n)')).toEqual([
@@ -160,15 +145,7 @@ describe('tokenize', () => {
 
   describe('block-open', () => {
     it('emits block-open for each block type', () => {
-      const types = [
-        'item',
-        'info',
-        'note',
-        'rule',
-        'sample',
-        'head',
-        'right',
-      ] as const;
+      const types = ['item', 'info', 'rule', 'sample', 'head'] as const;
       for (const t of types) {
         const tokens = lex(`${t}(\nfoo\n)`);
         expect(tokens).toEqual([{ kind: 'block-open', type: t, raw: 'foo' }]);
@@ -278,11 +255,9 @@ describe('tokenize', () => {
   describe('mixed sequences', () => {
     it('lexes a small document', () => {
       const tokens = lex(
-        'pagenumbers\n\n# Title\n\nIntro paragraph.\n\nitem(\n# Feat\n-\n; trait\nBody\n)',
+        '# Title\n\nIntro paragraph.\n\nitem(\n# Feat\n-\n; trait\nBody\n)',
       );
       expect(tokens).toEqual([
-        { kind: 'pagenumbers' },
-        { kind: 'blank' },
         { kind: 'heading', level: 1, text: 'Title' },
         { kind: 'blank' },
         { kind: 'text', content: 'Intro paragraph.' },

@@ -22,15 +22,7 @@ import { tokenize, type Token } from './lexer';
 
 // Container kinds drive per-block indent decisions. "body" is the document
 // level (normal text); the rest correspond to block-open keywords.
-type ContainerKind =
-  | 'body'
-  | 'item'
-  | 'rule'
-  | 'sample'
-  | 'info'
-  | 'note'
-  | 'head'
-  | 'right';
+type ContainerKind = 'body' | 'item' | 'rule' | 'sample' | 'info' | 'head';
 
 // Widest possible segment shape the parser can emit. Each caller narrows to
 // its concrete container segment type via a (provably sound) cast — the
@@ -47,25 +39,22 @@ export const ALLOWED_SEGMENTS: Record<
   Exclude<ContainerKind, 'body'>,
   Set<SegmentKind>
 > = {
-  item: new Set([
-    'paragraph',
-    'heading',
-    'list',
-    'column-break',
-    'page-break',
-    'hr',
-  ]),
+  // `heading` is intentionally absent: the leading h1/h2 of an item are
+  // consumed by parseItem into `name`/`subtitle`. Any further heading in the
+  // body is parse-time invalid and gets warn-and-dropped.
+  item: new Set(['paragraph', 'list', 'column-break', 'page-break', 'hr']),
   sample: new Set(['paragraph', 'heading', 'centered-paragraph']),
   rule: new Set(['paragraph', 'heading', 'list', 'column-break', 'table']),
   info: new Set(['paragraph', 'heading', 'column-break']),
-  note: new Set(['paragraph', 'heading']),
   head: new Set(['paragraph', 'heading']),
-  right: new Set(['paragraph', 'heading']),
 };
 
-// Per-container cap on heading levels. Containers absent from the map accept
-// every level the lexer can emit (h1..h6). Headings above the cap are dropped
-// with a warning — analogous to ALLOWED_SEGMENTS but for heading depth.
+// Global cap on heading levels — the lexer can emit h1..h6 but the renderer
+// only styles h1..h4. Anything above this is warn-and-dropped at parse time.
+export const MAX_HEADING_LEVEL_DEFAULT = 4;
+
+// Per-container cap on heading levels, *tighter* than the global default.
+// Containers absent from the map fall back to MAX_HEADING_LEVEL_DEFAULT.
 // Exported so tests can drive a level matrix off the same table.
 export const MAX_HEADING_LEVEL: Partial<
   Record<Exclude<ContainerKind, 'body'>, number>
@@ -110,7 +99,7 @@ function paragraphIndent(
   if (kind === 'body' || kind === 'rule') {
     return firstInSection ? 'none' : 'first-line';
   }
-  // sample, info, note, head, right — paragraphs sit flush.
+  // sample, info, head — paragraphs sit flush.
   return 'none';
 }
 
@@ -124,7 +113,6 @@ function listIndent(kind: ContainerKind): ListIndent {
 export function parse(input: string): GlyphDocument {
   const tokens = tokenize(input);
   const doc: GlyphDocument = {
-    pageNumbers: false,
     contentRefs: new Map(),
     body: [],
   };
@@ -164,14 +152,8 @@ function parseBody(tokens: Token[], doc: GlyphDocument): void {
     const tok = tokens[i]!;
 
     switch (tok.kind) {
-      case 'pagenumbers':
-        doc.pageNumbers = true;
-        i++;
-        continue;
-
       case 'preamble':
-        if (tok.type === 'watermark') doc.watermark = tok.content;
-        else if (tok.type === 'css') {
+        if (tok.type === 'css') {
           doc.customCss = doc.customCss
             ? `${doc.customCss}\n${tok.content}`
             : tok.content;
@@ -215,20 +197,19 @@ function parseBody(tokens: Token[], doc: GlyphDocument): void {
         continue;
 
       case 'heading':
+        if (tok.level > MAX_HEADING_LEVEL_DEFAULT) {
+          console.warn(
+            `[glyph] h${tok.level} is not valid; only h1..h${MAX_HEADING_LEVEL_DEFAULT} are supported`,
+          );
+          i++;
+          continue;
+        }
         doc.body.push({
           type: 'heading',
           level: tok.level,
           content: parseInline(tok.text),
         });
         firstInSection = true;
-        i++;
-        continue;
-
-      case 'centered-text':
-        doc.body.push({
-          type: 'centered-paragraph',
-          content: parseInline(tok.content),
-        });
         i++;
         continue;
 
@@ -285,17 +266,8 @@ function parseBody(tokens: Token[], doc: GlyphDocument): void {
               'info',
             ) as InfoSegment[],
           });
-        } else if (tok.type === 'right') {
-          doc.body.push({
-            type: 'right-sidebar',
-            content: parseSegments(
-              tok.raw,
-              'right block',
-              'right',
-            ) as Segment[],
-          });
         } else {
-          // 'note' | 'head' — both use the floor Segment[].
+          // 'head' — floor Segment[].
           doc.body.push({
             type: tok.type,
             content: parseSegments(
@@ -353,6 +325,12 @@ function parseBody(tokens: Token[], doc: GlyphDocument): void {
       }
 
       // Tokens that don't belong at the body level — drop with a warning.
+      case 'centered-text':
+        console.warn(
+          '[glyph] centered text (^) is only valid inside sample() blocks; ignoring',
+        );
+        i++;
+        continue;
       case 'hr':
         console.warn('[glyph] top-level hr (lone -) is not valid; ignoring');
         i++;
@@ -647,8 +625,8 @@ function parseSegmentsFromTokens(
         i++;
         continue;
       case 'heading': {
-        const maxLevel = MAX_HEADING_LEVEL[kind];
-        if (maxLevel !== undefined && tok.level > maxLevel) {
+        const maxLevel = MAX_HEADING_LEVEL[kind] ?? MAX_HEADING_LEVEL_DEFAULT;
+        if (tok.level > maxLevel) {
           console.warn(
             `[glyph] ${contextLabel}: h${tok.level} is not valid inside ${kind}() (only h1..h${maxLevel}); ignoring`,
           );
@@ -803,9 +781,7 @@ function parseSegmentsFromTokens(
   while (segments.length > 0) {
     const tail = segments[segments.length - 1]!;
     if (tail.kind === 'hr' || tail.kind === 'column-break') {
-      console.warn(
-        `[glyph] ${contextLabel}: trailing ${tail.kind} is invalid`,
-      );
+      console.warn(`[glyph] ${contextLabel}: trailing ${tail.kind} is invalid`);
       segments.pop();
     } else break;
   }
@@ -830,7 +806,6 @@ function collectContentRefs(
   for (const t of tokens) {
     if (t.kind !== 'content-ref') continue;
     const subDoc: GlyphDocument = {
-      pageNumbers: false,
       contentRefs: new Map(),
       body: [],
     };

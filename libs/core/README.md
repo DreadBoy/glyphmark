@@ -47,12 +47,21 @@ In sample block, bolded paragraphs are not indented (231).
 
 ## Block that are planned
 * [ ] page chrome
+  * using pagenumbers attribute
   * decided to skip for now as it's complicated and less usefull for shorter documents
-* [ ] right sidebar (123)
+* [ ] right sidebar (43, 123)
+  * right() 
   * there doesn't appear to be left sidebar
 * [ ] item block interrupted by other blocks (eg. rule ) (245)
+* [ ] item in rule
+* [ ] rule with hr, also heading hr (190)
+* [ ] rule with full-width and column layout (445)
+* [ ] table with multiple non-numeric footnotes (111)
+* [ ] custom css and fonts (423, 429)
+* [ ] custom images (255)
 
 ## Syntax that still needs to be decided and implemented
 * drop-caps (38)
 * rich rules (188, 268)
-* rich info (93)
+* rich info (93, 401)
+* custom flow-around image (83, 223, 427, 428)

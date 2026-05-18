@@ -111,7 +111,6 @@ function ItemSegment({ segment }: { segment: ItemSegment }) {
       </ul>
     );
   }
-  // 'heading', 'centered-paragraph' segments don't have renderers yet.
   return null;
 }
 
