@@ -4,7 +4,7 @@
   "description": "Convert .glyph DSL to Pathfinder 2e-styled HTML",
   "private": true,
   "type": "module",
-  "license": "MIT",
+  "license": "Elastic-2.0",
   "workspaces": ["apps/*", "libs/*"],
   "scripts": {},
   "devDependencies": {

@@ -1,71 +1,50 @@
 # Glyphmark
 
-Convert Pathfinder 2e Glyph markup to styled, self-contained HTML. Zero runtime dependencies.
+Convert Pathfinder 2e Glyph markup to styled, self-contained HTML or PDF.
 
-## Install
+This repository is an [Nx](https://nx.dev) monorepo containing the Glyphmark
+parser/renderer, a CLI that wraps it, and a handful of internal tooling
+libraries used while authoring fixtures from the source rulebooks.
 
-```bash
-npm install -g @glyphmark/cli
-```
+## Projects
 
-Or use directly with npx:
+| Project          | Path             | Description                                                                  |
+| ---------------- | ---------------- | ---------------------------------------------------------------------------- |
+| `@glyphmark/cli` | `apps/cli`       | Command-line tool. Reads a `.glyph` file, writes `.html` or `.pdf`.          |
+| `@glyphmark/core`| `libs/core`      | Parser and HTML/PDF renderer. The engine behind the CLI; also usable as a library. |
+| `extract`        | `libs/extract`   | Node scripts for pulling single pages out of source PDFs and previewing their text-box layout. Author-time tooling. |
+| `books`          | `libs/books`     | Source Pathfinder 2e PDFs and per-page extracts used as visual references for fixtures. Data only, no code. |
 
-```bash
-npx @glyphmark/cli input.glyph output.html
-```
+See each project's README for details:
 
-## Usage
+- [`apps/cli/README.md`](apps/cli/README.md) — installing and using the CLI
+- [`libs/core/README.md`](libs/core/README.md) — supported blocks and DSL notes
+- [`libs/extract/README.md`](libs/extract/README.md) — page-extraction helpers
 
-```bash
-@glyphmark/cli <input.glyph> <output.html>
-```
+## Development
 
-Reads a `.glyph` file and writes a single self-contained HTML file with all styles embedded.
-
-## Recipes
-
-### Batch processing
-
-```bash
-for f in *.glyph; do glyphmark "$f" "${f%.glyph}.html"; done
-```
-
-### Watch mode
-
-Use any file watcher. With [watchexec](https://github.com/watchexec/watchexec):
+The workspace uses Nx with npm. Common tasks:
 
 ```bash
-watchexec -w myfile.glyph -- glyphmark myfile.glyph output.html
+# install
+npm install
+
+# build everything
+npx nx run-many -t build
+
+# build a single project
+npx nx build core
+npx nx build cli
+
+# run tests (core has the bulk of them, including visual goldens)
+npx nx test core
+
+# run the CLI from source
+npx nx run cli:run -- input.glyph output.html
 ```
-
-With [entr](https://eradman.com/entrproject/):
-
-```bash
-echo myfile.glyph | entr glyphmark myfile.glyph output.html
-```
-
-### Live reload
-
-Pair with any static file server that supports live reload. With [browser-sync](https://browsersync.io/):
-
-```bash
-browser-sync start --server --files output.html
-```
-
-Or use the VS Code [Live Preview](https://marketplace.visualstudio.com/items?itemName=ms-vscode.live-server) extension to open the output HTML.
-
-## Programmatic API
-
-```js
-import { convert } from "glyphmark";
-
-const html = convert(glyphSource);
-```
-
-## Glyph DSL Reference
-
-TODO
 
 ## License
 
-MIT
+Source-available under the [Elastic License 2.0](LICENSE). Personal and
+internal use are free; you may not offer this software to third parties as a
+hosted or managed service. See [`LICENSE`](LICENSE) for the full terms.
