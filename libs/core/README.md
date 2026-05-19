@@ -1,67 +1,69 @@
-# Glyphmark core library
+# @glyphmark/core
 
-## Supported blocks
+Parser and renderer for the `.glyph` markup language — produces self-contained
+HTML and PDF documents styled to match the Pathfinder 2e rulebook layout.
 
-There seems to be
-* [x] headers (h1-h4) (39)
-  * can have images that act as decorated first letter (38)
-* [x] sample/example block (page 228)
-  * have 2 levels of heading (276).
-* [x] math / formula (275)
-  * math seems visually similar to sample, just without heading and with centered text. Does it warrant separate block type? Specially because sample could also contain centered text that looks like formula (276)
-* [x] table (274)
-  * can be column-wide (270) or full-wide (274). Tables can also have footnotes (270, 274)
-* [x] item block (also used for spells, monsters, feats etc.) (102)
-  * has a heading, optional subheading, optional action icon
-  * horizontal line below the heading
-  * has optional traits
-  * no horizontal line below the traits
-  * at least 1 section, multiple of them separated by horizontal line
-* [x] unordered list
-  * can appear in normal text (244), items (259), rules (245)
-* [x] column break
-  * indicates start of new column
-* [x] horizontal lines don't appear anywhere except as part of item block.
-* [x] head (50), sometimes with description (84)
-* [x] GM advice / rule explanation (230, 232)
-  * [x] have 2 levels of heading (245)
-  * [x] can be very rich (188, 268) - won't do for now
-  * [x] can have a table (272).
-* [x] callout / info (rarely used, 165)
-  * can be rich (93)
-* [x] page break
-  * I couldn't find page break in wild, the closest is (75) but it coveres lack of text with an image
-  * still, let's implement it
-* [x] content reference
-  * wrap the reference in `key {}` and later reuse with `{{key}}`
+This is the engine behind the [`@glyphmark/cli`](https://www.npmjs.com/package/@glyphmark/cli)
+tool. Use this package directly if you want to embed the renderer in a web
+playground, editor plugin, docs site, or anything else that already runs JS.
 
-## On paragraphs indents
-In normal text, paragraphs, except first one, are indented in first line (274). Lists are indented in all lines of the list, also if they are first paragraph (109). Paragraphs with bolded first words are indented just in first line (274). 
+## Install
 
-In item block, first paragraph isn't indented in first line while each following paragraph is. This resets after <hr>. If it starts with bolded words, it is indented in every line except first line. Page 247 demonstrates indented paragraph, followed by bolded paragraph.  
-In item block, lists are indented as well. (259, Pet).
+```bash
+npm install @glyphmark/core
+```
 
-In rule block, 2nd+ paragraphs are indented as well (245), bolded as well (232), lists are not (245).
+`renderToPdf` additionally needs [Playwright](https://playwright.dev) at
+runtime (it's declared as an optional peer):
 
-In sample block, bolded paragraphs are not indented (231).
+```bash
+npm install playwright
+npx playwright install chromium
+```
 
-## Block that are planned
-* [ ] page chrome
-  * using pagenumbers attribute
-  * decided to skip for now as it's complicated and less usefull for shorter documents
-* [ ] right sidebar (43, 123)
-  * right() 
-  * there doesn't appear to be left sidebar
-* [ ] item block interrupted by other blocks (eg. rule ) (245)
-* [ ] item in rule
-* [ ] rule with hr, also heading hr (190)
-* [ ] rule with full-width and column layout (445)
-* [ ] table with multiple non-numeric footnotes (111)
-* [ ] custom css and fonts (423, 429)
-* [ ] custom images (255)
+If you only need `renderToHtml`, skip the Playwright install.
 
-## Syntax that still needs to be decided and implemented
-* drop-caps (38)
-* rich rules (188, 268)
-* rich info (93, 401)
-* custom flow-around image (83, 223, 427, 428)
+## Quick start
+
+```ts
+import { parseGlyph, renderToHtml, renderToPdf } from '@glyphmark/core';
+import fs from 'node:fs';
+
+const source = fs.readFileSync('example.glyph', 'utf-8');
+const doc = parseGlyph(source);
+
+// HTML — synchronous, returns a self-contained string with inlined styles
+fs.writeFileSync('example.html', renderToHtml(doc));
+
+// PDF — async, returns a Buffer (requires Playwright)
+fs.writeFileSync('example.pdf', await renderToPdf(doc));
+```
+
+## API
+
+### `parseGlyph(input: string): GlyphDocument`
+
+Parses a `.glyph` source string into an intermediate document tree. Throws on
+syntax errors with line/column information.
+
+### `renderToHtml(doc: GlyphDocument): string`
+
+Renders a parsed document to a complete HTML string. Output is self-contained
+— fonts, styles, and ornaments are all inlined, so the result can be served
+or saved as a single file.
+
+### `renderToPdf(doc: GlyphDocument): Promise<Buffer>`
+
+Renders to PDF by spinning up a headless Chromium via Playwright and printing
+the HTML. Returns a `Buffer` containing the PDF bytes. Playwright is a peer
+dependency — install it separately if you need this function.
+
+### Types
+
+`GlyphDocument` and `BodyNode` are exported for callers that want to inspect
+or transform the IR between parsing and rendering.
+
+## License
+
+[Elastic License 2.0](./LICENSE). Free for personal and internal use; you may
+not offer this package to third parties as a hosted or managed service.
