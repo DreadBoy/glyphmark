@@ -1,7 +1,15 @@
 {
   "name": "@glyphmark/core",
-  "version": "0.0.1",
+  "version": "0.1.0",
+  "description": "Parser and renderer for the .glyph DSL — produces Pathfinder 2e-styled HTML/PDF",
   "license": "Elastic-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DreadBoy/glyphmark.git",
+    "directory": "libs/core"
+  },
+  "homepage": "https://github.com/DreadBoy/glyphmark/tree/main/libs/core#readme",
+  "bugs": "https://github.com/DreadBoy/glyphmark/issues",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/src/index.d.ts",
@@ -11,5 +19,26 @@
       "import": "./dist/index.js"
     }
   },
-  "files": ["dist", "README.md"]
+  "files": [
+    "dist/index.js",
+    "dist/src/",
+    "README.md",
+    "LICENSE"
+  ],
+  "dependencies": {
+    "@emotion/cache": "^11.14.0",
+    "@emotion/react": "^11.14.0",
+    "@emotion/server": "^11.11.0",
+    "@emotion/styled": "^11.14.1",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "peerDependencies": {
+    "playwright": "^1.59.1"
+  },
+  "peerDependenciesMeta": {
+    "playwright": {
+      "optional": true
+    }
+  }
 }

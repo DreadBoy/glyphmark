@@ -11,7 +11,7 @@
         "cwd": "{workspaceRoot}"
       },
       "dependsOn": ["^build"],
-      "outputs": ["{workspaceRoot}/dist/apps/cli"]
+      "outputs": ["{projectRoot}/dist"]
     },
     "typecheck": {
       "executor": "nx:run-commands",
@@ -24,7 +24,7 @@
     "run": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "node dist/apps/cli/cli.js",
+        "command": "node apps/cli/dist/cli.js",
         "cwd": "{workspaceRoot}"
       },
       "dependsOn": ["build"]

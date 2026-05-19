@@ -4,7 +4,7 @@
     "module": "nodenext",
     "moduleResolution": "nodenext",
     "rootDir": "./src",
-    "outDir": "../../dist/apps/cli",
+    "outDir": "./dist",
     "types": ["node"],
     "skipLibCheck": true,
     "declaration": false,

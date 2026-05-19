@@ -1,13 +1,26 @@
 {
   "name": "@glyphmark/cli",
-  "version": "0.0.1",
-  "private": true,
+  "version": "0.1.0",
+  "description": "Command-line tool that compiles .glyph documents to HTML and PDF",
   "license": "Elastic-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DreadBoy/glyphmark.git",
+    "directory": "apps/cli"
+  },
+  "homepage": "https://github.com/DreadBoy/glyphmark/tree/main/apps/cli#readme",
+  "bugs": "https://github.com/DreadBoy/glyphmark/issues",
   "type": "module",
   "bin": {
-    "glyphmark": "../../dist/apps/cli/cli.js"
+    "glyphmark": "./dist/cli.js"
   },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
   "dependencies": {
-    "@glyphmark/core": "0.0.1"
+    "@glyphmark/core": "0.1.0",
+    "playwright": "^1.59.1"
   }
 }
