@@ -33,14 +33,14 @@ npm install
 npx nx run-many -t build
 
 # build a single project
-npx nx build core
-npx nx build cli
+npx nx build @glyphmark/core
+npx nx build @glyphmark/cli
 
 # run tests (core has the bulk of them, including visual goldens)
-npx nx test core
+npx nx test @glyphmark/core
 
 # run the CLI from source
-npx nx run cli:run -- input.glyph output.html
+npx nx run @glyphmark/cli:run -- input.glyph output.html
 ```
 
 ## License
