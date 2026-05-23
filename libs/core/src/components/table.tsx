@@ -3,6 +3,7 @@ import type { CellInline, TableNode } from '../parser';
 import { pt } from './size-helper';
 import { tighterMargin } from './style-helpers';
 import { renderInlines } from './inline';
+import { SANS, SANS_CONDENSED } from '../vendor/font-css';
 
 const CELL_PAD = `0 ${pt(4).toRem()}`;
 
@@ -17,7 +18,7 @@ export function Table({ node }: { node: TableNode }) {
       {node.caption && (
         <div
           css={{
-            fontFamily: 'ff-good-web-pro-condensed',
+            fontFamily: SANS_CONDENSED,
             fontWeight: 700,
             fontSize: pt(12).toRem(),
             lineHeight: pt(15).toRem(),
@@ -32,7 +33,7 @@ export function Table({ node }: { node: TableNode }) {
         css={{
           width: '100%',
           borderCollapse: 'collapse',
-          fontFamily: 'ff-good-web-pro',
+          fontFamily: SANS,
           fontSize: pt(8).toRem(),
           lineHeight: pt(12).toRem(),
         }}

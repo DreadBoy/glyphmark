@@ -2,6 +2,7 @@ import type { SampleBlockNode, SampleSegment } from '../parser';
 import { pt } from './size-helper';
 import { tighterMargin } from './style-helpers';
 import { renderInlines } from './inline';
+import { SANS, SANS_CONDENSED } from '../vendor/font-css';
 
 export function SampleBlock({ node }: { node: SampleBlockNode }) {
   return (
@@ -23,14 +24,14 @@ export function SampleBlock({ node }: { node: SampleBlockNode }) {
 
 const HEADING_BASE = {
   textAlign: 'center' as const,
-  fontFamily: 'ff-good-web-pro-condensed',
+  fontFamily: SANS_CONDENSED,
   fontWeight: 700,
   textTransform: 'uppercase' as const,
 };
 
 const PARA_BASE = {
   margin: 0,
-  fontFamily: 'ff-good-web-pro',
+  fontFamily: SANS,
   fontSize: pt(8).toRem(),
   lineHeight: pt(12).toRem(),
 };
@@ -57,7 +58,7 @@ function Segment({ segment }: { segment: SampleSegment }) {
         css={{
           ...HEADING_BASE,
           textTransform: 'none',
-          fontFamily: 'ff-good-web-pro',
+          fontFamily: SANS,
           fontSize: pt(11).toRem(),
           lineHeight: pt(12).toRem(),
           ...tighterMargin(12).withNormalMargin(0),

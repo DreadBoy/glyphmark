@@ -6,6 +6,7 @@ import { renderInlines } from './inline';
 import { ColumnBreak } from './column-break';
 import { PageBreak } from './page-break';
 import { ACTION_SYMBOLS } from '../vendor/action-symbols';
+import { SANS, SANS_CONDENSED } from '../vendor/font-css';
 import { indentStyle } from './paragraph';
 
 export function ItemBlock({ node }: { node: ItemBlockNode }) {
@@ -21,7 +22,7 @@ export function ItemBlock({ node }: { node: ItemBlockNode }) {
       >
         <h4
           css={{
-            fontFamily: 'ff-good-web-pro-condensed',
+            fontFamily: SANS_CONDENSED,
             textTransform: 'uppercase',
             fontSize: pt(12).toRem(),
             lineHeight: pt(12).toRem(),
@@ -50,7 +51,7 @@ export function ItemBlock({ node }: { node: ItemBlockNode }) {
         {node.subtitle && (
           <h4
             css={{
-              fontFamily: 'ff-good-web-pro-condensed',
+              fontFamily: SANS_CONDENSED,
               textTransform: 'uppercase',
               fontSize: pt(12).toRem(),
               lineHeight: pt(12).toRem(),
@@ -83,7 +84,7 @@ function ItemSegment({ segment }: { segment: ItemSegment }) {
     return (
       <p
         css={{
-          fontFamily: 'ff-good-web-pro',
+          fontFamily: SANS,
           fontSize: pt(8).toRem(),
           lineHeight: pt(12).toRem(),
           margin: 0,
@@ -100,7 +101,7 @@ function ItemSegment({ segment }: { segment: ItemSegment }) {
         css={{
           margin: 0,
           paddingLeft: segment.indent === 'block' ? pt(18).toRem() : 0,
-          fontFamily: 'ff-good-web-pro',
+          fontFamily: SANS,
           fontSize: pt(8).toRem(),
           lineHeight: pt(12).toRem(),
         }}
@@ -155,7 +156,7 @@ function Traits({ traits }: { traits: string[] }) {
   const pillBase = {
     display: 'inline-block',
     padding: `${pt(2.25).toRem()} ${pt(4.5).toRem()} ${pt(0.9).toRem()}`,
-    fontFamily: 'ff-good-web-pro-condensed',
+    fontFamily: SANS_CONDENSED,
     fontWeight: 700,
     fontSize: pt(7.2).toRem(),
     lineHeight: 1,

@@ -5,6 +5,7 @@ import { tighterMargin } from './style-helpers';
 import { renderInlines } from './inline';
 import { Table } from './table';
 import { Ornament } from './ornament';
+import { SANS, SANS_CONDENSED } from '../vendor/font-css';
 
 export function RuleBlock({ node }: { node: RuleBlockNode }) {
   const yPadding = 13;
@@ -54,7 +55,7 @@ export function RuleBlock({ node }: { node: RuleBlockNode }) {
 
 const PARA_BASE: CSSObject = {
   margin: 0,
-  fontFamily: 'ff-good-web-pro',
+  fontFamily: SANS,
   fontSize: pt(8).toRem(),
   lineHeight: pt(12).toRem(),
 };
@@ -66,7 +67,7 @@ function Segment({ segment }: { segment: RuleSegment }) {
         <p
           css={{
             textAlign: 'center',
-            fontFamily: 'ff-good-web-pro-condensed',
+            fontFamily: SANS_CONDENSED,
             fontWeight: 700,
             textTransform: 'uppercase',
             fontSize: pt(11).toRem(),
@@ -83,7 +84,7 @@ function Segment({ segment }: { segment: RuleSegment }) {
       <p
         css={{
           textAlign: 'center',
-          fontFamily: 'ff-good-web-pro',
+          fontFamily: SANS,
           fontWeight: 700,
           fontSize: pt(9).toRem(),
           lineHeight: pt(12).toRem(),

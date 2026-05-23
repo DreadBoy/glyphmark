@@ -3,6 +3,7 @@ import { pt } from './size-helper';
 import { renderInlines } from './inline';
 import { Ornament } from './ornament';
 import { MARGIN } from './document';
+import { DISPLAY_TITLE, SERIF } from '../vendor/font-css';
 
 export function HeadBlock({ node }: { node: HeadBlockNode }) {
   const yPadding = 20;
@@ -40,7 +41,7 @@ function Segment({ segment }: { segment: Segment }) {
     return (
       <h1
         css={{
-          fontFamily: 'Taroca',
+          fontFamily: DISPLAY_TITLE,
           fontSize: pt(20).toRem(),
           lineHeight: pt(22).toRem(),
           margin: 0,
@@ -55,7 +56,7 @@ function Segment({ segment }: { segment: Segment }) {
     return (
       <p
         css={{
-          fontFamily: 'SabonLTStd, serif',
+          fontFamily: SERIF,
           fontStyle: 'italic',
           fontWeight: 700,
           fontSize: pt(10).toRem(),

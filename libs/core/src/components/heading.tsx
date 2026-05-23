@@ -3,12 +3,18 @@ import { pt } from './size-helper';
 import styled from '@emotion/styled';
 import { tighterMargin } from './style-helpers';
 import { renderInlines } from './inline';
+import {
+  DISPLAY_CAPS,
+  DISPLAY_TITLE,
+  SANS,
+  SANS_CONDENSED,
+} from '../vendor/font-css';
 
 const H4_BORDER = 1;
 const H4_BORDER_GAP = 0.5;
 
 export const H1 = styled.h1({
-  fontFamily: 'Taroca',
+  fontFamily: DISPLAY_TITLE,
   fontSize: pt(14).toRem(),
   lineHeight: pt(16).toRem(),
   color: '#002A17',
@@ -17,7 +23,7 @@ export const H1 = styled.h1({
 });
 
 export const H2 = styled.h2({
-  fontFamily: 'ff-good-web-pro',
+  fontFamily: SANS,
   fontWeight: 700,
   fontSize: pt(12).toRem(),
   lineHeight: pt(13).toRem(),
@@ -27,7 +33,7 @@ export const H2 = styled.h2({
 });
 
 export const H3 = styled.h3({
-  fontFamily: 'ff-good-web-pro-condensed',
+  fontFamily: SANS_CONDENSED,
   fontWeight: 700,
   fontSize: pt(12).toRem(),
   lineHeight: pt(12).toRem(),
@@ -37,7 +43,8 @@ export const H3 = styled.h3({
 });
 
 export const H4 = styled.h4({
-  fontFamily: 'gin',
+  fontFamily: DISPLAY_CAPS,
+  textTransform: 'uppercase',
   fontSize: pt(12).toRem(),
   lineHeight: pt(14).toRem(),
   padding: `${pt(0.9).toRem()} 0 ${pt(2.6).toRem()} ${pt(4.5).toRem()}`,

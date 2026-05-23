@@ -3,6 +3,7 @@ import type { InfoBlockNode, InfoSegment } from '../parser';
 import { pt } from './size-helper';
 import { tighterMargin } from './style-helpers';
 import { renderInlines } from './inline';
+import { SANS } from '../vendor/font-css';
 
 const BG = '#002A17';
 const FG = '#FFFFFF';
@@ -50,7 +51,7 @@ export function InfoBlock({ node }: { node: InfoBlockNode }) {
 
 const PARA_BASE: CSSObject = {
   margin: 0,
-  fontFamily: 'ff-good-web-pro',
+  fontFamily: SANS,
   fontSize: pt(8).toRem(),
   lineHeight: pt(12).toRem(),
 };
@@ -61,7 +62,7 @@ function Segment({ segment }: { segment: InfoSegment }) {
       return (
         <p
           css={{
-            fontFamily: 'ff-good-web-pro',
+            fontFamily: SANS,
             fontWeight: 700,
             textTransform: 'uppercase',
             fontSize: pt(12).toRem(),
@@ -75,7 +76,7 @@ function Segment({ segment }: { segment: InfoSegment }) {
     return (
       <p
         css={{
-          fontFamily: 'ff-good-web-pro',
+          fontFamily: SANS,
           fontWeight: 700,
           fontSize: pt(11).toRem(),
           lineHeight: pt(12).toRem(),

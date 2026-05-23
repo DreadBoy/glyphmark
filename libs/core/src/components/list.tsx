@@ -1,6 +1,7 @@
 import type { ListNode } from '../parser';
 import { pt } from './size-helper';
 import { renderInlines } from './inline';
+import { SERIF } from '../vendor/font-css';
 
 export function List({ node }: { node: ListNode }) {
   return (
@@ -8,7 +9,7 @@ export function List({ node }: { node: ListNode }) {
       css={{
         margin: 0,
         paddingLeft: node.indent === 'block' ? pt(18).toRem() : 0,
-        fontFamily: 'linotype-sabon',
+        fontFamily: SERIF,
         fontSize: pt(8).toRem(),
         lineHeight: pt(12).toRem(),
       }}

@@ -1,6 +1,7 @@
 import type { ParagraphIndent, ParagraphNode } from '../parser';
 import { pt } from './size-helper';
 import { renderInlines } from './inline';
+import { SERIF } from '../vendor/font-css';
 
 const INDENT_AMOUNT = '1rem';
 
@@ -15,7 +16,7 @@ export function Paragraph({ node }: { node: ParagraphNode }) {
   return (
     <p
       css={{
-        fontFamily: 'linotype-sabon',
+        fontFamily: SERIF,
         fontSize: pt(8).toRem(),
         lineHeight: pt(12).toRem(),
         margin: 0,
