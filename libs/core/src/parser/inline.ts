@@ -1,9 +1,19 @@
-import type { Inline } from './ir';
+import type { ActionSymbol, Inline } from './ir';
+
+// Longest first so `:aaa:` matches before `:aa:` before `:a:`.
+const ACTION_TOKENS: readonly ActionSymbol[] = [
+  ':aaa:',
+  ':aa:',
+  ':a:',
+  ':r:',
+  ':f:',
+];
 
 /**
  * Parse a single line of inline emphasis. Recognizes:
  *   `**bold**` and `__bold__` → strong
  *   `*italic*` and `_italic_` → em
+ *   `:a:`, `:aa:`, `:aaa:`, `:r:`, `:f:` → action symbol
  *
  * Rules: balanced on the same string, no nesting, no escapes.
  * Unbalanced delimiters are emitted as literal text. Strong is tried
@@ -22,6 +32,15 @@ export function parseInline(input: string): Inline[] {
   };
 
   while (i < input.length) {
+    if (input[i] === ':') {
+      const match = ACTION_TOKENS.find((t) => input.startsWith(t, i));
+      if (match) {
+        flush();
+        out.push({ kind: 'action', symbol: match });
+        i += match.length;
+        continue;
+      }
+    }
     if (input.startsWith('**', i)) {
       const end = input.indexOf('**', i + 2);
       if (end > i + 2) {

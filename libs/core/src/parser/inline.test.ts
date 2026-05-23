@@ -111,6 +111,48 @@ describe('parseInline', () => {
     ]);
   });
 
+  it('parses each action symbol as a standalone token', () => {
+    for (const sym of [':a:', ':aa:', ':aaa:', ':r:', ':f:'] as const) {
+      expect(parseInline(sym)).toEqual([{ kind: 'action', symbol: sym }]);
+    }
+  });
+
+  it('parses an action symbol inline in body text', () => {
+    expect(parseInline('use this symbol: :a:.')).toEqual([
+      { kind: 'text', text: 'use this symbol: ' },
+      { kind: 'action', symbol: ':a:' },
+      { kind: 'text', text: '.' },
+    ]);
+  });
+
+  it('prefers the longest action token at a position', () => {
+    expect(parseInline(':aaa:')).toEqual([
+      { kind: 'action', symbol: ':aaa:' },
+    ]);
+    expect(parseInline(':aa:')).toEqual([{ kind: 'action', symbol: ':aa:' }]);
+  });
+
+  it('treats unrecognised :x: as literal text', () => {
+    expect(parseInline(':b:')).toEqual([{ kind: 'text', text: ':b:' }]);
+  });
+
+  it('keeps stray colons as literal text', () => {
+    expect(parseInline('ratio 3:1 here')).toEqual([
+      { kind: 'text', text: 'ratio 3:1 here' },
+    ]);
+  });
+
+  it('mixes action symbols with bold and em', () => {
+    expect(parseInline('**Cast** *fireball* :aa: at target')).toEqual([
+      { kind: 'strong', children: [{ kind: 'text', text: 'Cast' }] },
+      { kind: 'text', text: ' ' },
+      { kind: 'em', children: [{ kind: 'text', text: 'fireball' }] },
+      { kind: 'text', text: ' ' },
+      { kind: 'action', symbol: ':aa:' },
+      { kind: 'text', text: ' at target' },
+    ]);
+  });
+
   it('does not support escape syntax — backslash is literal', () => {
     // TODO Add escape support. For now, `\*` does NOT suppress emphasis;
     // the backslash is a regular character and the `*` is still a delimiter.

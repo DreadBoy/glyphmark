@@ -1,7 +1,16 @@
 export type Inline =
   | { kind: 'text'; text: string }
   | { kind: 'strong'; children: Inline[] }
-  | { kind: 'em'; children: Inline[] };
+  | { kind: 'em'; children: Inline[] }
+  | { kind: 'action'; symbol: ActionSymbol };
+
+/**
+ * Action symbols recognised on item headings (e.g. `# Strike :aa:` adds the
+ * two-action icon) and inline anywhere in body text (`:a:`, `:aa:`, `:aaa:`,
+ * `:r:`, `:f:`). Mirrors the keys of `ACTION_SYMBOLS` in
+ * `vendor/action-symbols.ts` — keep the two in sync.
+ */
+export type ActionSymbol = ':a:' | ':aa:' | ':aaa:' | ':r:' | ':f:';
 
 /**
  * A footnote reference inside a table. The parser detects the kind from DSL
@@ -147,13 +156,6 @@ export interface TableNode {
   caption?: CellInline[];
   footnotes: TableFootnote[];
 }
-/**
- * Action symbols recognised on item headings, e.g. `# Strike :aa:` adds the
- * two-action icon. Mirrors the keys of `ACTION_SYMBOLS` in
- * `vendor/action-symbols.ts` — keep the two in sync.
- */
-export type ActionSymbol = ':a:' | ':aa:' | ':aaa:' | ':r:' | ':f:';
-
 export interface ItemBlockNode {
   type: 'item';
   name: Inline[];
