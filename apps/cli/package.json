@@ -1,6 +1,6 @@
 {
   "name": "@glyphmark/cli",
-  "version": "0.1.0",
+  "version": "0.0.0",
   "description": "Command-line tool that compiles .glyph documents to HTML and PDF",
   "license": "Elastic-2.0",
   "repository": {

@@ -1,6 +1,6 @@
 {
   "name": "@glyphmark/core",
-  "version": "0.1.0",
+  "version": "0.0.0",
   "description": "Parser and renderer for the .glyph DSL — produces Pathfinder 2e-styled HTML/PDF",
   "license": "Elastic-2.0",
   "repository": {

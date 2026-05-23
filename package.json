@@ -1,11 +1,14 @@
 {
   "name": "glyphmark",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Convert .glyph DSL to Pathfinder 2e-styled HTML",
   "private": true,
   "type": "module",
   "license": "Elastic-2.0",
-  "workspaces": ["apps/*", "libs/*"],
+  "workspaces": [
+    "apps/*",
+    "libs/*"
+  ],
   "scripts": {},
   "devDependencies": {
     "@napi-rs/canvas": "^0.1.100",
