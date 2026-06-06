@@ -126,9 +126,7 @@ describe('parseInline', () => {
   });
 
   it('prefers the longest action token at a position', () => {
-    expect(parseInline(':aaa:')).toEqual([
-      { kind: 'action', symbol: ':aaa:' },
-    ]);
+    expect(parseInline(':aaa:')).toEqual([{ kind: 'action', symbol: ':aaa:' }]);
     expect(parseInline(':aa:')).toEqual([{ kind: 'action', symbol: ':aa:' }]);
   });
 

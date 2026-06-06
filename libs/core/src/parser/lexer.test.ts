@@ -121,7 +121,6 @@ describe('tokenize', () => {
   });
 
   describe('preamble blocks', () => {
-
     it('parses css', () => {
       expect(lex('css(\n.foo { color: red; }\n)')).toEqual([
         {

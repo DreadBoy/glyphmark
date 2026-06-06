@@ -110,9 +110,7 @@ describe('parse — content references', () => {
     // A trait line (`;...`) is only valid inside an item block — at the body
     // level (which is what a ref definition is) it's invalid and dropped.
     parse('bad {\n;trait\n}');
-    expect(warn).toHaveBeenCalledWith(
-      expect.stringContaining('trait line'),
-    );
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining('trait line'));
     warn.mockRestore();
   });
 
@@ -229,7 +227,9 @@ describe('parse — paragraphs', () => {
     const doc = parse('^ **Damage** equals level × 2');
     expect(doc.body).toHaveLength(0);
     expect(warn).toHaveBeenCalledWith(
-      expect.stringContaining('centered text (^) is only valid inside sample()'),
+      expect.stringContaining(
+        'centered text (^) is only valid inside sample()',
+      ),
     );
     warn.mockRestore();
   });
