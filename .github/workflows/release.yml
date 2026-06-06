@@ -4,12 +4,13 @@ name: Release
 # package whose version in package.json is not yet on npm. Pushes without a
 # version bump still run the quality steps; only the publish is skipped.
 #
-# Provenance attestation: NPM_CONFIG_PROVENANCE=true + permissions.id-token=write
-# makes GitHub mint an OIDC token that npm verifies, producing a signed
-# attestation tying the published tarball to this exact workflow run + commit.
-# NPM_TOKEN is still used to authorize the publish itself, until Trusted
-# Publishing is configured per package on npmjs.com — at which point the token
-# secret can be deleted.
+# Publishing uses npm Trusted Publishing (OIDC): each package on npmjs.com
+# lists this repo + workflow as its trusted publisher, and permissions.
+# id-token=write lets GitHub mint the OIDC token that npm (>= 11.5.1)
+# exchanges for short-lived publish credentials — no NPM_TOKEN secret.
+# Provenance attestation (the signed link from tarball to this exact
+# workflow run + commit) is generated automatically on OIDC publishes;
+# NPM_CONFIG_PROVENANCE=true just keeps it explicit.
 
 on:
   push:
@@ -33,8 +34,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: 22
-          registry-url: 'https://registry.npmjs.org'
+          node-version: 24
 
       - name: Propagate root version to sub-packages
         run: node scripts/set-version-from-root.mjs
@@ -69,7 +69,6 @@ jobs:
       - name: Publish packages whose version is new
         if: steps.check.outputs.needs_publish == 'true'
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_CONFIG_PROVENANCE: 'true'
         run: |
           set -euo pipefail
