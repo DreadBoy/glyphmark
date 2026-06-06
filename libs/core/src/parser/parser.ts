@@ -818,6 +818,7 @@ function inlineToString(nodes: Inline[]): string {
   return nodes
     .map((n) => {
       if (n.kind === 'text') return n.text;
+      if (n.kind === 'action') return n.symbol;
       return inlineToString(n.children);
     })
     .join('');
