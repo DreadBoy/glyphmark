@@ -21,7 +21,15 @@
       "cache": true
     },
     "test": {
-      "cache": true
+      "cache": true,
+      "inputs": [
+        "default",
+        "^production",
+        { "externalDependencies": ["vitest"] },
+        { "env": "CI" },
+        { "env": "SKIP_SCREENSHOTS" },
+        { "env": "UPDATE_GOLDENS" }
+      ]
     }
   },
   "plugins": [

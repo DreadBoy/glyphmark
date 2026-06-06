@@ -42,20 +42,12 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Install Playwright browser for tests
-        run: npx playwright install --with-deps --only-shell chromium
-
-      - name: Typecheck packages
-        run: npx nx run-many -t typecheck -p @glyphmark/core,@glyphmark/cli
-
-      - name: Lint packages
-        run: npx nx run-many -t lint -p @glyphmark/core,@glyphmark/cli
-
-      - name: Test packages
-        run: npx nx run-many -t test -p @glyphmark/core,@glyphmark/cli
-
-      - name: Build packages
-        run: npx nx run-many -t build -p @glyphmark/core,@glyphmark/cli
+      - name: Check packages (typecheck, lint, test, build)
+        env:
+          # Pixel goldens are macOS-rendered and drift on Linux rasterization;
+          # the pre-commit hook gates screenshots locally instead.
+          SKIP_SCREENSHOTS: '1'
+        run: npx nx run-many -t typecheck,lint,test,build
 
       - name: Check whether any package needs publishing
         id: check

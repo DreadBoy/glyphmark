@@ -9,7 +9,9 @@
     "apps/*",
     "libs/*"
   ],
-  "scripts": {},
+  "scripts": {
+    "prepare": "git config core.hooksPath .githooks"
+  },
   "devDependencies": {
     "@napi-rs/canvas": "^0.1.100",
     "@nx/eslint": "^22.6.2",

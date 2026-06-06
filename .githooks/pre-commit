@@ -1,0 +1,8 @@
+#!/bin/sh
+# Run all checks before committing. Nx caches per-project results, so only
+# projects affected by uncached changes actually re-run.
+#
+# Screenshots run here (macOS) on purpose: CI skips them (SKIP_SCREENSHOTS=1)
+# because the pixel goldens are macOS-rendered and drift on Linux — this hook
+# is the gate for visual regressions.
+exec npx nx run-many -t lint,typecheck,test
