@@ -27,6 +27,7 @@
   "plugins": [
     {
       "plugin": "@nx/vite/plugin",
+      "exclude": ["vitest.config.ts"],
       "options": {
         "buildTargetName": "build",
         "testTargetName": "test",
@@ -47,6 +48,7 @@
     },
     {
       "plugin": "@nx/vitest",
+      "exclude": ["vitest.config.ts"],
       "options": {
         "testTargetName": "test",
         "ciTargetName": "test-ci",
