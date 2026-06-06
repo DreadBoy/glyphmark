@@ -1,16 +1,21 @@
 name: Release
 
-# On every push to main, run typecheck/lint/test/build, then publish any
-# package whose version in package.json is not yet on npm. Pushes without a
-# version bump still run the quality steps; only the publish is skipped.
+# On every push to main, two jobs run:
+#
+#  - check: typecheck, lint, test, and build everything. Screenshots are
+#    skipped (SKIP_SCREENSHOTS=1) because the pixel goldens are macOS-rendered
+#    and drift on Linux rasterization — the pre-commit hook gates them locally.
+#  - publish: gated on check; publishes any package whose version in
+#    package.json is not yet on npm. Pushes without a version bump make this
+#    job a fast no-op (the registry probe needs no dependencies installed).
 #
 # Publishing uses npm Trusted Publishing (OIDC): each package on npmjs.com
 # lists this repo + workflow as its trusted publisher, and permissions.
-# id-token=write lets GitHub mint the OIDC token that npm (>= 11.5.1)
-# exchanges for short-lived publish credentials — no NPM_TOKEN secret.
-# Provenance attestation (the signed link from tarball to this exact
-# workflow run + commit) is generated automatically on OIDC publishes;
-# NPM_CONFIG_PROVENANCE=true just keeps it explicit.
+# id-token=write lets GitHub mint the OIDC token that npm (>= 11.5.1,
+# bundled with Node 24) exchanges for short-lived publish credentials — no
+# NPM_TOKEN secret. Provenance attestation (the signed link from tarball to
+# this exact workflow run + commit) is generated automatically on OIDC
+# publishes; NPM_CONFIG_PROVENANCE=true just keeps it explicit.
 
 on:
   push:
@@ -21,9 +26,34 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  check:
+    name: Check packages
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check packages (typecheck, lint, test)
+        env:
+          # Pixel goldens are macOS-rendered and drift on Linux rasterization;
+          # the pre-commit hook gates screenshots locally instead.
+          SKIP_SCREENSHOTS: '1'
+        run: npx nx run-many -t typecheck,lint,test
+
   publish:
     name: Publish to npm
     runs-on: ubuntu-latest
+    needs: check
     permissions:
       contents: read
       id-token: write
@@ -39,16 +69,8 @@ jobs:
       - name: Propagate root version to sub-packages
         run: node scripts/set-version-from-root.mjs
 
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Check packages (typecheck, lint, test, build)
-        env:
-          # Pixel goldens are macOS-rendered and drift on Linux rasterization;
-          # the pre-commit hook gates screenshots locally instead.
-          SKIP_SCREENSHOTS: '1'
-        run: npx nx run-many -t typecheck,lint,test,build
-
+      # Needs no dependencies installed — keeps no-publish pushes cheap by
+      # letting the steps below skip install/build entirely.
       - name: Check whether any package needs publishing
         id: check
         run: |
@@ -65,6 +87,14 @@ jobs:
             fi
           done
           echo "needs_publish=$needs_publish" >> "$GITHUB_OUTPUT"
+
+      - name: Install dependencies
+        if: steps.check.outputs.needs_publish == 'true'
+        run: npm ci
+
+      - name: Build packages
+        if: steps.check.outputs.needs_publish == 'true'
+        run: npx nx run-many -t build
 
       - name: Publish packages whose version is new
         if: steps.check.outputs.needs_publish == 'true'
