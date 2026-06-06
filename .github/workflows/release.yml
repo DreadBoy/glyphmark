@@ -1,7 +1,8 @@
 name: Release
 
-# On every push to main, publish any package whose version in package.json
-# is not yet on npm. Pushes without a version bump are no-ops.
+# On every push to main, run typecheck/lint/test/build, then publish any
+# package whose version in package.json is not yet on npm. Pushes without a
+# version bump still run the quality steps; only the publish is skipped.
 #
 # Provenance attestation: NPM_CONFIG_PROVENANCE=true + permissions.id-token=write
 # makes GitHub mint an OIDC token that npm verifies, producing a signed
@@ -38,6 +39,24 @@ jobs:
       - name: Propagate root version to sub-packages
         run: node scripts/set-version-from-root.mjs
 
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browser for tests
+        run: npx playwright install --with-deps --only-shell chromium
+
+      - name: Typecheck packages
+        run: npx nx run-many -t typecheck -p @glyphmark/core,@glyphmark/cli
+
+      - name: Lint packages
+        run: npx nx run-many -t lint -p @glyphmark/core,@glyphmark/cli
+
+      - name: Test packages
+        run: npx nx run-many -t test -p @glyphmark/core,@glyphmark/cli
+
+      - name: Build packages
+        run: npx nx run-many -t build -p @glyphmark/core,@glyphmark/cli
+
       - name: Check whether any package needs publishing
         id: check
         run: |
@@ -54,22 +73,6 @@ jobs:
             fi
           done
           echo "needs_publish=$needs_publish" >> "$GITHUB_OUTPUT"
-
-      - name: Install dependencies
-        if: steps.check.outputs.needs_publish == 'true'
-        run: npm ci
-
-      - name: Typecheck packages
-        if: steps.check.outputs.needs_publish == 'true'
-        run: npx nx run-many -t typecheck -p @glyphmark/core,@glyphmark/cli
-
-      - name: Test packages
-        if: steps.check.outputs.needs_publish == 'true'
-        run: npx nx run-many -t test -p @glyphmark/core,@glyphmark/cli
-
-      - name: Build packages
-        if: steps.check.outputs.needs_publish == 'true'
-        run: npx nx run-many -t build -p @glyphmark/core,@glyphmark/cli
 
       - name: Publish packages whose version is new
         if: steps.check.outputs.needs_publish == 'true'
