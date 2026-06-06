@@ -277,4 +277,5 @@ const pdf  = await renderToPdf(doc);   // Uint8Array
 
 ## License
 
-MIT
+[Elastic License 2.0](./LICENSE). Free for personal and internal use; you may
+not offer this package to third parties as a hosted or managed service.
