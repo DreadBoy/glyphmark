@@ -61,6 +61,40 @@ In sample block, bolded paragraphs are not indented (231).
 * [ ] custom css and fonts (423, 429)
 * [ ] custom images (255)
 
+## Known bugs
+
+### Full-width rule block detaches from its toggle across a page break
+
+A full-width rule block (`/ … rule(…) /`) loses its full-width layout and
+fragments into the regular 2-column flow when it lands near a page boundary.
+Observed in Player Core: "KEY TERMS" renders correctly (full-width band, inner
+2 columns) but "Level" right after it breaks into two brown blocks, each with
+its own 2 columns of text. Both rules are identical in the parsed IR
+(`fullWidth=true`, one column-break each) — the bug is purely in rendering.
+
+**Cause.** Full-width is implemented by `FullWidthToggle` emitting an empty
+marker `<div class="gm-fw-N">` plus a global rule `.gm-fw-N ~ * { column-span:
+all|none }` (`components/full-width-toggle.tsx`). It only works while the marker
+and the content stay siblings on the same page. The "Level" box is ~931px tall
+vs ~916px usable page height, and `RuleBlock` sets `break-inside: avoid`
+(`components/rule-block.tsx`), so Paged.js pushes the whole box to the next
+page — leaving the zero-height marker behind on the previous page. On the new
+page nothing matches `.gm-fw-N ~ *`, so `column-span` reverts to `none`: the box
+drops into the page's 2-column flow and fragments, while `node.fullWidth` still
+applies its own inner `columnCount: 2` — hence two brown blocks each with 2
+columns. "KEY TERMS" only escapes because its box (~900px) just fits.
+
+**Proposed fix.** Stop relying on the `~` sibling cascade. In the renderer,
+group the body nodes between a toggle pair into a real wrapper
+`<div css={{ columnSpan: 'all' }}>`. Paged.js clones ancestor containers across
+page fragments, so the span survives wherever the content lands. Goldens should
+be unaffected (verify via the suite).
+
+**Caveat.** "Level" still overflows one page (931 > 916px); a span-all box
+taller than a page can't honor `break-inside: avoid`. Separately decide whether
+tall full-width rule blocks should fragment vertically across pages (likely
+correct) or have their content trimmed.
+
 ## Syntax that still needs to be decided and implemented
 * drop-caps (38)
 * rich rules (188, 268)
