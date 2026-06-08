@@ -59,7 +59,7 @@ export const MAX_HEADING_LEVEL_DEFAULT = 4;
 export const MAX_HEADING_LEVEL: Partial<
   Record<Exclude<ContainerKind, 'body'>, number>
 > = {
-  head: 1,
+  head: 2,
   info: 2,
 };
 

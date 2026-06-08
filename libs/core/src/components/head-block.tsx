@@ -38,6 +38,22 @@ export function HeadBlock({ node }: { node: HeadBlockNode }) {
 
 function Segment({ segment }: { segment: Segment }) {
   if (segment.kind === 'heading') {
+    // h2 is the smaller chapter eyebrow above the title (e.g. "CHAPTER 1:" on
+    // page 5); h1 is the large display title beneath it.
+    if (segment.level === 2) {
+      return (
+        <h2
+          css={{
+            fontFamily: DISPLAY_TITLE,
+            fontSize: pt(16).toRem(),
+            lineHeight: pt(18).toRem(),
+            margin: 0,
+          }}
+        >
+          {renderInlines(segment.content)}
+        </h2>
+      );
+    }
     return (
       <h1
         css={{
