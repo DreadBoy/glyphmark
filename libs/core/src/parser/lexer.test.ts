@@ -249,6 +249,46 @@ describe('tokenize', () => {
       // No `---` line below ⇒ stays as text
       expect(lex('A | B')).toEqual([{ kind: 'text', content: 'A | B' }]);
     });
+
+    it('preserves an empty leading header cell (blank column header)', () => {
+      const tokens = lex(
+        '| | Price | Bulk |\n|---|:---:|---|\n| Tiny | x1 | 0 |',
+      );
+      expect(tokens).toEqual([
+        { kind: 'table-header', cells: ['', 'Price', 'Bulk'] },
+        { kind: 'table-sep', aligns: ['left', 'center', 'left'] },
+        { kind: 'table-row', cells: ['Tiny', 'x1', '0'] },
+      ]);
+    });
+
+    it('strips only border pipes, not interior empty cells', () => {
+      // Leading/trailing `|` are borders (no phantom cells); an interior blank
+      // between two `|`s is a real empty cell.
+      const tokens = lex('a | | c\n---|---|---\nx | y | z');
+      expect(tokens[0]).toEqual({
+        kind: 'table-header',
+        cells: ['a', '', 'c'],
+      });
+    });
+
+    it('preserves a trailing empty header cell', () => {
+      // The cell between the last interior `|` and the border `|` is empty.
+      const tokens = lex('| A | B | |\n|---|---|---|\n| x | y | z |');
+      expect(tokens[0]).toEqual({
+        kind: 'table-header',
+        cells: ['A', 'B', ''],
+      });
+    });
+
+    it('preserves empty headers in leading, middle, and trailing positions', () => {
+      const tokens = lex(
+        '| | A | | B | |\n|---|---|---|---|---|\n| p | q | r | s | t |',
+      );
+      expect(tokens[0]).toEqual({
+        kind: 'table-header',
+        cells: ['', 'A', '', 'B', ''],
+      });
+    });
   });
 
   describe('mixed sequences', () => {

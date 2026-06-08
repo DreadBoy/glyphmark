@@ -232,17 +232,19 @@ function consumeTableBody(
 }
 
 function splitTableRow(line: string): string[] {
-  return line
-    .split('|')
-    .map((c) => c.trim())
-    .filter(Boolean);
+  // Strip the optional leading/trailing border pipes first so they don't
+  // produce phantom empty cells. Splitting on the interior `|`s then preserves
+  // genuinely empty cells — e.g. `| | Price |` is a blank header over a column,
+  // not a missing column. We can't `.filter(Boolean)` away empties because that
+  // would also drop those intentional blanks and desync the column count.
+  let s = line.trim();
+  if (s.startsWith('|')) s = s.slice(1);
+  if (s.endsWith('|')) s = s.slice(0, -1);
+  return s.split('|').map((c) => c.trim());
 }
 
 function parseAligns(separator: string, columnCount: number): Align[] {
-  return separator
-    .split('|')
-    .map((s) => s.trim())
-    .filter(Boolean)
+  return splitTableRow(separator)
     .map((t): Align => {
       if (t.startsWith(':') && t.endsWith(':')) return 'center';
       if (t.endsWith(':')) return 'right';
