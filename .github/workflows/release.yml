@@ -66,19 +66,17 @@ jobs:
         with:
           node-version: 24
 
-      - name: Propagate root version to sub-packages
-        run: node scripts/set-version-from-root.mjs
-
-      # Needs no dependencies installed — keeps no-publish pushes cheap by
-      # letting the steps below skip install/build entirely.
+      # Reads only the ROOT version (the source of truth a release bumps), so a
+      # no-bump push stays a fast no-op — no install needed to decide. Probing
+      # before npm ci also lets the install run on the committed, lockfile-
+      # consistent state; version propagation happens afterwards.
       - name: Check whether any package needs publishing
         id: check
         run: |
           set -euo pipefail
+          version=$(node -p "require('./package.json').version")
           needs_publish=false
-          for dir in libs/core apps/cli; do
-            name=$(node -p "require('./$dir/package.json').name")
-            version=$(node -p "require('./$dir/package.json').version")
+          for name in @glyphmark/core @glyphmark/cli; do
             if [ -n "$(npm view "$name@$version" version 2>/dev/null || true)" ]; then
               echo "::notice::$name@$version already on npm — skipping"
             else
@@ -91,6 +89,14 @@ jobs:
       - name: Install dependencies
         if: steps.check.outputs.needs_publish == 'true'
         run: npm ci
+
+      # After npm ci so the install sees a lockfile-consistent tree. This
+      # rewrites the sub-package versions (and cli's core dep) to the root
+      # version; the lockfile is intentionally not re-synced — nothing runs
+      # npm ci again before publish.
+      - name: Propagate root version to sub-packages
+        if: steps.check.outputs.needs_publish == 'true'
+        run: node scripts/set-version-from-root.mjs
 
       - name: Build packages
         if: steps.check.outputs.needs_publish == 'true'
