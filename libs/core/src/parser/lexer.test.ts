@@ -289,6 +289,45 @@ describe('tokenize', () => {
         cells: ['', 'A', '', 'B', ''],
       });
     });
+
+    describe('headerless (leading separator)', () => {
+      it('starts a table on a lone separator row — no table-header', () => {
+        const tokens = lex('|---|---|\n| a | b |\n| c | d |');
+        expect(tokens).toEqual([
+          { kind: 'table-sep', aligns: ['left', 'left'] },
+          { kind: 'table-row', cells: ['a', 'b'] },
+          { kind: 'table-row', cells: ['c', 'd'] },
+        ]);
+      });
+
+      it('honors alignment from the leading separator', () => {
+        const tokens = lex('|:---|:---:|---:|\n| a | b | c |');
+        expect(tokens[0]).toEqual({
+          kind: 'table-sep',
+          aligns: ['left', 'center', 'right'],
+        });
+      });
+
+      it('captures footnotes under a headerless table', () => {
+        const tokens = lex('|---|---|\n| a | b[*] |\n. [*] note');
+        expect(tokens).toContainEqual({
+          kind: 'table-sep',
+          aligns: ['left', 'left'],
+        });
+        expect(tokens).toContainEqual({
+          kind: 'table-footnote',
+          marker: '*',
+          text: 'note',
+        });
+      });
+
+      it('leaves a bare `---` (no pipe) as text, not a table', () => {
+        expect(lex('---\nsome prose')).toEqual([
+          { kind: 'text', content: '---' },
+          { kind: 'text', content: 'some prose' },
+        ]);
+      });
+    });
   });
 
   describe('mixed sequences', () => {

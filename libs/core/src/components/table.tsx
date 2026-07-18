@@ -38,25 +38,27 @@ export function Table({ node }: { node: TableNode }) {
           lineHeight: pt(12).toRem(),
         }}
       >
-        <thead>
-          <tr>
-            {node.headers.map((h, i) => (
-              <th
-                key={i}
-                css={{
-                  background: '#002B16',
-                  color: '#fff',
-                  fontWeight: 700,
-                  padding: CELL_PAD,
-                  verticalAlign: 'top',
-                  textAlign: node.alignments[i],
-                }}
-              >
-                {renderCell(h)}
-              </th>
-            ))}
-          </tr>
-        </thead>
+        {node.headers.length > 0 && (
+          <thead>
+            <tr>
+              {node.headers.map((h, i) => (
+                <th
+                  key={i}
+                  css={{
+                    background: '#002B16',
+                    color: '#fff',
+                    fontWeight: 700,
+                    padding: CELL_PAD,
+                    verticalAlign: 'top',
+                    textAlign: node.alignments[i],
+                  }}
+                >
+                  {renderCell(h)}
+                </th>
+              ))}
+            </tr>
+          </thead>
+        )}
         <tbody css={{}}>
           {node.rows.map((row, ri) => (
             <tr key={ri}>
@@ -79,7 +81,7 @@ export function Table({ node }: { node: TableNode }) {
           {node.footnotes.map((fn, i) => (
             <tr key={`fn-${i}`}>
               <td
-                colSpan={node.headers.length}
+                colSpan={node.colCount}
                 css={{
                   padding: CELL_PAD,
                   verticalAlign: 'top',

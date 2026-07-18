@@ -150,6 +150,13 @@ export type TableFootnote =
 
 export interface TableNode {
   type: 'table';
+  /** Number of columns, fixed by the opening row that every data row is checked against. */
+  colCount: number;
+  /**
+   * Header cells, one per column. Empty for a headerless table. A header row
+   * always has at least one cell, so an empty array unambiguously means
+   * "no header".
+   */
   headers: CellInline[][];
   alignments: Align[];
   rows: CellInline[][][];

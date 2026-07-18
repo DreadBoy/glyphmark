@@ -433,6 +433,21 @@ describe('parse — info / rule / sample / head', () => {
       }
     }
   });
+
+  it('rule() supports a headerless table segment', () => {
+    const doc = parse('rule(\n|---|---|\n| a | b |\n| c | d |\n)');
+    const r = doc.body.find((n) => n.type === 'rule');
+    expect(r?.type).toBe('rule');
+    if (r?.type === 'rule') {
+      expect(r.content).toHaveLength(1);
+      const seg = r.content[0]!;
+      expect(seg.kind).toBe('table');
+      if (seg.kind === 'table') {
+        expect(seg.node.headers).toEqual([]);
+        expect(seg.node.rows).toHaveLength(2);
+      }
+    }
+  });
 });
 
 describe('parse — tables', () => {
@@ -440,6 +455,7 @@ describe('parse — tables', () => {
     const doc = parse('A | B | C\n--- | :---: | ---:\n1 | 2 | 3');
     const table = doc.body.find((n) => n.type === 'table');
     if (table?.type === 'table') {
+      expect(table.colCount).toBe(3);
       expect(table.alignments).toEqual(['left', 'center', 'right']);
       expect(table.headers).toHaveLength(3);
       expect(table.rows).toHaveLength(1);
@@ -511,6 +527,89 @@ describe('parse — tables', () => {
     }
     // The heading should not appear separately
     expect(doc.body.filter((n) => n.type === 'heading')).toHaveLength(0);
+  });
+
+  describe('headerless (leading separator)', () => {
+    it('parses a table with no header row', () => {
+      const doc = parse('|:---|---:|\n| a | b |\n| c | d |');
+      const table = doc.body.find((n) => n.type === 'table');
+      expect(table?.type).toBe('table');
+      if (table?.type === 'table') {
+        expect(table.colCount).toBe(2);
+        expect(table.headers).toEqual([]);
+        expect(table.alignments).toEqual(['left', 'right']);
+        expect(table.rows).toHaveLength(2);
+        expect(table.rows[0]?.[0]).toEqual([{ kind: 'text', text: 'a' }]);
+        expect(table.rows[1]?.[1]).toEqual([{ kind: 'text', text: 'd' }]);
+      }
+    });
+
+    it('captures footnotes in a headerless table', () => {
+      const doc = parse('|---|---|\n| a | b[*] |\n. [*] note');
+      const table = doc.body.find((n) => n.type === 'table');
+      expect(table?.type).toBe('table');
+      if (table?.type === 'table') {
+        expect(table.headers).toEqual([]);
+        expect(table.footnotes).toEqual([
+          { type: 'unnumbered', children: [{ kind: 'text', text: 'note' }] },
+        ]);
+      }
+    });
+
+    it('lifts a preceding heading4+ as caption for a headerless table', () => {
+      const doc = parse('#### Caption\n\n|---|---|\n| a | b |');
+      const table = doc.body.find((n) => n.type === 'table');
+      expect(table?.type).toBe('table');
+      if (table?.type === 'table') {
+        expect(table.headers).toEqual([]);
+        expect(table.caption).toEqual([{ kind: 'text', text: 'Caption' }]);
+      }
+      expect(doc.body.filter((n) => n.type === 'heading')).toHaveLength(0);
+    });
+  });
+
+  describe('column-count validation', () => {
+    it('warns on a row narrower than the header', () => {
+      const warn = vi
+        .spyOn(console, 'warn')
+        .mockImplementation(() => undefined);
+      parse('A | B | C\n--- | --- | ---\n1 | 2');
+      expect(warn).toHaveBeenCalledWith(
+        expect.stringContaining('has 2 cells but the table has 3 columns'),
+      );
+      warn.mockRestore();
+    });
+
+    it('warns on a row wider than the header', () => {
+      const warn = vi
+        .spyOn(console, 'warn')
+        .mockImplementation(() => undefined);
+      parse('A | B\n--- | ---\n1 | 2 | 3');
+      expect(warn).toHaveBeenCalledWith(
+        expect.stringContaining('has 3 cells but the table has 2 columns'),
+      );
+      warn.mockRestore();
+    });
+
+    it('validates headerless rows against the separator width', () => {
+      const warn = vi
+        .spyOn(console, 'warn')
+        .mockImplementation(() => undefined);
+      parse('|---|---|\n| a | b | c |');
+      expect(warn).toHaveBeenCalledWith(
+        expect.stringContaining('has 3 cells but the table has 2 columns'),
+      );
+      warn.mockRestore();
+    });
+
+    it('does not warn when every row matches the column count', () => {
+      const warn = vi
+        .spyOn(console, 'warn')
+        .mockImplementation(() => undefined);
+      parse('A | B\n--- | ---\n1 | 2\n3 | 4');
+      expect(warn).not.toHaveBeenCalled();
+      warn.mockRestore();
+    });
   });
 });
 
