@@ -43,12 +43,17 @@ markers must occupy a line on their own.
 
 ### Inline
 
-| Syntax                       | Renders as       |
-| ---------------------------- | ---------------- |
-| `**bold**` or `__bold__`     | **bold**         |
-| `*italic*` or `_italic_`     | *italic*         |
+| Syntax                              | Renders as          |
+| ----------------------------------- | ------------------- |
+| `**bold**` or `__bold__`            | **bold**            |
+| `*italic*` or `_italic_`            | *italic*            |
+| `***bold italic***` or `___…___`    | ***bold italic***   |
 
-No nesting and no escaping. Unbalanced delimiters render literally.
+No arbitrary nesting and no escaping. Bold and italic together are only
+expressed with the triple form applied to the whole span — `**bold *italic*
+bold**` keeps the inner `*`s literal. To bold a run and italicise only part of
+it, close and reopen: `**bold *****and italic***** and bold**`. Unbalanced or
+empty delimiters render literally.
 
 ### Headings
 

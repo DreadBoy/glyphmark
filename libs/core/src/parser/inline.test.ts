@@ -87,14 +87,76 @@ describe('parseInline', () => {
   });
 
   it('does not nest — inner content stays flat text', () => {
-    // TODO Add support for nested inline modifiers
-    // strong contains literal *foo*, not an em
+    // Arbitrary nesting is unsupported: strong contains literal *inner*, not an
+    // em. Combined bold+italic uses the triple form (`***...***`) instead.
     expect(parseInline('**outer *inner* outer**')).toEqual([
       {
         kind: 'strong',
         children: [{ kind: 'text', text: 'outer *inner* outer' }],
       },
     ]);
+  });
+
+  it('parses bold+italic with ***', () => {
+    expect(parseInline('***bold and italics***')).toEqual([
+      {
+        kind: 'strong',
+        children: [
+          {
+            kind: 'em',
+            children: [{ kind: 'text', text: 'bold and italics' }],
+          },
+        ],
+      },
+    ]);
+  });
+
+  it('parses bold+italic with ___', () => {
+    expect(parseInline('___bold and italics___')).toEqual([
+      {
+        kind: 'strong',
+        children: [
+          {
+            kind: 'em',
+            children: [{ kind: 'text', text: 'bold and italics' }],
+          },
+        ],
+      },
+    ]);
+  });
+
+  it('binds *** as combined emphasis, not strong-then-em', () => {
+    expect(parseInline('***bi*** rest')).toEqual([
+      {
+        kind: 'strong',
+        children: [{ kind: 'em', children: [{ kind: 'text', text: 'bi' }] }],
+      },
+      { kind: 'text', text: ' rest' },
+    ]);
+  });
+
+  it('splits a 5-star run so bold can wrap an inner bold+italic span', () => {
+    // The valid way to say "bold, then bold+italic, then bold": the `*****`
+    // runs split greedily as `**`(close) + `***`(open) and `***`(close) +
+    // `**`(open), yielding three adjacent spans.
+    expect(parseInline('**bold *****and italics***** and bold**')).toEqual([
+      { kind: 'strong', children: [{ kind: 'text', text: 'bold ' }] },
+      {
+        kind: 'strong',
+        children: [
+          { kind: 'em', children: [{ kind: 'text', text: 'and italics' }] },
+        ],
+      },
+      { kind: 'strong', children: [{ kind: 'text', text: ' and bold' }] },
+    ]);
+  });
+
+  it('treats a lone 3-star run as literal', () => {
+    expect(parseInline('***')).toEqual([{ kind: 'text', text: '***' }]);
+  });
+
+  it('treats empty ****** as literal (no zero-width bold+italic)', () => {
+    expect(parseInline('******')).toEqual([{ kind: 'text', text: '******' }]);
   });
 
   it('handles consecutive bold and em without space', () => {

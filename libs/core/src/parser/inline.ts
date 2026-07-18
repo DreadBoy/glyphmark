@@ -10,14 +10,47 @@ const ACTION_TOKENS: readonly ActionSymbol[] = [
 ];
 
 /**
+ * Emphasis delimiters, longest run first. Order matters: `***`/`___` are tried
+ * before `**`/`*` so a triple run binds as combined bold+italic rather than a
+ * strong immediately followed by an em. Each entry wraps the enclosed text in
+ * its inline node(s); the delimiter is the same on both ends (balanced).
+ */
+const EMPHASIS: readonly {
+  delim: string;
+  wrap: (children: Inline[]) => Inline;
+}[] = [
+  {
+    delim: '***',
+    wrap: (children) => ({
+      kind: 'strong',
+      children: [{ kind: 'em', children }],
+    }),
+  },
+  {
+    delim: '___',
+    wrap: (children) => ({
+      kind: 'strong',
+      children: [{ kind: 'em', children }],
+    }),
+  },
+  { delim: '**', wrap: (children) => ({ kind: 'strong', children }) },
+  { delim: '__', wrap: (children) => ({ kind: 'strong', children }) },
+  { delim: '*', wrap: (children) => ({ kind: 'em', children }) },
+  { delim: '_', wrap: (children) => ({ kind: 'em', children }) },
+];
+
+/**
  * Parse a single line of inline emphasis. Recognizes:
- *   `**bold**` and `__bold__` → strong
- *   `*italic*` and `_italic_` → em
+ *   `***bi***` and `___bi___`   → strong wrapping em (bold + italic together)
+ *   `**bold**` and `__bold__`   → strong
+ *   `*italic*` and `_italic_`   → em
  *   `:a:`, `:aa:`, `:aaa:`, `:r:`, `:f:` → action symbol
  *
- * Rules: balanced on the same string, no nesting, no escapes.
- * Unbalanced delimiters are emitted as literal text. Strong is tried
- * before em (so `**foo**` becomes strong, not em wrapping a `*foo*`).
+ * Rules: delimiters are balanced on the same string and matched greedily,
+ * longest run first. There is no arbitrary nesting — `**bold *italic* bold**`
+ * keeps the inner `*`s literal; combined bold+italic is only expressed with the
+ * triple form (`***...***`). No escapes. Unbalanced delimiters are emitted as
+ * literal text, and empty spans (`****`) stay literal too.
  */
 export function parseInline(input: string): Inline[] {
   const out: Inline[] = [];
@@ -41,54 +74,24 @@ export function parseInline(input: string): Inline[] {
         continue;
       }
     }
-    if (input.startsWith('**', i)) {
-      const end = input.indexOf('**', i + 2);
-      if (end > i + 2) {
-        flush();
-        out.push({
-          kind: 'strong',
-          children: [{ kind: 'text', text: input.slice(i + 2, end) }],
-        });
-        i = end + 2;
-        continue;
-      }
+
+    let matched = false;
+    for (const { delim, wrap } of EMPHASIS) {
+      if (!input.startsWith(delim, i)) continue;
+      const end = input.indexOf(delim, i + delim.length);
+      // Require a closing delimiter with at least one character between the
+      // two, otherwise fall through to a shorter delimiter (or literal text).
+      if (end <= i + delim.length) continue;
+      flush();
+      out.push(
+        wrap([{ kind: 'text', text: input.slice(i + delim.length, end) }]),
+      );
+      i = end + delim.length;
+      matched = true;
+      break;
     }
-    if (input.startsWith('__', i)) {
-      const end = input.indexOf('__', i + 2);
-      if (end > i + 2) {
-        flush();
-        out.push({
-          kind: 'strong',
-          children: [{ kind: 'text', text: input.slice(i + 2, end) }],
-        });
-        i = end + 2;
-        continue;
-      }
-    }
-    if (input[i] === '*') {
-      const end = input.indexOf('*', i + 1);
-      if (end > i + 1) {
-        flush();
-        out.push({
-          kind: 'em',
-          children: [{ kind: 'text', text: input.slice(i + 1, end) }],
-        });
-        i = end + 1;
-        continue;
-      }
-    }
-    if (input[i] === '_') {
-      const end = input.indexOf('_', i + 1);
-      if (end > i + 1) {
-        flush();
-        out.push({
-          kind: 'em',
-          children: [{ kind: 'text', text: input.slice(i + 1, end) }],
-        });
-        i = end + 1;
-        continue;
-      }
-    }
+    if (matched) continue;
+
     buf += input[i]!;
     i++;
   }
