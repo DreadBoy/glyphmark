@@ -166,10 +166,22 @@ export function tokenize(input: string): Token[] {
       continue;
     }
 
+    // Headerless table: a leading separator/rule row (`|---|---|`) with no
+    // header line above it. The rule row still carries per-column alignment;
+    // its cell count fixes the column count. A bare `---` (no `|`) isn't a
+    // separator row, so it stays plain text and doesn't get swallowed here.
+    if (isSeparatorRow(trimmed)) {
+      const aligns = parseAligns(trimmed, splitTableRow(trimmed).length);
+      tokens.push({ kind: 'table-sep', aligns });
+      i++;
+      i = consumeTableBody(lines, i, tokens);
+      continue;
+    }
+
     // Table: line with `|` and a `---` separator on the next line
     if (trimmed.includes('|') && i + 1 < lines.length) {
       const nextTrim = lines[i + 1]!.trim();
-      if (/^[\s\-:|]+$/.test(nextTrim) && nextTrim.includes('---')) {
+      if (isSeparatorRow(nextTrim)) {
         const headerCells = splitTableRow(line);
         const aligns = parseAligns(nextTrim, headerCells.length);
         tokens.push({ kind: 'table-header', cells: headerCells });
@@ -229,6 +241,18 @@ function consumeTableBody(
     i++;
   }
   return i;
+}
+
+// A table separator/rule row: only whitespace, dashes, colons, and pipes, and
+// carrying at least one `---` run and one `|`. Requiring the pipe keeps a bare
+// `---` (which the DSL treats as plain text) from reading as a one-column
+// separator, which matters now that a lone separator row starts a table.
+function isSeparatorRow(trimmed: string): boolean {
+  return (
+    /^[\s\-:|]+$/.test(trimmed) &&
+    trimmed.includes('---') &&
+    trimmed.includes('|')
+  );
 }
 
 function splitTableRow(line: string): string[] {

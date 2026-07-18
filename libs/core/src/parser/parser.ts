@@ -232,7 +232,12 @@ function parseBody(tokens: Token[], doc: GlyphDocument): void {
         continue;
       }
 
-      case 'table-header': {
+      // `table-header` opens a table with a header row; a standalone
+      // `table-sep` opens a headerless one (the lexer only emits a bare
+      // `table-sep` for the headerless form — the header form's separator is
+      // consumed by buildTable, so it never reaches here on its own).
+      case 'table-header':
+      case 'table-sep': {
         const node = consumeTable(tokens, i, doc.body);
         doc.body.push(node.table);
         i = node.next;
@@ -341,10 +346,9 @@ function parseBody(tokens: Token[], doc: GlyphDocument): void {
         );
         i++;
         continue;
-      case 'table-sep':
       case 'table-row':
       case 'table-footnote':
-        // Should only appear after a table-header (handled above)
+        // Only valid as part of a table (opened above); stray here — drop.
         i++;
         continue;
       case 'hidden-delimiter':
@@ -402,22 +406,29 @@ function footnoteFromMarker(marker: string, children: Inline[]): TableFootnote {
     : { type: 'numbered', value: marker, children };
 }
 
-// Builds a TableNode from a `table-header` token and the rows/footnotes that
-// follow it. Caller is responsible for caption lifting (the preceding
-// heading4+ in its own array — body or segment list).
+// Builds a TableNode from the rows/footnotes that follow a table's opening
+// token. That opener is either a `table-header` (with its `table-sep` right
+// after) or, for a headerless table, a standalone `table-sep`. A headerless
+// table yields an empty `headers` array. Caller is responsible for caption
+// lifting (the preceding heading4+ in its own array — body or segment list).
 function buildTable(
   tokens: Token[],
   start: number,
 ): { node: TableNode; next: number } {
-  const headerTok = tokens[start] as Extract<Token, { kind: 'table-header' }>;
-  const sepTok =
-    tokens[start + 1]?.kind === 'table-sep'
+  const first = tokens[start]!;
+  const headerless = first.kind === 'table-sep';
+  const headerTok = headerless
+    ? undefined
+    : (first as Extract<Token, { kind: 'table-header' }>);
+  const sepTok = headerless
+    ? (first as Extract<Token, { kind: 'table-sep' }>)
+    : tokens[start + 1]?.kind === 'table-sep'
       ? (tokens[start + 1] as Extract<Token, { kind: 'table-sep' }>)
       : undefined;
   const rawRows: string[][] = [];
   const rawFootnotes: { marker: string; text: string }[] = [];
 
-  let i = sepTok ? start + 2 : start + 1;
+  let i = headerless ? start + 1 : sepTok ? start + 2 : start + 1;
   while (i < tokens.length) {
     const t = tokens[i]!;
     if (t.kind === 'table-row') {
@@ -438,7 +449,7 @@ function buildTable(
   const collectRefs = (s: string) => {
     for (const m of s.matchAll(FOOTNOTE_REF_RE)) referenced.add(m[1]!);
   };
-  for (const c of headerTok.cells) collectRefs(c);
+  for (const c of headerTok?.cells ?? []) collectRefs(c);
   for (const row of rawRows) for (const c of row) collectRefs(c);
   const defined = new Set(rawFootnotes.map((f) => f.marker));
   for (const ref of referenced) {
@@ -456,7 +467,21 @@ function buildTable(
     }
   }
 
-  const headers = headerTok.cells.map((c) => parseCellInline(c));
+  // The opening row fixes the column count — the header for a normal table,
+  // the separator (its alignment count) for a headerless one. Every data row
+  // must match it; a ragged row is almost always a missing or stray `|`.
+  const colCount = headerTok
+    ? headerTok.cells.length
+    : (sepTok?.aligns.length ?? 0);
+  for (const row of rawRows) {
+    if (row.length !== colCount) {
+      console.warn(
+        `[glyph] table row "${row.join(' | ')}" has ${row.length} cells but the table has ${colCount} columns`,
+      );
+    }
+  }
+
+  const headers = (headerTok?.cells ?? []).map((c) => parseCellInline(c));
   const rows = rawRows.map((row) => row.map((c) => parseCellInline(c)));
   const footnotes: TableFootnote[] = rawFootnotes.map((f) =>
     footnoteFromMarker(f.marker, parseInline(f.text)),
@@ -465,6 +490,7 @@ function buildTable(
   return {
     node: {
       type: 'table',
+      colCount,
       headers,
       alignments: sepTok?.aligns ?? [],
       rows,
@@ -715,7 +741,8 @@ function parseSegmentsFromTokens(
         }
         continue;
       }
-      case 'table-header': {
+      case 'table-header':
+      case 'table-sep': {
         const { node, next } = buildTable(tokens, i);
         // Caption-lift: a preceding heading4+ segment becomes the table's
         // caption. Same rule as body-level tables (see consumeTable).
