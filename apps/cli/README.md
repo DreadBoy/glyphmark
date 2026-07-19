@@ -165,8 +165,22 @@ When a task you're doing is complete...
 )
 ```
 
-`info()` caps headings at `h2`; `head()` caps at `h1`. Each block warns and
-drops anything outside its allowed segment set (e.g. tables inside `info()`).
+`info()` caps headings at `h2`. `head()` also caps at `h2`, but there the `##`
+is special: it renders as a small chapter **eyebrow** sitting above the `#`
+display title — handy for a "CHAPTER 1:" label over a page's title.
+
+```glyph
+head(
+## CHAPTER 1:
+# INTRODUCTION
+
+Pathfinder is a fantasy tabletop roleplaying game where you and a group of
+friends gather to tell a tale of brave heroes and cunning villains...
+)
+```
+
+Each block warns and drops anything outside its allowed segment set (e.g.
+tables inside `info()`).
 
 ### Tables
 
@@ -188,6 +202,28 @@ and referenced in cells with `[n]` (numbered) or `[*]` (unnumbered):
 
 A heading-4-or-deeper immediately preceding the table is lifted to be the
 table's caption.
+
+**Headerless tables.** Start a table with the **separator row** directly — no
+header line above it — and the table renders with no header band at all. The
+separator still sets per-column alignment and fixes the column count, which
+makes this the natural fit for key/value "stat block" layouts:
+
+```glyph
+#### At a Glance
+
+|:-------------|----------------:|
+| **Cost**     | 3 gp            |
+| **Bulk**     | 1               |
+| **Hands**    | 2               |
+| **Damage**   | 1d8 slashing[*] |
+
+. [*] Add your Strength modifier to the listed damage.
+```
+
+The opening separator must contain a `|` — that is what marks it as a table
+rather than a horizontal rule (a bare `---` on its own line is still an HR).
+Every data row should have the same number of columns as the separator; a
+mismatched row is warned about (it's almost always a missing or stray `|`).
 
 ### Content references
 
