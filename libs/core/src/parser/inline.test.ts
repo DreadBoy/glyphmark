@@ -221,4 +221,86 @@ describe('parseInline', () => {
       { kind: 'em', children: [{ kind: 'text', text: 'not bold\\' }] },
     ]);
   });
+
+  it('parses superscript with ^', () => {
+    expect(parseInline('Herexen^U^')).toEqual([
+      { kind: 'text', text: 'Herexen' },
+      { kind: 'sup', children: [{ kind: 'text', text: 'U' }] },
+    ]);
+  });
+
+  it('parses multi-character superscript content', () => {
+    expect(parseInline('Treerazer^Uq^')).toEqual([
+      { kind: 'text', text: 'Treerazer' },
+      { kind: 'sup', children: [{ kind: 'text', text: 'Uq' }] },
+    ]);
+  });
+
+  it('parses subscript with ~', () => {
+    expect(parseInline('~2~')).toEqual([
+      { kind: 'sub', children: [{ kind: 'text', text: '2' }] },
+    ]);
+  });
+
+  it('mixes subscript with surrounding text (H~2~O)', () => {
+    expect(parseInline('H~2~O')).toEqual([
+      { kind: 'text', text: 'H' },
+      { kind: 'sub', children: [{ kind: 'text', text: '2' }] },
+      { kind: 'text', text: 'O' },
+    ]);
+  });
+
+  it('treats unbalanced ^ as literal text', () => {
+    expect(parseInline('^unclosed')).toEqual([
+      { kind: 'text', text: '^unclosed' },
+    ]);
+  });
+
+  it('treats a lone ^ as literal', () => {
+    expect(parseInline('^')).toEqual([{ kind: 'text', text: '^' }]);
+  });
+
+  it('treats empty ^^ as literal (no zero-width superscript)', () => {
+    expect(parseInline('^^')).toEqual([{ kind: 'text', text: '^^' }]);
+  });
+
+  it('treats unbalanced ~ as literal text', () => {
+    expect(parseInline('~unclosed')).toEqual([
+      { kind: 'text', text: '~unclosed' },
+    ]);
+  });
+
+  it('treats empty ~~ as literal (no zero-width subscript)', () => {
+    expect(parseInline('~~')).toEqual([{ kind: 'text', text: '~~' }]);
+  });
+
+  it('mixes superscript and subscript with bold, em, and action symbols', () => {
+    expect(parseInline('**b** ^U^ ~2~ :a:')).toEqual([
+      { kind: 'strong', children: [{ kind: 'text', text: 'b' }] },
+      { kind: 'text', text: ' ' },
+      { kind: 'sup', children: [{ kind: 'text', text: 'U' }] },
+      { kind: 'text', text: ' ' },
+      { kind: 'sub', children: [{ kind: 'text', text: '2' }] },
+      { kind: 'text', text: ' ' },
+      { kind: 'action', symbol: ':a:' },
+    ]);
+  });
+
+  it('does not nest — superscript inside bold stays literal', () => {
+    // Same no-nesting rule as `*inner*` inside `**bold**`: the inner `^U^`
+    // is literal text within the strong, not a nested superscript.
+    expect(parseInline('**bold^U^**')).toEqual([
+      { kind: 'strong', children: [{ kind: 'text', text: 'bold^U^' }] },
+    ]);
+  });
+
+  it('pairs two stray carets on a line into one superscript', () => {
+    // Documented tradeoff of the single-`^` delimiter: like `*`/`_`, two loose
+    // carets bind as one span. `^2 y^` becomes a superscript here.
+    expect(parseInline('x^2 y^2')).toEqual([
+      { kind: 'text', text: 'x' },
+      { kind: 'sup', children: [{ kind: 'text', text: '2 y' }] },
+      { kind: 'text', text: '2' },
+    ]);
+  });
 });
