@@ -2,6 +2,8 @@ export type Inline =
   | { kind: 'text'; text: string }
   | { kind: 'strong'; children: Inline[] }
   | { kind: 'em'; children: Inline[] }
+  | { kind: 'sup'; children: Inline[] }
+  | { kind: 'sub'; children: Inline[] }
   | { kind: 'action'; symbol: ActionSymbol };
 
 /**

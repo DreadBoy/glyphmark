@@ -394,6 +394,25 @@ describe('parse — info / rule / sample / head', () => {
     }
   });
 
+  it('sample() centered line still parses inline superscript', () => {
+    // The line-level `^ ` (caret+space) centered marker and the inline `^...^`
+    // superscript coexist: the lexer consumes the leading `^ `, then parseInline
+    // turns the remaining `^2^` into a sup. Locks this invariant without a golden.
+    const doc = parse('sample(\n^ E = mc^2^\n)');
+    const s = doc.body.find((n) => n.type === 'sample');
+    expect(s?.type).toBe('sample');
+    if (s?.type === 'sample') {
+      const seg = s.content[0];
+      expect(seg?.kind).toBe('centered-paragraph');
+      if (seg?.kind === 'centered-paragraph') {
+        expect(seg.content).toEqual([
+          { kind: 'text', text: 'E = mc' },
+          { kind: 'sup', children: [{ kind: 'text', text: '2' }] },
+        ]);
+      }
+    }
+  });
+
   it('rule() outside full-width strips column-break with a warning', () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
     const doc = parse('rule(\nLeft\n|\nRight\n)');
@@ -460,6 +479,20 @@ describe('parse — tables', () => {
       expect(table.headers).toHaveLength(3);
       expect(table.rows).toHaveLength(1);
       expect(table.rows[0]?.[1]).toEqual([{ kind: 'text', text: '2' }]);
+    }
+  });
+
+  it('parses inline superscript inside a table cell', () => {
+    // The real Monster Core use case: a rarity marker on a creature name in an
+    // index table. Proves `^...^` flows through parseCellInline → parseInline.
+    const doc = parse('Name | Rarity\n--- | ---\nHerexen^U^ | rare');
+    const table = doc.body.find((n) => n.type === 'table');
+    expect(table?.type).toBe('table');
+    if (table?.type === 'table') {
+      expect(table.rows[0]?.[0]).toEqual([
+        { kind: 'text', text: 'Herexen' },
+        { kind: 'sup', children: [{ kind: 'text', text: 'U' }] },
+      ]);
     }
   });
 

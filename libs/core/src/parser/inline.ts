@@ -37,6 +37,14 @@ const EMPHASIS: readonly {
   { delim: '__', wrap: (children) => ({ kind: 'strong', children }) },
   { delim: '*', wrap: (children) => ({ kind: 'em', children }) },
   { delim: '_', wrap: (children) => ({ kind: 'em', children }) },
+  // Superscript/subscript (Pandoc-native `^sup^`, `~sub~`). Single-char, so no
+  // prefix overlap with the runs above — array position is irrelevant here. The
+  // line-level `^ ` centered-formula marker is caret+space and is consumed by
+  // the lexer before this runs, so it never collides with inline `^...^`.
+  // NOTE: if strikethrough (`~~...~~`) is ever added, it must come *before* this
+  // `~` entry, exactly as `**` precedes `*`.
+  { delim: '^', wrap: (children) => ({ kind: 'sup', children }) },
+  { delim: '~', wrap: (children) => ({ kind: 'sub', children }) },
 ];
 
 /**
@@ -44,13 +52,15 @@ const EMPHASIS: readonly {
  *   `***bi***` and `___bi___`   → strong wrapping em (bold + italic together)
  *   `**bold**` and `__bold__`   → strong
  *   `*italic*` and `_italic_`   → em
+ *   `^sup^`                     → superscript
+ *   `~sub~`                     → subscript
  *   `:a:`, `:aa:`, `:aaa:`, `:r:`, `:f:` → action symbol
  *
  * Rules: delimiters are balanced on the same string and matched greedily,
  * longest run first. There is no arbitrary nesting — `**bold *italic* bold**`
  * keeps the inner `*`s literal; combined bold+italic is only expressed with the
  * triple form (`***...***`). No escapes. Unbalanced delimiters are emitted as
- * literal text, and empty spans (`****`) stay literal too.
+ * literal text, and empty spans (`****`, `^^`, `~~`) stay literal too.
  */
 export function parseInline(input: string): Inline[] {
   const out: Inline[] = [];

@@ -1,0 +1,15 @@
+# Superscript & Subscript
+
+Rarity markers in the Monster Core index use inline superscript — Herexen^U^ (uncommon), Mummy pharaoh^R^ (rare), and Treerazer^Uq^ (unique). Subscript covers chemistry such as H~2~O and CO~2~.
+
+#### Creatures by Rarity
+
+| Creature         | Level |
+|:-----------------|------:|
+| Herexen^U^       | 6     |
+| Mummy pharaoh^R^ | 14    |
+| Treerazer^Uq^    | 25    |
+
+sample(
+^ x^2^ + y^2^ = r^2^
+)
