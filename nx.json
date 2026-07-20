@@ -20,6 +20,11 @@
     "typecheck": {
       "cache": true
     },
+    "lint": {
+      "options": {
+        "command": "eslint . --max-warnings 0"
+      }
+    },
     "test": {
       "cache": true,
       "inputs": [

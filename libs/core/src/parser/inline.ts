@@ -76,7 +76,16 @@ export function parseInline(input: string): Inline[] {
 
   while (i < input.length) {
     if (input[i] === ':') {
-      const match = ACTION_TOKENS.find((t) => input.startsWith(t, i));
+      // Plain for-of (mirroring the EMPHASIS loop below) rather than
+      // `.find(t => input.startsWith(t, i))` so the callback doesn't close over
+      // the mutating loop index `i`.
+      let match: ActionSymbol | undefined;
+      for (const t of ACTION_TOKENS) {
+        if (input.startsWith(t, i)) {
+          match = t;
+          break;
+        }
+      }
       if (match) {
         flush();
         out.push({ kind: 'action', symbol: match });
@@ -102,7 +111,7 @@ export function parseInline(input: string): Inline[] {
     }
     if (matched) continue;
 
-    buf += input[i]!;
+    buf += input[i];
     i++;
   }
   flush();

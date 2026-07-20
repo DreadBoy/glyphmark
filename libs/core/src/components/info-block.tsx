@@ -58,7 +58,7 @@ const PARA_BASE: CSSObject = {
 
 function Segment({ segment }: { segment: InfoSegment }) {
   if (segment.kind === 'heading') {
-    if (segment.level == 1)
+    if (segment.level === 1)
       return (
         <p
           css={{

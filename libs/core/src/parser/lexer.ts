@@ -42,7 +42,7 @@ export function tokenize(input: string): Token[] {
 
   let i = 0;
   while (i < lines.length) {
-    const line = lines[i]!;
+    const line = lines[i];
     const trimmed = line.trim();
 
     if (trimmed === '') {
@@ -81,7 +81,7 @@ export function tokenize(input: string): Token[] {
     // Preamble or block-open: keyword followed by (
     const kwMatch = trimmed.match(KEYWORD_RE);
     if (kwMatch) {
-      const keyword = kwMatch[1]!;
+      const keyword = kwMatch[1];
       const captured = captureBalanced(lines, i, '(', ')');
       if (PREAMBLE_KEYWORDS.includes(keyword as PreambleType)) {
         tokens.push({
@@ -106,7 +106,7 @@ export function tokenize(input: string): Token[] {
       const captured = captureBalanced(lines, i, '{', '}');
       tokens.push({
         kind: 'content-ref',
-        key: refMatch[1]!,
+        key: refMatch[1],
         content: captured.inner,
       });
       i = captured.endLine + 1;
@@ -118,8 +118,8 @@ export function tokenize(input: string): Token[] {
     if (hMatch) {
       tokens.push({
         kind: 'heading',
-        level: hMatch[1]!.length,
-        text: hMatch[2]!,
+        level: hMatch[1].length,
+        text: hMatch[2],
       });
       i++;
       continue;
@@ -128,7 +128,7 @@ export function tokenize(input: string): Token[] {
     // Centered text marker: ^ text
     const cMatch = trimmed.match(/^\^\s+(.+)$/);
     if (cMatch) {
-      tokens.push({ kind: 'centered-text', content: cMatch[1]! });
+      tokens.push({ kind: 'centered-text', content: cMatch[1] });
       i++;
       continue;
     }
@@ -151,7 +151,7 @@ export function tokenize(input: string): Token[] {
     // block-level, defined elsewhere as `key { ... }`).
     const refMatchUse = trimmed.match(/^\{\{(\w+)}}$/);
     if (refMatchUse) {
-      tokens.push({ kind: 'reference', key: refMatchUse[1]! });
+      tokens.push({ kind: 'reference', key: refMatchUse[1] });
       i++;
       continue;
     }
@@ -180,7 +180,7 @@ export function tokenize(input: string): Token[] {
 
     // Table: line with `|` and a `---` separator on the next line
     if (trimmed.includes('|') && i + 1 < lines.length) {
-      const nextTrim = lines[i + 1]!.trim();
+      const nextTrim = lines[i + 1].trim();
       if (isSeparatorRow(nextTrim)) {
         const headerCells = splitTableRow(line);
         const aligns = parseAligns(nextTrim, headerCells.length);
@@ -209,7 +209,7 @@ function matchFootnote(
   trimmed: string,
 ): { marker: string; text: string } | undefined {
   const m = trimmed.match(FOOTNOTE_RE);
-  return m ? { marker: m[1]!, text: m[2]!.trim() } : undefined;
+  return m ? { marker: m[1], text: m[2].trim() } : undefined;
 }
 
 function consumeTableBody(
@@ -219,7 +219,7 @@ function consumeTableBody(
 ): number {
   let i = start;
   while (i < lines.length) {
-    const t = lines[i]!.trim();
+    const t = lines[i].trim();
     const fn = matchFootnote(t);
     if (fn) {
       tokens.push({ kind: 'table-footnote', marker: fn.marker, text: fn.text });
@@ -229,15 +229,15 @@ function consumeTableBody(
     if (t === '') {
       // Blank lines stay part of the table only if a footnote follows.
       let peek = i + 1;
-      while (peek < lines.length && lines[peek]!.trim() === '') peek++;
-      if (peek < lines.length && matchFootnote(lines[peek]!.trim())) {
+      while (peek < lines.length && lines[peek].trim() === '') peek++;
+      if (peek < lines.length && matchFootnote(lines[peek].trim())) {
         i = peek;
         continue;
       }
       break;
     }
     if (!t.includes('|')) break;
-    tokens.push({ kind: 'table-row', cells: splitTableRow(lines[i]!) });
+    tokens.push({ kind: 'table-row', cells: splitTableRow(lines[i]) });
     i++;
   }
   return i;
@@ -287,7 +287,7 @@ function captureBalanced(
   let started = false;
 
   for (let li = startLine; li < lines.length; li++) {
-    const line = lines[li]!;
+    const line = lines[li];
     for (const ch of line) {
       if (ch === open) {
         if (!started) {
