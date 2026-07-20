@@ -110,14 +110,14 @@ Each of these stands alone on its own line:
 Block-level constructs use a `keyword(...)` form. The opening keyword and `(`
 sit on one line; the closing `)` sits on its own line. They cannot be nested.
 
-| Block          | Purpose                                                     |
-| -------------- | ----------------------------------------------------------- |
-| `item(...)`    | Feat / spell / monster / background card.                   |
-| `sample(...)`  | Tinted "example" box. Supports centered formula lines.      |
-| `rule(...)`    | GM advice / rule explanation box.                           |
-| `info(...)`    | Small tinted callout (key attribute, hit points, etc.).     |
-| `head(...)`    | Page-spanning header band (e.g. ancestry/class title).      |
-| `sidebar(...)` | Tinted margin/aside lore callout (e.g. Monster Core boxes). |
+| Block          | Purpose                                                        |
+| -------------- | -------------------------------------------------------------- |
+| `item(...)`    | Feat / spell / monster / background card.                      |
+| `sample(...)`  | Tinted "example" box. Supports centered formula lines.         |
+| `rule(...)`    | GM advice / rule explanation box.                              |
+| `info(...)`    | Small tinted callout (key attribute, hit points, etc.).        |
+| `head(...)`    | Page-spanning header band (e.g. ancestry/class title).         |
+| `sidebar(...)` | Maroon margin/aside lore note — not boxed (e.g. Monster Core). |
 
 #### `item()`
 
@@ -192,22 +192,25 @@ friends gather to tell a tale of brave heroes and cunning villains...
 
 #### `sidebar()`
 
-A tinted margin/aside callout — the rulebooks' lore/ecology boxes (e.g. Monster
-Core's "AEON DIVINITIES"). A `#`/`##` title plus body paragraphs, lists, and
-tables (the same content as `rule()`, minus column breaks); headings cap at `h2`.
+A margin/aside lore note — the rulebooks' marginal ecology/lore callouts (e.g.
+Monster Core's genie "SHUYOOKHS" notes or "BASILISK LAIRS"). Unlike the boxed
+`info()`/`rule()`, a sidebar is **not** boxed: an ALL-CAPS title over short prose,
+set in deep maroon ink rather than a tinted panel — colour is what sets it apart
+from the black body text. A `#`/`##` title (capped at `h2`) plus body paragraphs,
+lists, and tables (the same content model as `rule()`, minus column breaks).
 
 ```glyph
 sidebar(
-# Aeon Divinities
+# Jann Shuyookhs
 
-Whether the aeons serve an actual divinity, a philosophical concept, or merely
-a "supreme oneness" is a topic hotly debated by planar scholars.
+Jann shuyookhs add the following innate spells: **4th** *invisibility* (×2),
+*read omens*.
 )
 ```
 
-It currently renders **in-flow** (it sits in its column, like the other callouts).
-Auto-placement on the page's outer margin edge — left on verso, right on recto —
-is planned as a follow-up.
+It currently renders **in-flow** (it sits in its column). The books also set
+these beside a keyline with text aligned toward the spine (left on recto, right
+on verso); that belongs with true outer-margin placement, which is a follow-up.
 
 Each block warns and drops anything outside its allowed segment set (e.g.
 tables inside `info()`).

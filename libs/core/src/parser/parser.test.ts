@@ -468,7 +468,7 @@ describe('parse — info / rule / sample / head / sidebar', () => {
     }
   });
 
-  it('sidebar() parses a title heading and prose with rule-like indent', () => {
+  it('sidebar() parses a title heading and flush prose', () => {
     const doc = parse(
       'sidebar(\n# Aeon Divinities\n\nWhether the aeons serve a divinity is debated.\n\nA second paragraph of lore.\n)',
     );
@@ -480,10 +480,10 @@ describe('parse — info / rule / sample / head / sidebar', () => {
         'paragraph',
         'paragraph',
       ]);
-      // Rule-like prose: 1st paragraph flush, 2nd+ carries a first-line indent.
+      // Lore-box prose sits flush — no first-line indent (unlike rule()).
       const paras = s.content.filter((seg) => seg.kind === 'paragraph');
       expect((paras[0] as { indent: string }).indent).toBe('none');
-      expect((paras[1] as { indent: string }).indent).toBe('first-line');
+      expect((paras[1] as { indent: string }).indent).toBe('none');
     }
   });
 

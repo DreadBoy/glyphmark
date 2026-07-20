@@ -1,39 +1,34 @@
-# Aeon Divinities
+# Genies
 
-Some introductory body text so the first sidebar sits in a real two-column flow
-and its tint and ALL-CAPS title read against ordinary prose. This paragraph gives
-the page something to set the callout beside.
+Some body text so the first sidebar sits in a real two-column flow beside
+ordinary black prose, letting the maroon margin note read as a distinct callout
+on the page. This paragraph gives the layout something to set the aside beside.
 
 sidebar(
-# Aeon Divinities
+# Jann Shuyookhs
 
-Whether the aeons serve an actual divinity, a philosophical concept, or merely a
-"supreme oneness" is a topic hotly debated by planar scholars.
+Jann shuyookhs add the following innate spells: **4th** *invisibility* (×2),
+*read omens*.
 
-Most aeons care little for the question, pursuing their inscrutable duties across
-the multiverse without pause or complaint.
+# Jaathoom Shuyookhs
+
+Jaathoom shuyookhs prefer to manifest wishes informed by their visions of the
+future. They add the following innate spells: **5th** *illusory creature*,
+*illusory object*, *nightmare* (×2), *sleep* (×2); **4th** *ill omen*.
 )
 
-More body text continues after the first sidebar, flowing down the column and
-giving the layout additional prose to paginate around the callout boxes that sit
-within the page's normal two-column text.
+More body text continues after the first sidebar, flowing down the column so the
+page has enough ordinary prose to show the maroon callout in context against the
+surrounding black body text of the two-column layout.
 
 sidebar(
-# Draconic Groupings
+# Basilisk Lairs
 
-Dragons are loosely sorted by temperament and by the planes they call home:
-
-* Metallic dragons, often protective
-* Chromatic dragons, often cruel
-* Primal dragons, tied to the planes
-
-| Age      | Size  |
-| -------- | ----- |
-| Wyrmling | Small |
-| Adult    | Large |
-| Ancient  | Huge  |
+Basilisks can be found in almost any terrestrial environment, including caves,
+forests, hills, mountains, plains, and swamps. Their hides often bear
+complexions that let them blend with their surroundings.
 )
 
 A closing paragraph of body text so the document has enough content to fill the
-columns and present both sidebar callouts in a realistic rulebook context on the
-page as it renders.
+columns and present both maroon margin callouts in a realistic rulebook context
+as the page renders.

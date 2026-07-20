@@ -112,12 +112,12 @@ function paragraphIndent(
     if (boldLead) return 'hanging';
     return firstInSection ? 'none' : 'first-line';
   }
-  // body, rule, and sidebar use the standard prose rule: 1st flush, 2nd+
-  // first-line (matching the indented lore prose in the rulebook margin boxes).
-  if (kind === 'body' || kind === 'rule' || kind === 'sidebar') {
+  // body and rule use the standard prose rule: 1st flush, 2nd+ first-line.
+  if (kind === 'body' || kind === 'rule') {
     return firstInSection ? 'none' : 'first-line';
   }
-  // sample, info, head — paragraphs sit flush.
+  // sample, info, head, sidebar — paragraphs sit flush (the lore boxes set
+  // their body flush, no first-line indent).
   return 'none';
 }
 
