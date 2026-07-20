@@ -18,6 +18,7 @@ import { SampleBlock } from '../components/sample-block';
 import { RuleBlock } from '../components/rule-block';
 import { HeadBlock } from '../components/head-block';
 import { InfoBlock } from '../components/info-block';
+import { SidebarBlock } from '../components/sidebar-block';
 import {
   FullWidthStyles,
   FullWidthToggle,
@@ -42,6 +43,7 @@ const RENDERERS: Renderers = {
   rule: RuleBlock,
   head: HeadBlock,
   info: InfoBlock,
+  sidebar: SidebarBlock,
 };
 
 export function renderToHtml(doc: GlyphDocument): string {

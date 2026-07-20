@@ -27,7 +27,7 @@ glyphmark <input.glyph> <output.(html|pdf)>
 The output format is chosen from the output file's extension:
 
 - `.html` — single self-contained HTML file, all styles inlined.
-- `.pdf`  — paginated PDF rendered through the same layout engine.
+- `.pdf` — paginated PDF rendered through the same layout engine.
 
 Any other extension is an error.
 
@@ -97,12 +97,12 @@ horizontal rule, not a list item.
 
 Each of these stands alone on its own line:
 
-| Marker | Meaning                                                                 |
-| ------ | ----------------------------------------------------------------------- |
-| `=`    | Page break.                                                             |
-| `\|`   | Column break. A trailing `\|` at end of file forces single-column flow. |
-| `/`    | Toggle full-width band (escapes the 2-column grid). Each `/` flips it.  |
-| `-`    | Horizontal rule. Only valid as a separator inside `item()` blocks.      |
+| Marker | Meaning                                                                                                                               |
+| ------ | ------------------------------------------------------------------------------------------------------------------------------------- |
+| `=`    | Page break.                                                                                                                           |
+| `\|`   | Column break. A trailing `\|` at end of file forces single-column flow.                                                               |
+| `/`    | Toggle full-width band (escapes the 2-column grid). Each `/` flips it.                                                                |
+| `-`    | Horizontal rule. Only valid as a separator inside `item()` blocks.                                                                    |
 | `%`    | Hidden delimiter. Everything below `%` is parsed but not rendered — useful for stashing content-reference definitions out of the way. |
 
 ### Container blocks
@@ -110,13 +110,14 @@ Each of these stands alone on its own line:
 Block-level constructs use a `keyword(...)` form. The opening keyword and `(`
 sit on one line; the closing `)` sits on its own line. They cannot be nested.
 
-| Block        | Purpose                                                  |
-| ------------ | -------------------------------------------------------- |
-| `item(...)`  | Feat / spell / monster / background card.                |
-| `sample(...)`| Tinted "example" box. Supports centered formula lines.   |
-| `rule(...)`  | GM advice / rule explanation box.                        |
-| `info(...)`  | Small tinted callout (key attribute, hit points, etc.).  |
-| `head(...)`  | Page-spanning header band (e.g. ancestry/class title).   |
+| Block          | Purpose                                                     |
+| -------------- | ----------------------------------------------------------- |
+| `item(...)`    | Feat / spell / monster / background card.                   |
+| `sample(...)`  | Tinted "example" box. Supports centered formula lines.      |
+| `rule(...)`    | GM advice / rule explanation box.                           |
+| `info(...)`    | Small tinted callout (key attribute, hit points, etc.).     |
+| `head(...)`    | Page-spanning header band (e.g. ancestry/class title).      |
+| `sidebar(...)` | Tinted margin/aside lore callout (e.g. Monster Core boxes). |
 
 #### `item()`
 
@@ -188,6 +189,25 @@ Pathfinder is a fantasy tabletop roleplaying game where you and a group of
 friends gather to tell a tale of brave heroes and cunning villains...
 )
 ```
+
+#### `sidebar()`
+
+A tinted margin/aside callout — the rulebooks' lore/ecology boxes (e.g. Monster
+Core's "AEON DIVINITIES"). A `#`/`##` title plus body paragraphs, lists, and
+tables (the same content as `rule()`, minus column breaks); headings cap at `h2`.
+
+```glyph
+sidebar(
+# Aeon Divinities
+
+Whether the aeons serve an actual divinity, a philosophical concept, or merely
+a "supreme oneness" is a topic hotly debated by planar scholars.
+)
+```
+
+It currently renders **in-flow** (it sits in its column, like the other callouts).
+Auto-placement on the page's outer margin edge — left on verso, right on recto —
+is planned as a follow-up.
 
 Each block warns and drops anything outside its allowed segment set (e.g.
 tables inside `info()`).
@@ -322,8 +342,8 @@ import { parseGlyph, renderToHtml, renderToPdf } from '@glyphmark/core';
 
 const doc = parseGlyph(glyphSource);
 
-const html = renderToHtml(doc);        // string
-const pdf  = await renderToPdf(doc);   // Uint8Array
+const html = renderToHtml(doc); // string
+const pdf = await renderToPdf(doc); // Uint8Array
 ```
 
 ## License

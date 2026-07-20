@@ -12,6 +12,7 @@ import type {
   RuleBlockNode,
   RuleSegment,
   SampleSegment,
+  SidebarSegment,
   GlyphDocument,
   Segment,
   TableFootnote,
@@ -22,12 +23,24 @@ import { tokenize, type Token } from './lexer';
 
 // Container kinds drive per-block indent decisions. "body" is the document
 // level (normal text); the rest correspond to block-open keywords.
-type ContainerKind = 'body' | 'item' | 'rule' | 'sample' | 'info' | 'head';
+type ContainerKind =
+  | 'body'
+  | 'item'
+  | 'rule'
+  | 'sample'
+  | 'info'
+  | 'head'
+  | 'sidebar';
 
 // Widest possible segment shape the parser can emit. Each caller narrows to
 // its concrete container segment type via a (provably sound) cast — the
 // parser only emits kinds that the container's allowed-set permits.
-type AnySegment = ItemSegment | SampleSegment | RuleSegment | InfoSegment;
+type AnySegment =
+  | ItemSegment
+  | SampleSegment
+  | RuleSegment
+  | InfoSegment
+  | SidebarSegment;
 type SegmentKind = AnySegment['kind'];
 
 // Single source of truth for "which segment kinds may appear in which
@@ -47,6 +60,9 @@ export const ALLOWED_SEGMENTS: Record<
   rule: new Set(['paragraph', 'heading', 'list', 'column-break', 'table']),
   info: new Set(['paragraph', 'heading', 'column-break']),
   head: new Set(['paragraph', 'heading']),
+  // Same content as rule() minus column-break — a title plus paragraphs, lists,
+  // and tables. Single-column, so an inner column-break is meaningless (dropped).
+  sidebar: new Set(['paragraph', 'heading', 'list', 'table']),
 };
 
 // Global cap on heading levels — the lexer can emit h1..h6 but the renderer
@@ -61,6 +77,7 @@ export const MAX_HEADING_LEVEL: Partial<
 > = {
   head: 2,
   info: 2,
+  sidebar: 2,
 };
 
 function tryPushSegment(
@@ -95,8 +112,9 @@ function paragraphIndent(
     if (boldLead) return 'hanging';
     return firstInSection ? 'none' : 'first-line';
   }
-  // body and rule use the standard prose rule: 1st flush, 2nd+ first-line.
-  if (kind === 'body' || kind === 'rule') {
+  // body, rule, and sidebar use the standard prose rule: 1st flush, 2nd+
+  // first-line (matching the indented lore prose in the rulebook margin boxes).
+  if (kind === 'body' || kind === 'rule' || kind === 'sidebar') {
     return firstInSection ? 'none' : 'first-line';
   }
   // sample, info, head — paragraphs sit flush.
@@ -270,6 +288,15 @@ function parseBody(tokens: Token[], doc: GlyphDocument): void {
               'info block',
               'info',
             ) as InfoSegment[],
+          });
+        } else if (tok.type === 'sidebar') {
+          doc.body.push({
+            type: 'sidebar',
+            content: parseSegments(
+              tok.raw,
+              'sidebar block',
+              'sidebar',
+            ) as SidebarSegment[],
           });
         } else {
           // 'head' — floor Segment[].

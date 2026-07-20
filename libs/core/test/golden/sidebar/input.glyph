@@ -1,0 +1,39 @@
+# Aeon Divinities
+
+Some introductory body text so the first sidebar sits in a real two-column flow
+and its tint and ALL-CAPS title read against ordinary prose. This paragraph gives
+the page something to set the callout beside.
+
+sidebar(
+# Aeon Divinities
+
+Whether the aeons serve an actual divinity, a philosophical concept, or merely a
+"supreme oneness" is a topic hotly debated by planar scholars.
+
+Most aeons care little for the question, pursuing their inscrutable duties across
+the multiverse without pause or complaint.
+)
+
+More body text continues after the first sidebar, flowing down the column and
+giving the layout additional prose to paginate around the callout boxes that sit
+within the page's normal two-column text.
+
+sidebar(
+# Draconic Groupings
+
+Dragons are loosely sorted by temperament and by the planes they call home:
+
+* Metallic dragons, often protective
+* Chromatic dragons, often cruel
+* Primal dragons, tied to the planes
+
+| Age      | Size  |
+| -------- | ----- |
+| Wyrmling | Small |
+| Adult    | Large |
+| Ancient  | Huge  |
+)
+
+A closing paragraph of body text so the document has enough content to fill the
+columns and present both sidebar callouts in a realistic rulebook context on the
+page as it renders.

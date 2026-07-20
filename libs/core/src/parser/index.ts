@@ -28,6 +28,8 @@ export type {
   SampleBlockNode,
   SampleSegment,
   Segment,
+  SidebarBlockNode,
+  SidebarSegment,
   TableFootnote,
   TableNode,
 } from './ir';
