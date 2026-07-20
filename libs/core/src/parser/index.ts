@@ -1,6 +1,6 @@
 export { parse as parseGlyph } from './parser';
 export { parseInline } from './inline';
-export { tokenize } from './lexer';
+export { tokenize, buildTokenMap } from './lexer';
 export type { Token, BlockType, PreambleType } from './lexer';
 export type {
   ActionSymbol,
@@ -20,6 +20,7 @@ export type {
   ItemSegment,
   ListIndent,
   ListNode,
+  Origin,
   PageBreakNode,
   ParagraphIndent,
   ParagraphNode,
@@ -30,4 +31,6 @@ export type {
   Segment,
   TableFootnote,
   TableNode,
+  TokenId,
+  TokenSpan,
 } from './ir';

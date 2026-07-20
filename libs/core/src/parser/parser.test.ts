@@ -139,7 +139,8 @@ describe('parse — markers', () => {
   it('parses full-width-toggle and numbers each occurrence', () => {
     const doc = parse('A\n\n/\n\nB\n\n/\n\nC');
     const toggles = doc.body.filter((n) => n.type === 'full-width-toggle');
-    expect(toggles).toEqual([
+    // toMatchObject tolerates the added `origin` field on each node.
+    expect(toggles).toMatchObject([
       { type: 'full-width-toggle', index: 1 },
       { type: 'full-width-toggle', index: 2 },
     ]);
@@ -878,4 +879,85 @@ describe('parse — heading-level cap (warn-and-drop matrix)', () => {
       });
     }
   }
+});
+
+// Assert a value is defined and return it — keeps the provenance tests free of
+// `!` (the codebase lints with --max-warnings 0).
+function present<T>(value: T | undefined): T {
+  expect(value).toBeDefined();
+  return value as T;
+}
+
+describe('parse — provenance (origins)', () => {
+  it('gives every body node an origin that resolves in tokenMap', () => {
+    const doc = parse('# Title\n\nA paragraph.\n\nitem(\n# Foo\n-\nBody\n)');
+    expect(doc.body.length).toBeGreaterThan(0);
+    for (const node of doc.body) {
+      expect(doc.tokenMap.get(node.origin.first)).toBeDefined();
+      expect(doc.tokenMap.get(node.origin.last)).toBeDefined();
+    }
+  });
+
+  it('resolves node origins to their source start line', () => {
+    const doc = parse('# Title\n\nA paragraph.\n\nitem(\n# Foo\n-\nBody\n)');
+    const heading = present(doc.body.find((n) => n.type === 'heading'));
+    const para = present(doc.body.find((n) => n.type === 'paragraph'));
+    const item = present(doc.body.find((n) => n.type === 'item'));
+    expect(present(doc.tokenMap.get(heading.origin.first)).startLine).toBe(1);
+    expect(present(doc.tokenMap.get(para.origin.first)).startLine).toBe(3);
+    expect(present(doc.tokenMap.get(item.origin.first)).startLine).toBe(5);
+  });
+
+  it('origin.last gives the end line of a multi-line paragraph', () => {
+    const doc = parse('Line one\nLine two\nLine three');
+    const para = present(doc.body.find((n) => n.type === 'paragraph'));
+    expect(present(doc.tokenMap.get(para.origin.first)).startLine).toBe(1);
+    expect(present(doc.tokenMap.get(para.origin.last)).endLine).toBe(3);
+  });
+
+  it('a table origin spans through its last footnote', () => {
+    const doc = parse('A | B\n--- | ---\n1[*] | 2\n. [*] note');
+    const table = present(doc.body.find((n) => n.type === 'table'));
+    expect(present(doc.tokenMap.get(table.origin.first)).startLine).toBe(1);
+    expect(present(doc.tokenMap.get(table.origin.last)).startLine).toBe(4);
+  });
+
+  it('anchors an expanded ref at the call site; the template keeps the definition line', () => {
+    const doc = parse('ref {\nHello\n}\n\nIntro.\n\n{{ref}}');
+    const template = present(present(doc.contentRefs.get('ref'))[0]);
+    expect(present(doc.tokenMap.get(template.origin.first)).startLine).toBe(2);
+    const paras = doc.body.filter((n) => n.type === 'paragraph');
+    const expanded = present(paras[paras.length - 1]);
+    expect(present(doc.tokenMap.get(expanded.origin.first)).startLine).toBe(7);
+  });
+
+  it('resolves a hidden-section ref template origin against tokenMap', () => {
+    // The definition lives past `%`, so its tokens are outside the visible
+    // slice — proving tokenMap covers the whole tree, not just the body.
+    const doc = parse('Visible\n\n%\n\nsecret {\nHidden line\n}');
+    const template = present(present(doc.contentRefs.get('secret'))[0]);
+    expect(present(doc.tokenMap.get(template.origin.first)).startLine).toBe(6);
+  });
+
+  it('anchors an unknown {{ref}} literal paragraph at its own line', () => {
+    const doc = parse('Intro.\n\n{{missing}}');
+    const paras = doc.body.filter((n) => n.type === 'paragraph');
+    const para = present(paras[paras.length - 1]);
+    expect(present(doc.tokenMap.get(para.origin.first)).startLine).toBe(3);
+  });
+
+  it('anchors a table nested in rule() at its header line (ref-safe)', () => {
+    const doc = parse('rule(\n#### Cap\n\nA | B\n--- | ---\n1 | 2\n)');
+    const rule = present(doc.body.find((n) => n.type === 'rule'));
+    if (rule.type !== 'rule') throw new Error('expected rule');
+    const seg = rule.content.find((s) => s.kind === 'table');
+    expect(seg?.kind).toBe('table');
+    if (seg?.kind === 'table') {
+      // The `A | B` header row sits on line 4 inside the block; the origin
+      // must point there, not at the lifted `#### Cap` caption or the block.
+      expect(present(doc.tokenMap.get(seg.node.origin.first)).startLine).toBe(
+        4,
+      );
+    }
+  });
 });
