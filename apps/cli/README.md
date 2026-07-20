@@ -27,7 +27,7 @@ glyphmark <input.glyph> <output.(html|pdf)>
 The output format is chosen from the output file's extension:
 
 - `.html` — single self-contained HTML file, all styles inlined.
-- `.pdf` — paginated PDF rendered through the same layout engine.
+- `.pdf`  — paginated PDF rendered through the same layout engine.
 
 Any other extension is an error.
 
@@ -97,12 +97,12 @@ horizontal rule, not a list item.
 
 Each of these stands alone on its own line:
 
-| Marker | Meaning                                                                                                                               |
-| ------ | ------------------------------------------------------------------------------------------------------------------------------------- |
-| `=`    | Page break.                                                                                                                           |
-| `\|`   | Column break. A trailing `\|` at end of file forces single-column flow.                                                               |
-| `/`    | Toggle full-width band (escapes the 2-column grid). Each `/` flips it.                                                                |
-| `-`    | Horizontal rule. Only valid as a separator inside `item()` blocks.                                                                    |
+| Marker | Meaning                                                                 |
+| ------ | ----------------------------------------------------------------------- |
+| `=`    | Page break.                                                             |
+| `\|`   | Column break. A trailing `\|` at end of file forces single-column flow. |
+| `/`    | Toggle full-width band (escapes the 2-column grid). Each `/` flips it.  |
+| `-`    | Horizontal rule. Only valid as a separator inside `item()` blocks.      |
 | `%`    | Hidden delimiter. Everything below `%` is parsed but not rendered — useful for stashing content-reference definitions out of the way. |
 
 ### Container blocks
@@ -110,14 +110,14 @@ Each of these stands alone on its own line:
 Block-level constructs use a `keyword(...)` form. The opening keyword and `(`
 sit on one line; the closing `)` sits on its own line. They cannot be nested.
 
-| Block          | Purpose                                                        |
-| -------------- | -------------------------------------------------------------- |
-| `item(...)`    | Feat / spell / monster / background card.                      |
-| `sample(...)`  | Tinted "example" box. Supports centered formula lines.         |
-| `rule(...)`    | GM advice / rule explanation box.                              |
-| `info(...)`    | Small tinted callout (key attribute, hit points, etc.).        |
-| `head(...)`    | Page-spanning header band (e.g. ancestry/class title).         |
-| `sidebar(...)` | Maroon margin/aside lore note — not boxed (e.g. Monster Core). |
+| Block        | Purpose                                                  |
+| ------------ | -------------------------------------------------------- |
+| `item(...)`  | Feat / spell / monster / background card.                |
+| `sample(...)`| Tinted "example" box. Supports centered formula lines.   |
+| `rule(...)`  | GM advice / rule explanation box.                        |
+| `info(...)`  | Small tinted callout (key attribute, hit points, etc.).  |
+| `head(...)`  | Page-spanning header band (e.g. ancestry/class title).   |
+| `sidebar(...)`| Maroon margin/aside lore note, not boxed (e.g. Monster Core). |
 
 #### `item()`
 
@@ -192,25 +192,19 @@ friends gather to tell a tale of brave heroes and cunning villains...
 
 #### `sidebar()`
 
-A margin/aside lore note — the rulebooks' marginal ecology/lore callouts (e.g.
-Monster Core's genie "SHUYOOKHS" notes or "BASILISK LAIRS"). Unlike the boxed
-`info()`/`rule()`, a sidebar is **not** boxed: an ALL-CAPS title over short prose,
-set in deep maroon ink rather than a tinted panel — colour is what sets it apart
-from the black body text. A `#`/`##` title (capped at `h2`) plus body paragraphs,
-lists, and tables (the same content model as `rule()`, minus column breaks).
+A margin/aside lore note (e.g. Monster Core's "SHUYOOKHS" or "BASILISK LAIRS").
+Not boxed like `info()`/`rule()` — a `#`/`##` title (capped at `h2`) over short
+maroon prose, plus lists and tables (same content as `rule()`, minus column
+breaks). Rendered as a full-height rail against the page edge, separated from the
+main text by a keyline.
 
 ```glyph
 sidebar(
 # Jann Shuyookhs
 
-Jann shuyookhs add the following innate spells: **4th** *invisibility* (×2),
-*read omens*.
+Jann shuyookhs add the following innate spells: **4th** *invisibility* (×2).
 )
 ```
-
-It currently renders **in-flow** (it sits in its column). The books also set
-these beside a keyline with text aligned toward the spine (left on recto, right
-on verso); that belongs with true outer-margin placement, which is a follow-up.
 
 Each block warns and drops anything outside its allowed segment set (e.g.
 tables inside `info()`).
@@ -345,8 +339,8 @@ import { parseGlyph, renderToHtml, renderToPdf } from '@glyphmark/core';
 
 const doc = parseGlyph(glyphSource);
 
-const html = renderToHtml(doc); // string
-const pdf = await renderToPdf(doc); // Uint8Array
+const html = renderToHtml(doc);        // string
+const pdf  = await renderToPdf(doc);   // Uint8Array
 ```
 
 ## License

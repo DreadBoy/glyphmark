@@ -1,34 +1,98 @@
-# Genies
+head(
+# WITCH
 
-Some body text so the first sidebar sits in a real two-column flow beside
-ordinary black prose, letting the maroon margin note read as a distinct callout
-on the page. This paragraph gives the layout something to set the aside beside.
-
-sidebar(
-# Jann Shuyookhs
-
-Jann shuyookhs add the following innate spells: **4th** *invisibility* (×2),
-*read omens*.
-
-# Jaathoom Shuyookhs
-
-Jaathoom shuyookhs prefer to manifest wishes informed by their visions of the
-future. They add the following innate spells: **5th** *illusory creature*,
-*illusory object*, *nightmare* (×2), *sleep* (×2); **4th** *ill omen*.
+You command powerful magic, not through study or devotion, but as an agent for an
+otherworldly patron that even you don't entirely understand. Through a special
+familiar, your patron grants you versatile spells and powerful hexes to use as you
+see fit, though you're never certain if you're merely serving a larger plan.
 )
 
-More body text continues after the first sidebar, flowing down the column so the
-page has enough ordinary prose to show the maroon callout in context against the
-surrounding black body text of the two-column layout.
+info(
+# Key Attribute
 
-sidebar(
-# Basilisk Lairs
+## Intelligence
 
-Basilisks can be found in almost any terrestrial environment, including caves,
-forests, hills, mountains, plains, and swamps. Their hides often bear
-complexions that let them blend with their surroundings.
+At 1st level, your class gives you an attribute boost to Intelligence.
+
+|
+
+# Hit Points
+
+## 6 plus your Constitution modifier
+
+You increase your maximum number of HP by this number at 1st level and every level
+thereafter.
 )
 
-A closing paragraph of body text so the document has enough content to fill the
-columns and present both maroon margin callouts in a realistic rulebook context
-as the page renders.
+## During combat encounters...
+
+You cast spells to change the course of battle, using magical hexes to hamper
+enemies and aid allies, while leveraging more powerful spells to control the
+battlefield, aided by your extraordinary familiar.
+
+## During social encounters...
+
+You provide knowledge on numerous topics, and you might call upon your patron's
+magic to charm or deceive others.
+
+## While exploring...
+
+You remain alert for magical traps and treasures, employing a clever array of
+spells to overcome the obstacles that stand in your way.
+
+## In downtime...
+
+You brew potions, craft other magical items, or hunt for new spells for your
+familiar to learn.
+
+## You might...
+
+* Strive to learn more about your patron or familiar.
+* Seek out new sources of magic, like scrolls and spellbooks.
+
+sidebar(
+# Initial Proficiencies
+
+At 1st level, you gain the listed proficiency ranks. You are untrained in anything
+not listed unless you gain a better rank in some other way.
+
+## Perception
+
+Trained in Perception
+
+## Saving Throws
+
+Trained in Fortitude
+
+Trained in Reflex
+
+Expert in Will
+
+## Skills
+
+Trained in one skill determined by your patron
+
+Trained in a number of additional skills equal to 3 plus your Intelligence modifier
+
+## Attacks
+
+Trained in simple weapons
+
+Trained in unarmed attacks
+
+## Defenses
+
+Untrained in all armor
+
+Trained in unarmored defense
+
+## Spells
+
+Trained in spell attack modifier
+
+Trained in spell DC
+
+## Class DC
+
+Trained in witch class DC
+)
