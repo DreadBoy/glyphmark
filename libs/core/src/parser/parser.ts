@@ -149,7 +149,7 @@ function parseBody(tokens: Token[], doc: GlyphDocument): void {
   // gate column-break inside rule() blocks — those are only valid full-width.
   let fullWidth = false;
   while (i < tokens.length) {
-    const tok = tokens[i]!;
+    const tok = tokens[i];
 
     switch (tok.kind) {
       case 'preamble':
@@ -216,7 +216,7 @@ function parseBody(tokens: Token[], doc: GlyphDocument): void {
       case 'list-item': {
         const items: Inline[][] = [];
         while (i < tokens.length) {
-          const t = tokens[i]!;
+          const t = tokens[i];
           if (t.kind === 'list-item') {
             items.push(parseInline(t.text));
             i++;
@@ -314,7 +314,7 @@ function parseBody(tokens: Token[], doc: GlyphDocument): void {
       case 'text': {
         const lines: string[] = [tok.content];
         i++;
-        while (i < tokens.length && tokens[i]!.kind === 'text') {
+        while (i < tokens.length && tokens[i].kind === 'text') {
           lines.push((tokens[i] as { kind: 'text'; content: string }).content);
           i++;
         }
@@ -382,7 +382,7 @@ function parseCellInline(raw: string): CellInline[] {
       `[glyph] table cell "${raw}" has multiple footnote refs; expected one trailing the text`,
     );
   }
-  const last = matches[matches.length - 1]!;
+  const last = matches[matches.length - 1];
   const tail = raw.slice(last.index + last[0].length).trim();
   if (tail.length > 0) {
     console.warn(
@@ -392,7 +392,7 @@ function parseCellInline(raw: string): CellInline[] {
 
   const stripped = raw.replace(FOOTNOTE_REF_RE, '').trimEnd();
   const children = parseInline(stripped);
-  const marker = last[1]!;
+  const marker = last[1];
   return [
     marker === '*'
       ? { kind: 'footnote-ref', type: 'unnumbered', children }
@@ -415,7 +415,7 @@ function buildTable(
   tokens: Token[],
   start: number,
 ): { node: TableNode; next: number } {
-  const first = tokens[start]!;
+  const first = tokens[start];
   const headerless = first.kind === 'table-sep';
   const headerTok = headerless
     ? undefined
@@ -430,7 +430,7 @@ function buildTable(
 
   let i = headerless ? start + 1 : sepTok ? start + 2 : start + 1;
   while (i < tokens.length) {
-    const t = tokens[i]!;
+    const t = tokens[i];
     if (t.kind === 'table-row') {
       rawRows.push(t.cells);
       i++;
@@ -447,7 +447,7 @@ function buildTable(
   // against defined footnotes — warning on either side of a mismatch.
   const referenced = new Set<string>();
   const collectRefs = (s: string) => {
-    for (const m of s.matchAll(FOOTNOTE_REF_RE)) referenced.add(m[1]!);
+    for (const m of s.matchAll(FOOTNOTE_REF_RE)) referenced.add(m[1]);
   };
   for (const c of headerTok?.cells ?? []) collectRefs(c);
   for (const row of rawRows) for (const c of row) collectRefs(c);
@@ -544,11 +544,11 @@ function parseItem(raw: string): ItemBlockNode {
   let subtitle: Inline[] | undefined;
   const traits: string[] = [];
 
-  while (i < tokens.length && tokens[i]!.kind === 'blank') i++;
+  while (i < tokens.length && tokens[i].kind === 'blank') i++;
 
   // Name (h1)
   if (i < tokens.length) {
-    const t = tokens[i]!;
+    const t = tokens[i];
     if (t.kind === 'heading' && t.level === 1) {
       let text = t.text;
       const m = text.match(/\s+(:(?:aaa|aa|a|r|f):)\s*$/);
@@ -561,30 +561,30 @@ function parseItem(raw: string): ItemBlockNode {
     }
   }
 
-  while (i < tokens.length && tokens[i]!.kind === 'blank') i++;
+  while (i < tokens.length && tokens[i].kind === 'blank') i++;
 
   // Subtitle (h2)
   if (i < tokens.length) {
-    const t = tokens[i]!;
+    const t = tokens[i];
     if (t.kind === 'heading' && t.level === 2) {
       subtitle = parseInline(t.text);
       i++;
     }
   }
 
-  while (i < tokens.length && tokens[i]!.kind === 'blank') i++;
+  while (i < tokens.length && tokens[i].kind === 'blank') i++;
 
   // Mandatory hr
-  if (i < tokens.length && tokens[i]!.kind === 'hr') {
+  if (i < tokens.length && tokens[i].kind === 'hr') {
     i++;
   } else {
     console.warn('[glyph] item: missing hr separator after heading');
   }
 
-  while (i < tokens.length && tokens[i]!.kind === 'blank') i++;
+  while (i < tokens.length && tokens[i].kind === 'blank') i++;
 
   // Optional traits (one or more `;` lines)
-  while (i < tokens.length && tokens[i]!.kind === 'trait-line') {
+  while (i < tokens.length && tokens[i].kind === 'trait-line') {
     traits.push(
       ...(tokens[i] as { kind: 'trait-line'; traits: string[] }).traits,
     );
@@ -631,7 +631,7 @@ function parseSegmentsFromTokens(
   let firstInSection = true;
 
   while (i < tokens.length) {
-    const tok = tokens[i]!;
+    const tok = tokens[i];
     switch (tok.kind) {
       case 'blank':
         i++;
@@ -691,7 +691,7 @@ function parseSegmentsFromTokens(
       case 'list-item': {
         const items: Inline[][] = [];
         while (i < tokens.length) {
-          const t = tokens[i]!;
+          const t = tokens[i];
           if (t.kind === 'list-item') {
             items.push(parseInline(t.text));
             i++;
@@ -715,7 +715,7 @@ function parseSegmentsFromTokens(
       case 'text': {
         const lines: string[] = [tok.content];
         i++;
-        while (i < tokens.length && tokens[i]!.kind === 'text') {
+        while (i < tokens.length && tokens[i].kind === 'text') {
           lines.push((tokens[i] as { kind: 'text'; content: string }).content);
           i++;
         }
@@ -797,7 +797,7 @@ function parseSegmentsFromTokens(
 
   // Validation: leading/trailing hr or column-break is invalid.
   while (segments.length > 0) {
-    const head = segments[0]!;
+    const head = segments[0];
     if (head.kind === 'hr' || head.kind === 'column-break') {
       console.warn(
         `[glyph] ${contextLabel}: leading ${head.kind} is invalid; content must start with text`,
@@ -806,7 +806,7 @@ function parseSegmentsFromTokens(
     } else break;
   }
   while (segments.length > 0) {
-    const tail = segments[segments.length - 1]!;
+    const tail = segments[segments.length - 1];
     if (tail.kind === 'hr' || tail.kind === 'column-break') {
       console.warn(`[glyph] ${contextLabel}: trailing ${tail.kind} is invalid`);
       segments.pop();

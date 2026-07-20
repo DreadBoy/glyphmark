@@ -23,7 +23,7 @@ describe('parse — content references', () => {
     const doc = parse('myref {\nHello world\n}\n\nBody');
     const nodes = doc.contentRefs.get('myref');
     expect(nodes).toHaveLength(1);
-    const [node] = nodes!;
+    const [node] = nodes ?? [];
     expect(node?.type).toBe('paragraph');
     if (node?.type === 'paragraph') {
       expect(node.content).toEqual([{ kind: 'text', text: 'Hello world' }]);
@@ -445,7 +445,7 @@ describe('parse — info / rule / sample / head', () => {
     const r = doc.body.find((n) => n.type === 'rule');
     if (r?.type === 'rule') {
       expect(r.content).toHaveLength(1);
-      const seg = r.content[0]!;
+      const seg = r.content[0];
       expect(seg.kind).toBe('table');
       if (seg.kind === 'table') {
         expect(seg.node.caption).toEqual([{ kind: 'text', text: 'Caption' }]);
@@ -459,7 +459,7 @@ describe('parse — info / rule / sample / head', () => {
     expect(r?.type).toBe('rule');
     if (r?.type === 'rule') {
       expect(r.content).toHaveLength(1);
-      const seg = r.content[0]!;
+      const seg = r.content[0];
       expect(seg.kind).toBe('table');
       if (seg.kind === 'table') {
         expect(seg.node.headers).toEqual([]);
@@ -786,7 +786,7 @@ describe('parse — segment allow-list (warn-and-drop matrix)', () => {
           .spyOn(console, 'warn')
           .mockImplementation(() => undefined);
 
-        const doc = parse(wrap[container](KIND_INPUT[kind]!));
+        const doc = parse(wrap[container](KIND_INPUT[kind]));
         const block = doc.body.find((n) => n.type === blockType[container]);
 
         // Block must exist; its content must contain no segment of `kind`.
