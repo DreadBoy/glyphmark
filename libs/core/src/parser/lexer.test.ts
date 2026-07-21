@@ -144,7 +144,14 @@ describe('tokenize', () => {
 
   describe('block-open', () => {
     it('emits block-open for each block type', () => {
-      const types = ['item', 'info', 'rule', 'sample', 'head'] as const;
+      const types = [
+        'item',
+        'info',
+        'rule',
+        'sample',
+        'head',
+        'sidebar',
+      ] as const;
       for (const t of types) {
         const tokens = lex(`${t}(\nfoo\n)`);
         expect(tokens).toEqual([{ kind: 'block-open', type: t, raw: 'foo' }]);

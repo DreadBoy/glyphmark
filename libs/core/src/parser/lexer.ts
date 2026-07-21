@@ -1,6 +1,12 @@
 import type { Align } from './ir';
 
-export type BlockType = 'item' | 'info' | 'rule' | 'sample' | 'head';
+export type BlockType =
+  | 'item'
+  | 'info'
+  | 'rule'
+  | 'sample'
+  | 'head'
+  | 'sidebar';
 
 export type PreambleType = 'css' | 'fonts';
 
@@ -32,6 +38,7 @@ const BLOCK_KEYWORDS: readonly BlockType[] = [
   'rule',
   'sample',
   'head',
+  'sidebar',
 ];
 const ALL_KEYWORDS = [...PREAMBLE_KEYWORDS, ...BLOCK_KEYWORDS] as const;
 const KEYWORD_RE = new RegExp(`^(${ALL_KEYWORDS.join('|')})\\s*\\(`);

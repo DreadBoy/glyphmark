@@ -1,0 +1,98 @@
+head(
+# WITCH
+
+You command powerful magic, not through study or devotion, but as an agent for an
+otherworldly patron that even you don't entirely understand. Through a special
+familiar, your patron grants you versatile spells and powerful hexes to use as you
+see fit, though you're never certain if you're merely serving a larger plan.
+)
+
+info(
+# Key Attribute
+
+## Intelligence
+
+At 1st level, your class gives you an attribute boost to Intelligence.
+
+|
+
+# Hit Points
+
+## 6 plus your Constitution modifier
+
+You increase your maximum number of HP by this number at 1st level and every level
+thereafter.
+)
+
+## During combat encounters...
+
+You cast spells to change the course of battle, using magical hexes to hamper
+enemies and aid allies, while leveraging more powerful spells to control the
+battlefield, aided by your extraordinary familiar.
+
+## During social encounters...
+
+You provide knowledge on numerous topics, and you might call upon your patron's
+magic to charm or deceive others.
+
+## While exploring...
+
+You remain alert for magical traps and treasures, employing a clever array of
+spells to overcome the obstacles that stand in your way.
+
+## In downtime...
+
+You brew potions, craft other magical items, or hunt for new spells for your
+familiar to learn.
+
+## You might...
+
+* Strive to learn more about your patron or familiar.
+* Seek out new sources of magic, like scrolls and spellbooks.
+
+sidebar(
+# Initial Proficiencies
+
+At 1st level, you gain the listed proficiency ranks. You are untrained in anything
+not listed unless you gain a better rank in some other way.
+
+## Perception
+
+Trained in Perception
+
+## Saving Throws
+
+Trained in Fortitude
+
+Trained in Reflex
+
+Expert in Will
+
+## Skills
+
+Trained in one skill determined by your patron
+
+Trained in a number of additional skills equal to 3 plus your Intelligence modifier
+
+## Attacks
+
+Trained in simple weapons
+
+Trained in unarmed attacks
+
+## Defenses
+
+Untrained in all armor
+
+Trained in unarmored defense
+
+## Spells
+
+Trained in spell attack modifier
+
+Trained in spell DC
+
+## Class DC
+
+Trained in witch class DC
+)

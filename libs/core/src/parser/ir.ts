@@ -105,6 +105,17 @@ export type RuleSegment =
  */
 export type InfoSegment = Segment | { kind: 'column-break' };
 
+/**
+ * Sidebar blocks are the tinted margin/aside callouts. They accept the same
+ * content as `rule()` *minus* column breaks — a `#`/`##` title plus paragraphs,
+ * lists, and tables. A sidebar is single-column, so an inner column break has
+ * no meaning; it's warn-and-dropped by the allow-list.
+ */
+export type SidebarSegment =
+  | Segment
+  | { kind: 'list'; items: Inline[][]; indent: ListIndent }
+  | { kind: 'table'; node: TableNode };
+
 export interface PageBreakNode {
   type: 'page-break';
 }
@@ -195,6 +206,10 @@ export interface HeadBlockNode {
   type: 'head';
   content: Segment[];
 }
+export interface SidebarBlockNode {
+  type: 'sidebar';
+  content: SidebarSegment[];
+}
 
 export type BodyNode =
   | PageBreakNode
@@ -208,7 +223,8 @@ export type BodyNode =
   | InfoBlockNode
   | RuleBlockNode
   | SampleBlockNode
-  | HeadBlockNode;
+  | HeadBlockNode
+  | SidebarBlockNode;
 
 export interface GlyphDocument {
   customCss?: string;
