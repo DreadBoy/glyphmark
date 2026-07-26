@@ -12,6 +12,7 @@ libraries used while authoring fixtures from the source rulebooks.
 | ---------------- | ---------------- | ---------------------------------------------------------------------------- |
 | `@glyphmark/cli` | `apps/cli`       | Command-line tool. Reads a `.glyph` file, writes `.html` or `.pdf`.          |
 | `@glyphmark/core`| `libs/core`      | Parser and HTML/PDF renderer. The engine behind the CLI; also usable as a library. |
+| `intellij-plugin`| `apps/intellij-plugin` | IntelliJ IDEA plugin. Renders `.glyph` files in a live preview panel beside the editor. |
 | `extract`        | `libs/extract`   | Node scripts for pulling single pages out of source PDFs and previewing their text-box layout. Author-time tooling. |
 | `books`          | `libs/books`     | Source Pathfinder 2e PDFs and per-page extracts used as visual references for fixtures. Data only, no code. |
 
@@ -19,6 +20,7 @@ See each project's README for details:
 
 - [`apps/cli/README.md`](apps/cli/README.md) — installing and using the CLI
 - [`libs/core/README.md`](libs/core/README.md) — supported blocks and DSL notes
+- [`apps/intellij-plugin/README.md`](apps/intellij-plugin/README.md) — the IntelliJ preview plugin
 - [`libs/extract/README.md`](libs/extract/README.md) — page-extraction helpers
 
 ## Development
