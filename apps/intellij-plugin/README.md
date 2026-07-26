@@ -8,6 +8,42 @@ Powered by [`@glyphmark/core`](../../libs/core) — the preview goes through the
 same parser and renderer as [the CLI](../cli), so what you see in the editor is
 what `glyphmark input.glyph output.html` writes.
 
+## Install
+
+The plugin is not on JetBrains Marketplace. It ships as a GitHub Release, which
+doubles as a [custom plugin
+repository](https://plugins.jetbrains.com/docs/intellij/custom-plugin-repository.html)
+— so you still get install and update through the normal IDE flow.
+
+**Recommended.** Add this URL under <kbd>Settings</kbd> → <kbd>Plugins</kbd> →
+<kbd>⚙</kbd> → <kbd>Manage Plugin Repositories</kbd>:
+
+```
+https://github.com/DreadBoy/glyphmark/releases/latest/download/updatePlugins.xml
+```
+
+Then find **Glyphmark** on the Marketplace tab. New versions show up as ordinary
+plugin updates, because that URL always resolves to the newest release.
+
+**One-off.** Download the `.zip` from any release and use <kbd>Settings</kbd> →
+<kbd>Plugins</kbd> → <kbd>⚙</kbd> → <kbd>Install Plugin from Disk…</kbd>. No
+updates this way. The plugin is unsigned either way, so the IDE shows a warning
+during installation.
+
+Requires IntelliJ IDEA 2025.2 or newer (`since-build` 252, no upper bound).
+
+## Releasing
+
+Releases are cut by `.github/workflows/release.yml` from the same trigger as the
+npm packages: bump `version` in the **root** `package.json` and merge to `main`.
+The workflow sees no GitHub Release for that version, builds the plugin,
+generates `updatePlugins.xml` from the built artifact, and publishes both as
+release assets.
+
+`scripts/set-version-from-root.mjs` stamps the root version into
+`gradle.properties`, so the committed `version` there is a placeholder — the
+same arrangement the publishable packages use for their `package.json` versions.
+
 ## How it renders
 
 The preview panel is a JCEF (embedded Chromium) browser, and rendering happens
