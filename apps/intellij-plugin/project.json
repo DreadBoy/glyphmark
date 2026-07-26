@@ -1,0 +1,42 @@
+{
+  "name": "intellij-plugin",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/intellij-plugin/src",
+  "projectType": "application",
+  "targets": {
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsc --noEmit -p apps/intellij-plugin/preview/tsconfig.json",
+        "cwd": "{workspaceRoot}"
+      },
+      "dependsOn": ["^build"]
+    },
+    "build-preview": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "node apps/intellij-plugin/preview/esbuild.mjs",
+        "cwd": "{workspaceRoot}"
+      },
+      "dependsOn": ["typecheck", "^build"],
+      "outputs": ["{projectRoot}/src/main/resources/preview"]
+    },
+    "build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "./gradlew buildPlugin",
+        "cwd": "{projectRoot}"
+      },
+      "dependsOn": ["build-preview"],
+      "outputs": ["{projectRoot}/build/distributions"]
+    },
+    "run": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "./gradlew runIde",
+        "cwd": "{projectRoot}"
+      },
+      "dependsOn": ["build-preview"]
+    }
+  }
+}
