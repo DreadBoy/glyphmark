@@ -4,18 +4,24 @@
     <name>Glyphmark</name>
     <vendor>Glyphmark</vendor>
     <description><![CDATA[
-        <p>Live preview for <code>.glyph</code> files.</p>
+        <p>Live preview and structure view for <code>.glyph</code> files.</p>
         <p>Opens Glyph markup in a source/preview split editor and renders it with
         the Glyphmark engine, styled to look like a page from the Pathfinder 2e
         rulebooks — the same output the Glyphmark CLI produces.</p>
+        <p>The Structure tool window outlines the document: headings nested by
+        level, plus <code>item</code>, <code>info</code>, <code>rule</code>,
+        <code>sample</code> and <code>head</code> blocks under the heading they
+        belong to.</p>
     ]]></description>
 
     <depends>com.intellij.modules.platform</depends>
 
     <extensions defaultExtensionNs="com.intellij">
+        <!-- No `language` attribute: GlyphFileType is a *secondary* file type
+             for plain text (PlainTextFileType is the primary one), and the
+             platform requires the attribute to be absent for those. -->
         <fileType
             name="Glyph"
-            language="TEXT"
             extensions="glyph"
             implementationClass="com.glyphmark.intellij.GlyphFileType"
             fieldName="INSTANCE"/>

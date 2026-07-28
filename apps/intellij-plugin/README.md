@@ -8,6 +8,18 @@ Powered by [`@glyphmark/core`](../../libs/core) — the preview goes through the
 same parser and renderer as [the CLI](../cli), so what you see in the editor is
 what `glyphmark input.glyph output.html` writes.
 
+The **Structure** tool window (<kbd>⌘7</kbd> / <kbd>Alt+7</kbd>, or <kbd>⌘F12</kbd>
+for the popup) outlines the open document: headings nested by level, with
+`item()`, `info()`, `rule()`, `sample()` and `head()` blocks listed under the
+heading they follow. A block is labelled by its leading `#` name and `##`
+subtitle, the way the parser reads them, so a feat shows up as **Pet · Feat 1**
+rather than as `item`. Content-ref definitions (`key { … }`) are listed too.
+
+The outline comes from [`GlyphOutline`](src/main/kotlin/com/glyphmark/intellij/GlyphOutline.kt),
+a line scanner that mirrors the lexer's block and heading patterns — the IDE
+can't run the TypeScript parser on the JVM, and an outline only needs the
+document's skeleton.
+
 ## Install
 
 The plugin is not on JetBrains Marketplace. It ships as a GitHub Release, which
