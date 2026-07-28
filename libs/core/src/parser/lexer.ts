@@ -1,20 +1,24 @@
-import type { Align } from './ir';
+import type { Align, TokenId, TokenSpan } from './ir';
 
 export type BlockType = 'item' | 'info' | 'rule' | 'sample' | 'head';
 
 export type PreambleType = 'css' | 'fonts';
 
-export type Token =
+// The intrinsic data of a token, before provenance metadata is attached. Kept
+// separate so `tokenizeInto` can stamp `id`/`span` onto every variant in one
+// place. `block-open` and `content-ref` additionally carry their already-lexed
+// inner tokens as `children`, so the parser never re-tokenizes raw strings.
+type TokenData =
   | { kind: 'preamble'; type: PreambleType; content: string }
   | { kind: 'hidden-delimiter' }
-  | { kind: 'content-ref'; key: string; content: string }
+  | { kind: 'content-ref'; key: string; content: string; children: Token[] }
   | { kind: 'page-break' }
   | { kind: 'column-break' }
   | { kind: 'full-width-toggle' }
   | { kind: 'hr' }
   | { kind: 'heading'; level: number; text: string }
   | { kind: 'centered-text'; content: string }
-  | { kind: 'block-open'; type: BlockType; raw: string }
+  | { kind: 'block-open'; type: BlockType; raw: string; children: Token[] }
   | { kind: 'table-header'; cells: string[] }
   | { kind: 'table-sep'; aligns: Align[] }
   | { kind: 'table-row'; cells: string[] }
@@ -24,6 +28,17 @@ export type Token =
   | { kind: 'reference'; key: string }
   | { kind: 'text'; content: string }
   | { kind: 'blank' };
+
+// Provenance metadata every token carries. `id` is an opaque, parse-scoped
+// handle (see {@link TokenId}); `span` is the token's absolute source position.
+type TokenMeta = { id: TokenId; span: TokenSpan };
+
+// Distribute `& TokenMeta` across each union member so `Token` stays a
+// discriminated union (a plain `TokenData & TokenMeta` intersection would break
+// `Extract<Token, { kind: '…' }>` narrowing used by the parser).
+type WithMeta<T> = T extends unknown ? T & TokenMeta : never;
+
+export type Token = WithMeta<TokenData>;
 
 const PREAMBLE_KEYWORDS: readonly PreambleType[] = ['css', 'fonts'];
 const BLOCK_KEYWORDS: readonly BlockType[] = [
@@ -36,9 +51,81 @@ const BLOCK_KEYWORDS: readonly BlockType[] = [
 const ALL_KEYWORDS = [...PREAMBLE_KEYWORDS, ...BLOCK_KEYWORDS] as const;
 const KEYWORD_RE = new RegExp(`^(${ALL_KEYWORDS.join('|')})\\s*\\(`);
 
+// Running state shared across the whole lex of one document: a monotonic token
+// id counter. Ids are allocated in reading order (pre-order over the token
+// tree — a block/ref parent is stamped before its children are lexed).
+type LexCtx = { next: number };
+
+/**
+ * Tokenize a `.glyph` document. Every token carries a parse-scoped `id` and an
+ * absolute source `span`; `block-open`/`content-ref` tokens additionally carry
+ * their inner `children` tokens. Ids are unique per call and allocated in
+ * reading order, but treat them as opaque — resolve them against the map from
+ * {@link buildTokenMap} (or `GlyphDocument.tokenMap`) of the *same* lex.
+ */
 export function tokenize(input: string): Token[] {
+  return tokenizeInto(input, { next: 0 }, 0, 1);
+}
+
+/**
+ * Flatten a token tree into a `TokenId → span` lookup, walking into
+ * `block-open`/`content-ref` children so every token — at any depth — is
+ * resolvable through one map.
+ */
+export function buildTokenMap(tokens: Token[]): Map<TokenId, TokenSpan> {
+  const map = new Map<TokenId, TokenSpan>();
+  const walk = (ts: Token[]): void => {
+    for (const t of ts) {
+      map.set(t.id, t.span);
+      if (t.kind === 'block-open' || t.kind === 'content-ref') walk(t.children);
+    }
+  };
+  walk(tokens);
+  return map;
+}
+
+// Lex `input` whose first character sits at absolute offset `baseOffset` on
+// absolute (1-based) line `baseLine` of the original document. The top-level
+// call passes `0`/`1`; nested block/ref content passes the base of its trimmed
+// inner (see `captureBalanced`), so every span is absolute and composes exactly
+// across nesting (each inner is a contiguous substring of its parent's).
+function tokenizeInto(
+  input: string,
+  ctx: LexCtx,
+  baseOffset: number,
+  baseLine: number,
+): Token[] {
   const lines = input.split('\n');
+  // Absolute-within-`input` start offset of each line (column 0).
+  const lineStart: number[] = [];
+  {
+    let acc = 0;
+    for (const line of lines) {
+      lineStart.push(acc);
+      acc += line.length + 1; // +1 for the '\n' that split() removed
+    }
+  }
   const tokens: Token[] = [];
+
+  // Span covering physical lines [startLi..endLi]: column 0 of the first line
+  // to just past the last char of the last (exclusive end — the position of the
+  // trailing '\n', or EOF).
+  const spanOf = (startLi: number, endLi: number): TokenSpan => ({
+    startLine: baseLine + startLi,
+    endLine: baseLine + endLi,
+    startOffset: baseOffset + lineStart[startLi],
+    endOffset: baseOffset + lineStart[endLi] + lines[endLi].length,
+  });
+
+  // Stamp id + span onto a token and append it. Allocates the id at append
+  // time, which keeps single-line tokens in reading order.
+  const push = (data: TokenData, startLi: number, endLi: number = startLi) => {
+    tokens.push({
+      ...data,
+      id: ctx.next++,
+      span: spanOf(startLi, endLi),
+    } as Token);
+  };
 
   let i = 0;
   while (i < lines.length) {
@@ -46,34 +133,34 @@ export function tokenize(input: string): Token[] {
     const trimmed = line.trim();
 
     if (trimmed === '') {
-      tokens.push({ kind: 'blank' });
+      push({ kind: 'blank' }, i);
       i++;
       continue;
     }
 
     // Lone-marker tokens require no leading whitespace.
     if (line === '%') {
-      tokens.push({ kind: 'hidden-delimiter' });
+      push({ kind: 'hidden-delimiter' }, i);
       i++;
       continue;
     }
     if (line === '=') {
-      tokens.push({ kind: 'page-break' });
+      push({ kind: 'page-break' }, i);
       i++;
       continue;
     }
     if (line === '|') {
-      tokens.push({ kind: 'column-break' });
+      push({ kind: 'column-break' }, i);
       i++;
       continue;
     }
     if (line === '/') {
-      tokens.push({ kind: 'full-width-toggle' });
+      push({ kind: 'full-width-toggle' }, i);
       i++;
       continue;
     }
     if (line === '-') {
-      tokens.push({ kind: 'hr' });
+      push({ kind: 'hr' }, i);
       i++;
       continue;
     }
@@ -84,17 +171,35 @@ export function tokenize(input: string): Token[] {
       const keyword = kwMatch[1];
       const captured = captureBalanced(lines, i, '(', ')');
       if (PREAMBLE_KEYWORDS.includes(keyword as PreambleType)) {
-        tokens.push({
-          kind: 'preamble',
-          type: keyword as PreambleType,
-          content: captured.inner,
-        });
+        push(
+          {
+            kind: 'preamble',
+            type: keyword as PreambleType,
+            content: captured.inner,
+          },
+          i,
+          captured.endLine,
+        );
       } else {
+        // Allocate the block's id *before* lexing its children so ids stay in
+        // reading order (the `keyword(` line precedes its inner content).
+        const id = ctx.next++;
+        const childBaseOffset = baseOffset + lineStart[i] + captured.innerStart;
+        const childBaseLine = baseLine + i + captured.innerStartLineOffset;
+        const children = tokenizeInto(
+          captured.inner,
+          ctx,
+          childBaseOffset,
+          childBaseLine,
+        );
         tokens.push({
           kind: 'block-open',
           type: keyword as BlockType,
           raw: captured.inner,
-        });
+          children,
+          id,
+          span: spanOf(i, captured.endLine),
+        } as Token);
       }
       i = captured.endLine + 1;
       continue;
@@ -104,11 +209,23 @@ export function tokenize(input: string): Token[] {
     const refMatch = line.match(/^(\w+)\s*\{\s*$/);
     if (refMatch) {
       const captured = captureBalanced(lines, i, '{', '}');
+      const id = ctx.next++;
+      const childBaseOffset = baseOffset + lineStart[i] + captured.innerStart;
+      const childBaseLine = baseLine + i + captured.innerStartLineOffset;
+      const children = tokenizeInto(
+        captured.inner,
+        ctx,
+        childBaseOffset,
+        childBaseLine,
+      );
       tokens.push({
         kind: 'content-ref',
         key: refMatch[1],
         content: captured.inner,
-      });
+        children,
+        id,
+        span: spanOf(i, captured.endLine),
+      } as Token);
       i = captured.endLine + 1;
       continue;
     }
@@ -116,11 +233,7 @@ export function tokenize(input: string): Token[] {
     // Heading
     const hMatch = trimmed.match(/^(#{1,6})\s+(.+)$/);
     if (hMatch) {
-      tokens.push({
-        kind: 'heading',
-        level: hMatch[1].length,
-        text: hMatch[2],
-      });
+      push({ kind: 'heading', level: hMatch[1].length, text: hMatch[2] }, i);
       i++;
       continue;
     }
@@ -128,7 +241,7 @@ export function tokenize(input: string): Token[] {
     // Centered text marker: ^ text
     const cMatch = trimmed.match(/^\^\s+(.+)$/);
     if (cMatch) {
-      tokens.push({ kind: 'centered-text', content: cMatch[1] });
+      push({ kind: 'centered-text', content: cMatch[1] }, i);
       i++;
       continue;
     }
@@ -140,7 +253,7 @@ export function tokenize(input: string): Token[] {
         .split(',')
         .map((s) => s.trim())
         .filter(Boolean);
-      tokens.push({ kind: 'trait-line', traits });
+      push({ kind: 'trait-line', traits }, i);
       i++;
       continue;
     }
@@ -151,7 +264,7 @@ export function tokenize(input: string): Token[] {
     // block-level, defined elsewhere as `key { ... }`).
     const refMatchUse = trimmed.match(/^\{\{(\w+)}}$/);
     if (refMatchUse) {
-      tokens.push({ kind: 'reference', key: refMatchUse[1] });
+      push({ kind: 'reference', key: refMatchUse[1] }, i);
       i++;
       continue;
     }
@@ -161,7 +274,7 @@ export function tokenize(input: string): Token[] {
       trimmed.startsWith('* ') ||
       (trimmed.startsWith('- ') && trimmed.length > 2)
     ) {
-      tokens.push({ kind: 'list-item', text: trimmed.slice(2) });
+      push({ kind: 'list-item', text: trimmed.slice(2) }, i);
       i++;
       continue;
     }
@@ -172,9 +285,9 @@ export function tokenize(input: string): Token[] {
     // separator row, so it stays plain text and doesn't get swallowed here.
     if (isSeparatorRow(trimmed)) {
       const aligns = parseAligns(trimmed, splitTableRow(trimmed).length);
-      tokens.push({ kind: 'table-sep', aligns });
+      push({ kind: 'table-sep', aligns }, i);
       i++;
-      i = consumeTableBody(lines, i, tokens);
+      i = consumeTableBody(lines, i, push);
       continue;
     }
 
@@ -184,21 +297,24 @@ export function tokenize(input: string): Token[] {
       if (isSeparatorRow(nextTrim)) {
         const headerCells = splitTableRow(line);
         const aligns = parseAligns(nextTrim, headerCells.length);
-        tokens.push({ kind: 'table-header', cells: headerCells });
-        tokens.push({ kind: 'table-sep', aligns });
+        push({ kind: 'table-header', cells: headerCells }, i);
+        push({ kind: 'table-sep', aligns }, i + 1);
         i += 2;
-        i = consumeTableBody(lines, i, tokens);
+        i = consumeTableBody(lines, i, push);
         continue;
       }
     }
 
     // Default: text
-    tokens.push({ kind: 'text', content: line });
+    push({ kind: 'text', content: line }, i);
     i++;
   }
 
   return tokens;
 }
+
+// Emit a token spanning physical lines [startLi..endLi].
+type PushFn = (data: TokenData, startLi: number, endLi?: number) => void;
 
 // Footnote line: `. [<marker>] <text>` where marker is `*` (unnumbered) or one
 // or more digits. Anchored to the start of the trimmed line so prose dots
@@ -215,14 +331,14 @@ function matchFootnote(
 function consumeTableBody(
   lines: string[],
   start: number,
-  tokens: Token[],
+  push: PushFn,
 ): number {
   let i = start;
   while (i < lines.length) {
     const t = lines[i].trim();
     const fn = matchFootnote(t);
     if (fn) {
-      tokens.push({ kind: 'table-footnote', marker: fn.marker, text: fn.text });
+      push({ kind: 'table-footnote', marker: fn.marker, text: fn.text }, i);
       i++;
       continue;
     }
@@ -237,7 +353,7 @@ function consumeTableBody(
       break;
     }
     if (!t.includes('|')) break;
-    tokens.push({ kind: 'table-row', cells: splitTableRow(lines[i]) });
+    push({ kind: 'table-row', cells: splitTableRow(lines[i]) }, i);
     i++;
   }
   return i;
@@ -277,12 +393,41 @@ function parseAligns(separator: string, columnCount: number): Align[] {
     .slice(0, columnCount);
 }
 
+// Capture a delimiter-balanced block starting on `startLine`. Returns the
+// trimmed inner content, the last line consumed, and where the *trimmed* inner
+// begins relative to `startLine` — `innerStart` as a character offset into the
+// line-`startLine`-based block, and `innerStartLineOffset` as a line delta —
+// so the caller can give the re-lexed children absolute, composable spans.
 function captureBalanced(
   lines: string[],
   startLine: number,
   open: string,
   close: string,
-): { inner: string; endLine: number } {
+): {
+  inner: string;
+  endLine: number;
+  innerStart: number;
+  innerStartLineOffset: number;
+} {
+  const locate = (block: string, closeIdx: number, endLine: number) => {
+    const openIdx = block.indexOf(open);
+    const rawInner =
+      closeIdx >= 0
+        ? block.slice(openIdx + 1, closeIdx)
+        : block.slice(openIdx + 1);
+    const leadingWs = rawInner.length - rawInner.trimStart().length;
+    const innerStart = openIdx + 1 + leadingWs;
+    const before = block.slice(0, innerStart);
+    let newlines = 0;
+    for (const ch of before) if (ch === '\n') newlines++;
+    return {
+      inner: rawInner.trim(),
+      endLine,
+      innerStart,
+      innerStartLineOffset: newlines,
+    };
+  };
+
   let depth = 0;
   let started = false;
 
@@ -300,12 +445,7 @@ function captureBalanced(
         depth--;
         if (depth === 0) {
           const block = lines.slice(startLine, li + 1).join('\n');
-          const openIdx = block.indexOf(open);
-          const closeIdx = block.lastIndexOf(close);
-          return {
-            inner: block.slice(openIdx + 1, closeIdx).trim(),
-            endLine: li,
-          };
+          return locate(block, block.lastIndexOf(close), li);
         }
       }
     }
@@ -313,8 +453,13 @@ function captureBalanced(
   // Unbalanced — take everything after the open delimiter.
   const block = lines.slice(startLine).join('\n');
   const openIdx = block.indexOf(open);
-  return {
-    inner: openIdx >= 0 ? block.slice(openIdx + 1).trim() : block,
-    endLine: lines.length - 1,
-  };
+  if (openIdx < 0) {
+    return {
+      inner: block,
+      endLine: lines.length - 1,
+      innerStart: 0,
+      innerStartLineOffset: 0,
+    };
+  }
+  return locate(block, -1, lines.length - 1);
 }

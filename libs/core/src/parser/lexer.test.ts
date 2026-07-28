@@ -1,7 +1,19 @@
 import { describe, it, expect } from 'vitest';
-import { tokenize } from './lexer';
+import { tokenize, buildTokenMap, type Token } from './lexer';
 
-const lex = tokenize;
+// Existing assertions compare bare token shapes. Strip the provenance metadata
+// (`id`/`span`) and the re-lexed `children` so they stay focused on lexing
+// output; dedicated id/span coverage lives in the "provenance" block below.
+function stripMeta(tokens: Token[]): Array<Record<string, unknown>> {
+  return tokens.map((t) => {
+    const rec = { ...t } as Record<string, unknown>;
+    delete rec.id;
+    delete rec.span;
+    delete rec.children;
+    return rec;
+  });
+}
+const lex = (s: string) => stripMeta(tokenize(s));
 
 describe('tokenize', () => {
   describe('basic line tokens', () => {
@@ -347,5 +359,136 @@ describe('tokenize', () => {
         },
       ]);
     });
+  });
+});
+
+// Assert a value is defined and return it narrowed — keeps the provenance
+// tests free of `!` (the codebase lints with --max-warnings 0).
+function present<T>(value: T | undefined): T {
+  expect(value).toBeDefined();
+  return value as T;
+}
+
+describe('tokenize — provenance (ids & spans)', () => {
+  it('assigns a 1-based line and absolute offsets to a single-line token', () => {
+    const input = '# Title';
+    const tok = present(tokenize(input)[0]);
+    expect(tok.kind).toBe('heading');
+    expect(tok.span).toEqual({
+      startLine: 1,
+      endLine: 1,
+      startOffset: 0,
+      endOffset: 7,
+    });
+    expect(input.slice(tok.span.startOffset, tok.span.endOffset)).toBe(
+      '# Title',
+    );
+  });
+
+  it('numbers lines across blanks in a multi-line document', () => {
+    const input = 'A\n\n# Two';
+    const heading = present(tokenize(input).find((t) => t.kind === 'heading'));
+    expect(heading.span.startLine).toBe(3);
+    expect(input.slice(heading.span.startOffset, heading.span.endOffset)).toBe(
+      '# Two',
+    );
+  });
+
+  it('allocates ids in reading order — a block before its children', () => {
+    const block = present(tokenize('item(\n# Foo\n-\nBody\n)')[0]);
+    expect(block.kind).toBe('block-open');
+    if (block.kind !== 'block-open') return;
+    const childIds = block.children.map((c) => c.id);
+    expect(Math.min(...childIds)).toBeGreaterThan(block.id);
+    const allIds = [block.id, ...childIds];
+    expect([...allIds].sort((a, b) => a - b)).toEqual(allIds);
+  });
+
+  it('allocates ids in global pre-order across a block boundary', () => {
+    // A leaf before the block, then the block + its children, then a leaf
+    // after: ids must strictly increase in that document order, which a
+    // separate-pass allocation of child ids would violate.
+    const tokens = tokenize('A\n\nitem(\n# Foo\nBody\n)\n\nB');
+    const a = present(
+      tokens.find((t) => t.kind === 'text' && t.content === 'A'),
+    );
+    const block = present(tokens.find((t) => t.kind === 'block-open'));
+    const b = present(
+      tokens.find((t) => t.kind === 'text' && t.content === 'B'),
+    );
+    if (block.kind !== 'block-open') throw new Error('expected block-open');
+    const childIds = block.children.map((c) => c.id);
+    expect(a.id).toBeLessThan(block.id);
+    expect(block.id).toBeLessThan(Math.min(...childIds));
+    expect(Math.max(...childIds)).toBeLessThan(b.id);
+  });
+
+  it('gives a block token a span covering the whole keyword(…) construct', () => {
+    const input = 'item(\n# Foo\n-\nBody\n)';
+    const block = present(tokenize(input)[0]);
+    expect(block.span.startLine).toBe(1);
+    expect(block.span.endLine).toBe(5);
+    expect(block.span.endOffset).toBe(input.length);
+  });
+
+  it('gives block children absolute (composed) line and offset', () => {
+    const input = 'item(\n# Foo\n-\nBody\n)';
+    const block = present(tokenize(input)[0]);
+    if (block.kind !== 'block-open') throw new Error('expected block-open');
+    const heading = present(block.children.find((c) => c.kind === 'heading'));
+    expect(heading.span.startLine).toBe(2);
+    expect(input.slice(heading.span.startOffset, heading.span.endOffset)).toBe(
+      '# Foo',
+    );
+  });
+
+  it('resolves absolute offsets for tokens nested two blocks deep', () => {
+    const input = 'Visible\n\n%\n\nsecret {\nrule(\nUNIQUEMARKER\n)\n}';
+    const ref = present(tokenize(input).find((t) => t.kind === 'content-ref'));
+    if (ref.kind !== 'content-ref') throw new Error('expected content-ref');
+    const rule = present(ref.children.find((t) => t.kind === 'block-open'));
+    if (rule.kind !== 'block-open') throw new Error('expected block-open');
+    const marker = present(rule.children.find((t) => t.kind === 'text'));
+    expect(input.slice(marker.span.startOffset, marker.span.endOffset)).toBe(
+      'UNIQUEMARKER',
+    );
+    expect(marker.span.startOffset).toBe(input.indexOf('UNIQUEMARKER'));
+  });
+
+  it('keeps a block’s children in sync with re-lexing its raw', () => {
+    const block = present(tokenize('rule(\n# H\n\nSome text.\n* a\n* b\n)')[0]);
+    if (block.kind !== 'block-open') throw new Error('expected block-open');
+    expect(stripMeta(block.children)).toEqual(stripMeta(tokenize(block.raw)));
+  });
+
+  it('keeps line and offset exact with CRLF endings', () => {
+    const input = '# A\r\n\r\n# B';
+    const b = present(
+      tokenize(input).find((t) => t.kind === 'heading' && t.text === 'B'),
+    );
+    expect(b.span.startLine).toBe(3);
+    expect(b.span.startOffset).toBe(input.indexOf('# B'));
+    expect(input.slice(b.span.startOffset, b.span.endOffset)).toBe('# B');
+  });
+
+  it('spans exclude the trailing newline; the final token ends at EOF', () => {
+    const input = 'one\ntwo';
+    const tokens = tokenize(input);
+    const a = present(tokens[0]);
+    const b = present(tokens[1]);
+    expect(input.slice(a.span.startOffset, a.span.endOffset)).toBe('one');
+    expect(b.span.endOffset).toBe(input.length);
+    expect(b.span.startOffset - a.span.endOffset).toBe(1);
+  });
+
+  it('buildTokenMap resolves every token, including nested children', () => {
+    const tokens = tokenize('item(\n# Foo\n-\nBody\n)');
+    const map = buildTokenMap(tokens);
+    const block = present(tokens[0]);
+    if (block.kind !== 'block-open') throw new Error('expected block-open');
+    expect(map.get(block.id)).toEqual(block.span);
+    for (const child of block.children) {
+      expect(map.get(child.id)).toEqual(child.span);
+    }
   });
 });

@@ -1,3 +1,40 @@
+/**
+ * Opaque, parse-scoped handle to a source token. Ids are allocated per
+ * `parseGlyph` call in reading order (pre-order over the token tree), but treat
+ * them as opaque: a `TokenId` is valid *only* against the `tokenMap` from the
+ * same parse, is **not** stable across edits/re-parses, and carries no meaning
+ * across documents. Never compare ids to reconstruct order — reading order
+ * comes from walking the IR (`doc.body` plus each block's segment arrays).
+ */
+export type TokenId = number;
+
+/**
+ * Absolute source span of a token. Lines are 1-based and inclusive
+ * (`startLine`..`endLine`); offsets are absolute character indices into the
+ * original `parseGlyph` input with `endOffset` exclusive. For a token that
+ * occupies whole physical lines, `input.slice(startOffset, endOffset)` is the
+ * covered line(s) without the trailing newline. The one exception is a child
+ * token of a single-line block (e.g. `rule(text)`), whose `startOffset` begins
+ * at the inner content rather than at column 0. `startLine`/`endLine` are
+ * always the exact physical lines, so line-based anchoring is unaffected.
+ */
+export type TokenSpan = {
+  startLine: number;
+  endLine: number;
+  startOffset: number;
+  endOffset: number;
+};
+
+/**
+ * Opaque provenance handle on an IR node: the `first` and `last` token the node
+ * spans in source. The IR never interprets these — resolve them against
+ * {@link GlyphDocument.tokenMap} from the same parse, e.g.
+ * `doc.tokenMap.get(node.origin.first)?.startLine` for the start line, or
+ * `doc.tokenMap.get(node.origin.last)?.endLine` for a real section-end line.
+ * See {@link TokenId} for the validity rules.
+ */
+export type Origin = { first: TokenId; last: TokenId };
+
 export type Inline =
   | { kind: 'text'; text: string }
   | { kind: 'strong'; children: Inline[] }
@@ -107,6 +144,7 @@ export type InfoSegment = Segment | { kind: 'column-break' };
 
 export interface PageBreakNode {
   type: 'page-break';
+  origin: Origin;
 }
 export interface ColumnBreakNode {
   type: 'column-break';
@@ -117,6 +155,7 @@ export interface ColumnBreakNode {
    * content back across the break when column 2 would be empty).
    */
   trailing: boolean;
+  origin: Origin;
 }
 export interface FullWidthToggleNode {
   type: 'full-width-toggle';
@@ -125,21 +164,25 @@ export interface FullWidthToggleNode {
    * enter full-width; even indexes leave it.
    */
   index: number;
+  origin: Origin;
 }
 export interface ParagraphNode {
   type: 'paragraph';
   content: Inline[];
   indent: ParagraphIndent;
+  origin: Origin;
 }
 export interface HeadingNode {
   type: 'heading';
   level: number;
   content: Inline[];
+  origin: Origin;
 }
 export interface ListNode {
   type: 'list';
   items: Inline[][];
   indent: ListIndent;
+  origin: Origin;
 }
 /**
  * Footnote definition at the bottom of a table. Mirrors `FootnoteRef`: the
@@ -164,6 +207,7 @@ export interface TableNode {
   rows: CellInline[][][];
   caption?: CellInline[];
   footnotes: TableFootnote[];
+  origin: Origin;
 }
 export interface ItemBlockNode {
   type: 'item';
@@ -172,10 +216,12 @@ export interface ItemBlockNode {
   subtitle?: Inline[];
   traits: string[];
   content: ItemSegment[];
+  origin: Origin;
 }
 export interface InfoBlockNode {
   type: 'info';
   content: InfoSegment[];
+  origin: Origin;
 }
 export interface RuleBlockNode {
   type: 'rule';
@@ -186,14 +232,17 @@ export interface RuleBlockNode {
    */
   fullWidth: boolean;
   content: RuleSegment[];
+  origin: Origin;
 }
 export interface SampleBlockNode {
   type: 'sample';
   content: SampleSegment[];
+  origin: Origin;
 }
 export interface HeadBlockNode {
   type: 'head';
   content: Segment[];
+  origin: Origin;
 }
 
 export type BodyNode =
@@ -222,5 +271,12 @@ export interface GlyphDocument {
    * inside a definition stay literal: references don't nest.
    */
   contentRefs: Map<string, BodyNode[]>;
+  /**
+   * Flat lookup from every {@link TokenId} produced by this parse to its source
+   * {@link TokenSpan}. Resolve a node's {@link Origin} against this map, e.g.
+   * `tokenMap.get(node.origin.first)?.startLine` for the start line. Built once
+   * per `parseGlyph` call; valid only for handles from the same parse.
+   */
+  tokenMap: Map<TokenId, TokenSpan>;
   body: BodyNode[];
 }

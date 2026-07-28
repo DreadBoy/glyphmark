@@ -8,6 +8,7 @@ import type {
   ItemBlockNode,
   ItemSegment,
   ListIndent,
+  Origin,
   ParagraphIndent,
   RuleBlockNode,
   RuleSegment,
@@ -18,7 +19,7 @@ import type {
   TableNode,
 } from './ir';
 import { parseInline } from './inline';
-import { tokenize, type Token } from './lexer';
+import { buildTokenMap, tokenize, type Token } from './lexer';
 
 // Container kinds drive per-block indent decisions. "body" is the document
 // level (normal text); the rest correspond to block-open keywords.
@@ -110,17 +111,61 @@ function listIndent(kind: ContainerKind): ListIndent {
   return 'none';
 }
 
+// A node's provenance handle when it maps to a single token (the common case):
+// both endpoints are that token. Multi-token nodes (paragraphs, lists, tables)
+// build their own `{ first, last }` from the run of tokens they span.
+function single(tok: Token): Origin {
+  return { first: tok.id, last: tok.id };
+}
+
+// Rewrite the origin of a cloned subtree to `origin`. Used when a `{{key}}`
+// reference expands: every node cloned in from the definition is stamped with
+// the call-site token, so a positional consumer sees the expansion at its
+// document-reading-order position rather than back at the definition. Exhaustive
+// over `BodyNode` (the `never` default is a compile error if a variant is added)
+// so no origin-bearing node is missed — `rule()` additionally reaches its nested
+// table nodes, the only origin-bearer that lives below the body level.
+function retargetOrigins(node: BodyNode, origin: Origin): void {
+  node.origin = origin;
+  switch (node.type) {
+    case 'page-break':
+    case 'column-break':
+    case 'full-width-toggle':
+    case 'paragraph':
+    case 'heading':
+    case 'list':
+    case 'table':
+    case 'item':
+    case 'info':
+    case 'sample':
+    case 'head':
+      return;
+    case 'rule':
+      for (const seg of node.content) {
+        if (seg.kind === 'table') retargetOrigins(seg.node, origin);
+      }
+      return;
+    default: {
+      const _exhaustive: never = node;
+      return _exhaustive;
+    }
+  }
+}
+
 export function parse(input: string): GlyphDocument {
   const tokens = tokenize(input);
   const doc: GlyphDocument = {
     contentRefs: new Map(),
+    // One flat lookup over the whole token tree (visible + hidden + every
+    // block/ref child), so any node's origin resolves regardless of depth.
+    tokenMap: buildTokenMap(tokens),
     body: [],
   };
 
   // Collect top-level ref definitions. A definition may sit in the visible
   // body or in the hidden section past `%`, but not nested inside a block —
   // nested ones are rejected with a warning by the segment parser.
-  collectContentRefs(tokens, doc.contentRefs);
+  collectContentRefs(tokens, doc);
 
   const hiddenIdx = tokens.findIndex((t) => t.kind === 'hidden-delimiter');
   const visible = hiddenIdx === -1 ? tokens : tokens.slice(0, hiddenIdx);
@@ -177,12 +222,16 @@ function parseBody(tokens: Token[], doc: GlyphDocument): void {
         continue;
 
       case 'page-break':
-        doc.body.push({ type: 'page-break' });
+        doc.body.push({ type: 'page-break', origin: single(tok) });
         i++;
         continue;
 
       case 'column-break':
-        doc.body.push({ type: 'column-break', trailing: false });
+        doc.body.push({
+          type: 'column-break',
+          trailing: false,
+          origin: single(tok),
+        });
         i++;
         continue;
 
@@ -190,6 +239,7 @@ function parseBody(tokens: Token[], doc: GlyphDocument): void {
         doc.body.push({
           type: 'full-width-toggle',
           index: ++fullWidthToggleIdx,
+          origin: single(tok),
         });
         fullWidth = !fullWidth;
         firstInSection = true;
@@ -208,6 +258,7 @@ function parseBody(tokens: Token[], doc: GlyphDocument): void {
           type: 'heading',
           level: tok.level,
           content: parseInline(tok.text),
+          origin: single(tok),
         });
         firstInSection = true;
         i++;
@@ -215,10 +266,13 @@ function parseBody(tokens: Token[], doc: GlyphDocument): void {
 
       case 'list-item': {
         const items: Inline[][] = [];
+        const firstTok = tok;
+        let lastTok = tok;
         while (i < tokens.length) {
           const t = tokens[i];
           if (t.kind === 'list-item') {
             items.push(parseInline(t.text));
+            lastTok = t;
             i++;
           } else if (t.kind === 'blank') {
             // a blank still inside a list iff next is another list-item
@@ -227,7 +281,12 @@ function parseBody(tokens: Token[], doc: GlyphDocument): void {
             } else break;
           } else break;
         }
-        doc.body.push({ type: 'list', items, indent: listIndent('body') });
+        doc.body.push({
+          type: 'list',
+          items,
+          indent: listIndent('body'),
+          origin: { first: firstTok.id, last: lastTok.id },
+        });
         firstInSection = false;
         continue;
       }
@@ -247,39 +306,42 @@ function parseBody(tokens: Token[], doc: GlyphDocument): void {
       case 'block-open': {
         // Each branch casts the parser's wide `AnySegment[]` to the narrow
         // segment type the target node accepts. The casts are sound because
-        // `parseSegments` only emits kinds that `ALLOWED_SEGMENTS[kind]`
+        // `parseSegmentsFromTokens` only emits kinds that `ALLOWED_SEGMENTS[kind]`
         // permits — anything else is dropped with a warning.
         if (tok.type === 'item') {
-          doc.body.push(parseItem(tok.raw));
+          doc.body.push(parseItem(tok));
         } else if (tok.type === 'sample') {
           doc.body.push({
             type: 'sample',
-            content: parseSegments(
-              tok.raw,
+            content: parseSegmentsFromTokens(
+              tok.children,
               'sample block',
               'sample',
             ) as SampleSegment[],
+            origin: single(tok),
           });
         } else if (tok.type === 'rule') {
-          doc.body.push(parseRule(tok.raw, fullWidth));
+          doc.body.push(parseRule(tok, fullWidth));
         } else if (tok.type === 'info') {
           doc.body.push({
             type: 'info',
-            content: parseSegments(
-              tok.raw,
+            content: parseSegmentsFromTokens(
+              tok.children,
               'info block',
               'info',
             ) as InfoSegment[],
+            origin: single(tok),
           });
         } else {
           // 'head' — floor Segment[].
           doc.body.push({
             type: tok.type,
-            content: parseSegments(
-              tok.raw,
+            content: parseSegmentsFromTokens(
+              tok.children,
               `${tok.type} block`,
               tok.type,
             ) as Segment[],
+            origin: single(tok),
           });
         }
         // A container block begins a new section on either side.
@@ -295,7 +357,12 @@ function parseBody(tokens: Token[], doc: GlyphDocument): void {
         // the reference as literal text so the user can spot the typo.
         const refNodes = doc.contentRefs.get(tok.key);
         if (refNodes !== undefined) {
-          for (const n of refNodes) doc.body.push(structuredClone(n));
+          for (const n of refNodes) {
+            const clone = structuredClone(n);
+            // Expanded nodes anchor at the call site, not the definition.
+            retargetOrigins(clone, single(tok));
+            doc.body.push(clone);
+          }
           firstInSection = true;
           i++;
           continue;
@@ -305,6 +372,7 @@ function parseBody(tokens: Token[], doc: GlyphDocument): void {
           type: 'paragraph',
           content: literal,
           indent: paragraphIndent('body', firstInSection, isBoldLead(literal)),
+          origin: single(tok),
         });
         firstInSection = false;
         i++;
@@ -313,9 +381,12 @@ function parseBody(tokens: Token[], doc: GlyphDocument): void {
 
       case 'text': {
         const lines: string[] = [tok.content];
+        let lastTok: Token = tok;
         i++;
         while (i < tokens.length && tokens[i].kind === 'text') {
-          lines.push((tokens[i] as { kind: 'text'; content: string }).content);
+          const t = tokens[i] as Extract<Token, { kind: 'text' }>;
+          lines.push(t.content);
+          lastTok = t;
           i++;
         }
         const joined = lines.map((l) => l.trim()).join(' ');
@@ -324,6 +395,7 @@ function parseBody(tokens: Token[], doc: GlyphDocument): void {
           type: 'paragraph',
           content,
           indent: paragraphIndent('body', firstInSection, isBoldLead(content)),
+          origin: { first: tok.id, last: lastTok.id },
         });
         firstInSection = false;
         continue;
@@ -495,6 +567,10 @@ function buildTable(
       alignments: sepTok?.aligns ?? [],
       rows,
       footnotes,
+      // Spans the opening token (header or, when headerless, the separator)
+      // through the last row/footnote consumed. `i` is the first unconsumed
+      // token, so `i - 1` is the last one that belongs to the table.
+      origin: { first: tokens[start].id, last: tokens[i - 1].id },
     },
     next: i,
   };
@@ -514,8 +590,16 @@ function consumeTable(
   return { table: node, next };
 }
 
-function parseRule(raw: string, fullWidth: boolean): RuleBlockNode {
-  const content = parseSegments(raw, 'rule block', 'rule') as RuleSegment[];
+function parseRule(
+  tok: Extract<Token, { kind: 'block-open' }>,
+  fullWidth: boolean,
+): RuleBlockNode {
+  const content = parseSegmentsFromTokens(
+    tok.children,
+    'rule block',
+    'rule',
+  ) as RuleSegment[];
+  const origin = single(tok);
   // Column breaks inside rule() create a 2-column inner layout, but only when
   // the block is rendered full-width. Outside of full-width they have no
   // sensible meaning (the surrounding 2-column flow already handles that), so
@@ -531,13 +615,13 @@ function parseRule(raw: string, fullWidth: boolean): RuleBlockNode {
       }
       filtered.push(seg);
     }
-    return { type: 'rule', fullWidth, content: filtered };
+    return { type: 'rule', fullWidth, content: filtered, origin };
   }
-  return { type: 'rule', fullWidth, content };
+  return { type: 'rule', fullWidth, content, origin };
 }
 
-function parseItem(raw: string): ItemBlockNode {
-  const tokens = tokenize(raw);
+function parseItem(tok: Extract<Token, { kind: 'block-open' }>): ItemBlockNode {
+  const tokens = tok.children;
   let i = 0;
   let name: Inline[] = [];
   let action: ActionSymbol | undefined;
@@ -608,15 +692,8 @@ function parseItem(raw: string): ItemBlockNode {
     subtitle,
     traits,
     content,
+    origin: single(tok),
   };
-}
-
-function parseSegments(
-  raw: string,
-  contextLabel: string,
-  kind: Exclude<ContainerKind, 'body'>,
-): AnySegment[] {
-  return parseSegmentsFromTokens(tokenize(raw), contextLabel, kind);
 }
 
 function parseSegmentsFromTokens(
@@ -816,28 +893,28 @@ function parseSegmentsFromTokens(
   return segments;
 }
 
-function collectContentRefs(
-  tokens: Token[],
-  refs: Map<string, BodyNode[]>,
-): void {
+function collectContentRefs(tokens: Token[], doc: GlyphDocument): void {
   // Top-level only. Definitions sit at the same level as other blocks (visible
   // body or the hidden section past `%`). A `key { ... }` inside a block body
   // is rejected by the block's segment parser with a warning — we don't pull
   // it up into the refs map.
   //
   // Each definition is parsed into Node-level body content via a throwaway
-  // sub-doc whose own refs map is empty: that simultaneously validates the
-  // definition (any non-Node-level constructs warn at parse time) and ensures
-  // that references inside a definition stay literal, so references can't
-  // nest.
+  // sub-doc that shares the real `tokenMap` (so template-node origins resolve
+  // against the definition's own tokens) but keeps an empty refs map: that
+  // simultaneously validates the definition (any non-Node-level constructs warn
+  // at parse time) and ensures that references inside a definition stay literal,
+  // so references can't nest. The definition was already lexed into the
+  // content-ref's `children`, so nothing is re-tokenized here.
   for (const t of tokens) {
     if (t.kind !== 'content-ref') continue;
     const subDoc: GlyphDocument = {
       contentRefs: new Map(),
+      tokenMap: doc.tokenMap,
       body: [],
     };
-    parseBody(tokenize(t.content), subDoc);
-    refs.set(t.key, subDoc.body);
+    parseBody(t.children, subDoc);
+    doc.contentRefs.set(t.key, subDoc.body);
   }
 }
 

@@ -1,3 +1,10 @@
 export { renderToHtml, renderToPdf } from './renderer/render.js';
-export { parseGlyph } from './parser/index.js';
-export type { GlyphDocument, BodyNode } from './parser/index.js';
+export { parseGlyph, tokenize, buildTokenMap } from './parser/index.js';
+export type {
+  GlyphDocument,
+  BodyNode,
+  Token,
+  TokenId,
+  TokenSpan,
+  Origin,
+} from './parser/index.js';
