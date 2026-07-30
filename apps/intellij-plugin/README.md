@@ -20,6 +20,59 @@ a line scanner that mirrors the lexer's block and heading patterns — the IDE
 can't run the TypeScript parser on the JVM, and an outline only needs the
 document's skeleton.
 
+## Editing actions
+
+The everyday markup edits live under <kbd>Edit</kbd> → <kbd>Glyph</kbd> and on
+the editor's context menu. They apply to the selection, or to the word under the
+caret when there is none.
+
+| Action                  | Shortcut                          | What it does                |
+| ----------------------- | --------------------------------- | --------------------------- |
+| Bold                    | <kbd>⌘B</kbd> / <kbd>Ctrl+B</kbd> | Toggles `**text**`           |
+| Italic                  | <kbd>⌘I</kbd> / <kbd>Ctrl+I</kbd> | Toggles `*text*`             |
+| Superscript / Subscript | —                                 | Toggles `^text^` / `~text~`  |
+
+Two things about them are specific to the language rather than to Markdown
+habit, and are worth knowing:
+
+- **Emphasis rewrites the run instead of nesting it.** The parser keeps a `*`
+  inside `**…**` literal, so combined emphasis is only ever the triple form:
+  bolding `*text*` yields `***text***`, not a bold pair around the italic one.
+  That is also why there is no separate bold-italic action — the two toggles
+  compose to `***text***` on their own, from either direction.
+- **Each line is wrapped separately.** Glyph emphasis never spans a newline, yet
+  a source paragraph routinely does — the lexer joins its lines back together —
+  so bolding a sentence that wraps produces one pair of delimiters per line.
+
+Pressing <kbd>Enter</kbd> inside a list carries the bullet onto the next line,
+reusing the marker character and any leading indent. Enter on a bullet with
+nothing after it removes the bullet instead, which is how you leave the list. A
+lone `-` is left alone — the lexer reads that as an hr, not a list item — and so
+is a marker followed by a tab, which the lexer treats as prose.
+
+The transformations are pure text functions in
+[`GlyphEdits`](src/main/kotlin/com/glyphmark/intellij/GlyphEdits.kt), kept apart
+from the actions and from
+[`GlyphEnterHandler`](src/main/kotlin/com/glyphmark/intellij/GlyphEnterHandler.kt)
+so they are unit tested without an IDE fixture.
+
+Bold and Italic declare `control B` and `control I` against the `$default`
+keymap only. The macOS keymap rewrites `$default`'s Ctrl bindings to ⌘, so they
+arrive as <kbd>⌘B</kbd> and <kbd>⌘I</kbd> there without a second declaration.
+
+Both keystrokes are already taken — <kbd>⌘B</kbd> by Go to Declaration,
+<kbd>⌘I</kbd> by Implement Methods — and being enabled is *not* enough to win
+one. When several actions match a keystroke the platform takes the first
+candidate, so the binding alone leaves ⌘B jumping to a declaration. That is what
+[`GlyphActionPromoter`](src/main/kotlin/com/glyphmark/intellij/GlyphActionPromoter.kt)
+is for: an `actionPromoter` reorders the candidates so the markup actions are
+tried first. The bundled Markdown plugin resolves the identical collision with
+the identical mechanism.
+
+Promoting is unconditional and still safe, because the actions disable
+themselves outside `.glyph` files and the platform skips a disabled action — so
+every other file type keeps the IDE's own binding.
+
 ## Install
 
 The plugin is not on JetBrains Marketplace. It ships as a GitHub Release, which
@@ -142,14 +195,15 @@ preview bundle first, which `./gradlew` alone will not do.
 
 | Path                            | What it is                                                        |
 | ------------------------------- | ----------------------------------------------------------------- |
-| `src/main/kotlin/`              | The plugin: file type, editor provider, JCEF preview editor.       |
+| `src/main/kotlin/`              | The plugin: file type, editor provider, JCEF preview editor, outline scanner, editing actions. |
 | `preview/src/index.ts`          | The code that runs inside the preview browser.                     |
 | `preview/esbuild.mjs`           | Bundles `@glyphmark/core` for the browser.                         |
 | `src/main/resources/preview/`   | Generated bundle. Not checked in.                                  |
 
 ## Scope
 
-This first version is preview only. `.glyph` files are registered against plain
-text, so there is no Glyph-specific syntax highlighting, completion, or
-structure view — adding those means introducing a real `Language` with a lexer
-and parser definition.
+`.glyph` files are still registered against plain text, so everything here works
+off the document's characters rather than a syntax tree. That is enough for the
+preview, the outline and the editing actions, but syntax highlighting,
+completion and brace matching are not — those need a real `Language` with a
+lexer and parser definition, which is the next structural step for the plugin.
