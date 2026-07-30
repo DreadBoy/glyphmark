@@ -92,7 +92,15 @@ jobs:
             echo "::error::nothing to commit — package.json and the lockfile were already at $VERSION"
             exit 1
           fi
-          git commit -m "bump version to $VERSION"
+          # --no-verify because `npm install` above ran the `prepare` script,
+          # which points core.hooksPath at .githooks — so an unguarded commit
+          # fires the pre-commit hook and runs the whole Nx suite here. That
+          # hook is by its own description the *local* macOS gate: it runs the
+          # pixel goldens that CI deliberately skips (SKIP_SCREENSHOTS=1), and
+          # on a Linux runner they fail outright for want of a Playwright
+          # browser. The checks belong to Release, which runs them against the
+          # commit this step pushes.
+          git commit --no-verify -m "bump version to $VERSION"
           git push origin "HEAD:${{ github.ref_name }}"
 
       # See the header: the push above cannot trigger Release by itself.
