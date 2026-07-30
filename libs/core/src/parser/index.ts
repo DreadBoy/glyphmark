@@ -8,6 +8,8 @@ export type {
   BodyNode,
   CellInline,
   ColumnBreakNode,
+  Diagnostic,
+  DiagnosticCode,
   FootnoteRef,
   FullWidthToggleNode,
   GlyphDocument,

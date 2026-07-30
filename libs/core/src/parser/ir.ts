@@ -35,6 +35,70 @@ export type TokenSpan = {
  */
 export type Origin = { first: TokenId; last: TokenId };
 
+/**
+ * Machine-readable category of a {@link Diagnostic}. Prefer switching on this
+ * over matching `message`, which is human-facing prose and may be reworded.
+ *
+ * - `invalid-segment-in-container` — a segment kind the enclosing block does
+ *   not accept (e.g. a `heading` inside `item()`); dropped.
+ * - `heading-level-unsupported` — a heading deeper than the level cap for its
+ *   position (`h5`/`h6` anywhere, `h3`+ inside `head()`/`info()`); dropped.
+ * - `centered-text-outside-sample` — a `^ ...` line at the body level. Inside
+ *   a non-`sample()` block the same line reports as
+ *   `invalid-segment-in-container` instead.
+ * - `top-level-hr` — a lone `-` at the body level, where it has no meaning.
+ * - `trait-line-outside-item` — a `;a,b` line at the body level. A trait line
+ *   inside a non-`item()` block is currently dropped silently, with no
+ *   diagnostic at all.
+ * - `item-missing-hr` — an `item()` whose heading is not followed by `-`.
+ * - `content-ref-nested` — a `key { ... }` definition inside a block; only
+ *   body-level definitions are collected.
+ * - `leading-divider` / `trailing-divider` — a block's content starts or ends
+ *   with `hr`/`column-break`; trimmed.
+ * - `column-break-outside-full-width` — `|` inside a `rule()` that is not
+ *   full-width; stripped.
+ * - `table-ragged-row` — a row whose cell count differs from the table's.
+ * - `table-footnote-undefined` — a cell references `[n]` with no matching
+ *   footnote definition.
+ * - `table-footnote-unreferenced` — a footnote is defined but never used;
+ *   anchored at that footnote line.
+ * - `table-cell-multiple-footnote-refs` — a cell carries more than one ref.
+ * - `table-cell-footnote-ref-not-trailing` — a cell's ref is not at its end.
+ */
+export type DiagnosticCode =
+  | 'invalid-segment-in-container'
+  | 'heading-level-unsupported'
+  | 'centered-text-outside-sample'
+  | 'top-level-hr'
+  | 'trait-line-outside-item'
+  | 'item-missing-hr'
+  | 'content-ref-nested'
+  | 'leading-divider'
+  | 'trailing-divider'
+  | 'column-break-outside-full-width'
+  | 'table-ragged-row'
+  | 'table-footnote-undefined'
+  | 'table-footnote-unreferenced'
+  | 'table-cell-multiple-footnote-refs'
+  | 'table-cell-footnote-ref-not-trailing';
+
+/**
+ * A problem the parser found and recovered from. Parsing never fails — every
+ * diagnostic describes something that was dropped, trimmed, or left literal,
+ * and the document is still fully renderable — so there is no severity axis:
+ * all diagnostics are warnings.
+ *
+ * `origin` is required and follows the same rules as a node's (see
+ * {@link Origin}), so a consumer can underline the offending source range
+ * without guarding. The same text is also written to `console.warn`.
+ */
+export interface Diagnostic {
+  code: DiagnosticCode;
+  /** Human-facing prose, identical to what is printed to `console.warn`. */
+  message: string;
+  origin: Origin;
+}
+
 export type Inline =
   | { kind: 'text'; text: string }
   | { kind: 'strong'; children: Inline[] }
@@ -100,10 +164,19 @@ export type ListIndent = 'none' | 'block';
  * unions (`ItemSegment`, `SampleSegment`) extend this for blocks that admit
  * extra kinds, so that nodes outside those containers can never carry the
  * extras at the type level.
+ *
+ * Like {@link BodyNode}, every segment carries a required {@link Origin} —
+ * so a consumer walking into a block's content keeps exact source anchoring
+ * all the way down, instead of bottoming out at the enclosing block.
  */
 export type Segment =
-  | { kind: 'paragraph'; content: Inline[]; indent: ParagraphIndent }
-  | { kind: 'heading'; content: Inline[]; level: number };
+  | {
+      kind: 'paragraph';
+      content: Inline[];
+      indent: ParagraphIndent;
+      origin: Origin;
+    }
+  | { kind: 'heading'; content: Inline[]; level: number; origin: Origin };
 
 /**
  * Item blocks add lists, the section-divider `hr`, and column breaks. They do
@@ -112,11 +185,16 @@ export type Segment =
  * heading inside the item body is a parse-time error and is warned/dropped.
  */
 export type ItemSegment =
-  | { kind: 'paragraph'; content: Inline[]; indent: ParagraphIndent }
-  | { kind: 'list'; items: Inline[][]; indent: ListIndent }
-  | { kind: 'hr' }
-  | { kind: 'column-break' }
-  | { kind: 'page-break' };
+  | {
+      kind: 'paragraph';
+      content: Inline[];
+      indent: ParagraphIndent;
+      origin: Origin;
+    }
+  | { kind: 'list'; items: Inline[][]; indent: ListIndent; origin: Origin }
+  | { kind: 'hr'; origin: Origin }
+  | { kind: 'column-break'; origin: Origin }
+  | { kind: 'page-break'; origin: Origin };
 
 /**
  * Sample blocks add `centered-paragraph` (the `^ ...` line marker, used for
@@ -124,7 +202,7 @@ export type ItemSegment =
  */
 export type SampleSegment =
   | Segment
-  | { kind: 'centered-paragraph'; content: Inline[] };
+  | { kind: 'centered-paragraph'; content: Inline[]; origin: Origin };
 
 /**
  * Rule blocks add lists, tables, and column breaks. Column breaks are only
@@ -133,14 +211,16 @@ export type SampleSegment =
  */
 export type RuleSegment =
   | Segment
-  | { kind: 'list'; items: Inline[][]; indent: ListIndent }
-  | { kind: 'column-break' }
-  | { kind: 'table'; node: TableNode };
+  | { kind: 'list'; items: Inline[][]; indent: ListIndent; origin: Origin }
+  | { kind: 'column-break'; origin: Origin }
+  // The wrapper's `origin` mirrors `node.origin`, so `segment.origin` is total
+  // across every segment kind and a consumer never has to special-case tables.
+  | { kind: 'table'; node: TableNode; origin: Origin };
 
 /**
  * Info blocks add column breaks (used to split a callout across two columns).
  */
-export type InfoSegment = Segment | { kind: 'column-break' };
+export type InfoSegment = Segment | { kind: 'column-break'; origin: Origin };
 
 export interface PageBreakNode {
   type: 'page-break';
@@ -278,5 +358,17 @@ export interface GlyphDocument {
    * per `parseGlyph` call; valid only for handles from the same parse.
    */
   tokenMap: Map<TokenId, TokenSpan>;
+  /**
+   * Every problem the parser recovered from, each anchored to the source that
+   * caused it (see {@link Diagnostic}). Empty for a clean document.
+   * Diagnostics raised while parsing a `key { ... }` definition are collected
+   * once, at collection time, and are not repeated per `{{key}}` expansion.
+   *
+   * Ordered by when the parser found them, which is *not* source order: ref
+   * definitions are collected in a pre-pass, so a diagnostic from a definition
+   * in the hidden section past `%` precedes one from line 1 of the body. Sort
+   * by resolved line via {@link tokenMap} if you need source order.
+   */
+  diagnostics: Diagnostic[];
   body: BodyNode[];
 }

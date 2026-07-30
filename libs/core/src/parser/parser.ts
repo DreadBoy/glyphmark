@@ -3,6 +3,8 @@ import type {
   BodyNode,
   CellInline,
   ColumnBreakNode,
+  Diagnostic,
+  DiagnosticCode,
   Inline,
   InfoSegment,
   ItemBlockNode,
@@ -64,18 +66,35 @@ export const MAX_HEADING_LEVEL: Partial<
   info: 2,
 };
 
+// Record a recovered-from problem: appended to the document's structured
+// `diagnostics` *and* printed, so existing stderr-watching workflows keep
+// working while tooling gets the same information anchored to source.
+function warn(
+  diagnostics: Diagnostic[],
+  code: DiagnosticCode,
+  message: string,
+  origin: Origin,
+): void {
+  diagnostics.push({ code, message, origin });
+  console.warn(message);
+}
+
 function tryPushSegment(
   segments: AnySegment[],
   seg: AnySegment,
   kind: Exclude<ContainerKind, 'body'>,
   contextLabel: string,
+  diagnostics: Diagnostic[],
 ): boolean {
   if (ALLOWED_SEGMENTS[kind].has(seg.kind)) {
     segments.push(seg);
     return true;
   }
-  console.warn(
+  warn(
+    diagnostics,
+    'invalid-segment-in-container',
     `[glyph] ${contextLabel}: ${seg.kind} is not valid inside ${kind}(); ignoring`,
+    seg.origin,
   );
   return false;
 }
@@ -123,8 +142,8 @@ function single(tok: Token): Origin {
 // the call-site token, so a positional consumer sees the expansion at its
 // document-reading-order position rather than back at the definition. Exhaustive
 // over `BodyNode` (the `never` default is a compile error if a variant is added)
-// so no origin-bearing node is missed — `rule()` additionally reaches its nested
-// table nodes, the only origin-bearer that lives below the body level.
+// so no origin-bearing node is missed — container blocks additionally reach
+// their segments, and a rule()'s table segments their nested table nodes.
 function retargetOrigins(node: BodyNode, origin: Origin): void {
   node.origin = origin;
   switch (node.type) {
@@ -135,13 +154,16 @@ function retargetOrigins(node: BodyNode, origin: Origin): void {
     case 'heading':
     case 'list':
     case 'table':
+      return;
     case 'item':
     case 'info':
     case 'sample':
     case 'head':
+      for (const seg of node.content) seg.origin = origin;
       return;
     case 'rule':
       for (const seg of node.content) {
+        seg.origin = origin;
         if (seg.kind === 'table') retargetOrigins(seg.node, origin);
       }
       return;
@@ -159,6 +181,7 @@ export function parse(input: string): GlyphDocument {
     // One flat lookup over the whole token tree (visible + hidden + every
     // block/ref child), so any node's origin resolves regardless of depth.
     tokenMap: buildTokenMap(tokens),
+    diagnostics: [],
     body: [],
   };
 
@@ -248,8 +271,11 @@ function parseBody(tokens: Token[], doc: GlyphDocument): void {
 
       case 'heading':
         if (tok.level > MAX_HEADING_LEVEL_DEFAULT) {
-          console.warn(
+          warn(
+            doc.diagnostics,
+            'heading-level-unsupported',
             `[glyph] h${tok.level} is not valid; only h1..h${MAX_HEADING_LEVEL_DEFAULT} are supported`,
+            single(tok),
           );
           i++;
           continue;
@@ -297,7 +323,7 @@ function parseBody(tokens: Token[], doc: GlyphDocument): void {
       // consumed by buildTable, so it never reaches here on its own).
       case 'table-header':
       case 'table-sep': {
-        const node = consumeTable(tokens, i, doc.body);
+        const node = consumeTable(tokens, i, doc.body, doc.diagnostics);
         doc.body.push(node.table);
         i = node.next;
         continue;
@@ -309,7 +335,7 @@ function parseBody(tokens: Token[], doc: GlyphDocument): void {
         // `parseSegmentsFromTokens` only emits kinds that `ALLOWED_SEGMENTS[kind]`
         // permits — anything else is dropped with a warning.
         if (tok.type === 'item') {
-          doc.body.push(parseItem(tok));
+          doc.body.push(parseItem(tok, doc.diagnostics));
         } else if (tok.type === 'sample') {
           doc.body.push({
             type: 'sample',
@@ -317,11 +343,12 @@ function parseBody(tokens: Token[], doc: GlyphDocument): void {
               tok.children,
               'sample block',
               'sample',
+              doc.diagnostics,
             ) as SampleSegment[],
             origin: single(tok),
           });
         } else if (tok.type === 'rule') {
-          doc.body.push(parseRule(tok, fullWidth));
+          doc.body.push(parseRule(tok, fullWidth, doc.diagnostics));
         } else if (tok.type === 'info') {
           doc.body.push({
             type: 'info',
@@ -329,6 +356,7 @@ function parseBody(tokens: Token[], doc: GlyphDocument): void {
               tok.children,
               'info block',
               'info',
+              doc.diagnostics,
             ) as InfoSegment[],
             origin: single(tok),
           });
@@ -340,6 +368,7 @@ function parseBody(tokens: Token[], doc: GlyphDocument): void {
               tok.children,
               `${tok.type} block`,
               tok.type,
+              doc.diagnostics,
             ) as Segment[],
             origin: single(tok),
           });
@@ -403,18 +432,29 @@ function parseBody(tokens: Token[], doc: GlyphDocument): void {
 
       // Tokens that don't belong at the body level — drop with a warning.
       case 'centered-text':
-        console.warn(
+        warn(
+          doc.diagnostics,
+          'centered-text-outside-sample',
           '[glyph] centered text (^) is only valid inside sample() blocks; ignoring',
+          single(tok),
         );
         i++;
         continue;
       case 'hr':
-        console.warn('[glyph] top-level hr (lone -) is not valid; ignoring');
+        warn(
+          doc.diagnostics,
+          'top-level-hr',
+          '[glyph] top-level hr (lone -) is not valid; ignoring',
+          single(tok),
+        );
         i++;
         continue;
       case 'trait-line':
-        console.warn(
+        warn(
+          doc.diagnostics,
+          'trait-line-outside-item',
           '[glyph] trait line (;) is only valid inside item(); ignoring',
+          single(tok),
         );
         i++;
         continue;
@@ -445,20 +485,33 @@ const FOOTNOTE_REF_RE = /\[(\*|\d+)]/g;
 // Asserts (warns) when the constraints "exactly one ref per cell, trailing
 // the text" are violated. Best-effort fallback: keep the last ref's value
 // and strip every bracket from the wrapped text.
-function parseCellInline(raw: string): CellInline[] {
+// `origin` anchors any diagnostic to the row (or header row) the cell came
+// from — the finest granularity available, since cells are not their own
+// tokens.
+function parseCellInline(
+  raw: string,
+  origin: Origin,
+  diagnostics: Diagnostic[],
+): CellInline[] {
   const matches = [...raw.matchAll(FOOTNOTE_REF_RE)];
   if (matches.length === 0) return parseInline(raw);
 
   if (matches.length > 1) {
-    console.warn(
+    warn(
+      diagnostics,
+      'table-cell-multiple-footnote-refs',
       `[glyph] table cell "${raw}" has multiple footnote refs; expected one trailing the text`,
+      origin,
     );
   }
   const last = matches[matches.length - 1];
   const tail = raw.slice(last.index + last[0].length).trim();
   if (tail.length > 0) {
-    console.warn(
+    warn(
+      diagnostics,
+      'table-cell-footnote-ref-not-trailing',
       `[glyph] table cell "${raw}" has a footnote ref that does not trail the text`,
+      origin,
     );
   }
 
@@ -486,6 +539,7 @@ function footnoteFromMarker(marker: string, children: Inline[]): TableFootnote {
 function buildTable(
   tokens: Token[],
   start: number,
+  diagnostics: Diagnostic[],
 ): { node: TableNode; next: number } {
   const first = tokens[start];
   const headerless = first.kind === 'table-sep';
@@ -497,44 +551,69 @@ function buildTable(
     : tokens[start + 1]?.kind === 'table-sep'
       ? (tokens[start + 1] as Extract<Token, { kind: 'table-sep' }>)
       : undefined;
-  const rawRows: string[][] = [];
-  const rawFootnotes: { marker: string; text: string }[] = [];
+  // Rows keep the origin of the line they came from, so a per-row or per-cell
+  // diagnostic points at that row rather than at the whole table.
+  const rawRows: { cells: string[]; origin: Origin }[] = [];
+  const rawFootnotes: { marker: string; text: string; origin: Origin }[] = [];
 
   let i = headerless ? start + 1 : sepTok ? start + 2 : start + 1;
   while (i < tokens.length) {
     const t = tokens[i];
     if (t.kind === 'table-row') {
-      rawRows.push(t.cells);
+      rawRows.push({ cells: t.cells, origin: single(t) });
       i++;
     } else if (t.kind === 'table-footnote') {
-      rawFootnotes.push({ marker: t.marker, text: t.text });
+      rawFootnotes.push({
+        marker: t.marker,
+        text: t.text,
+        origin: single(t),
+      });
       i++;
     } else {
       break;
     }
   }
 
+  // Spans the opening token (header or, when headerless, the separator)
+  // through the last row/footnote consumed. `i` is the first unconsumed
+  // token, so `i - 1` is the last one that belongs to the table.
+  const origin: Origin = { first: tokens[start].id, last: tokens[i - 1].id };
+
   // Footnote refs are scoped to tables. We collect referenced markers from
   // raw cell text (before parseInline strips the brackets) and cross-check
-  // against defined footnotes — warning on either side of a mismatch.
+  // against defined footnotes — warning on either side of a mismatch. An
+  // undefined ref is a table-wide fact (any cell could hold it), so it anchors
+  // to the whole table; an unreferenced definition has an exact line.
   const referenced = new Set<string>();
   const collectRefs = (s: string) => {
     for (const m of s.matchAll(FOOTNOTE_REF_RE)) referenced.add(m[1]);
   };
   for (const c of headerTok?.cells ?? []) collectRefs(c);
-  for (const row of rawRows) for (const c of row) collectRefs(c);
-  const defined = new Set(rawFootnotes.map((f) => f.marker));
+  for (const row of rawRows) for (const c of row.cells) collectRefs(c);
+  // Marker → where it was first defined. Keyed by marker (not one entry per
+  // definition) so a marker defined twice still warns once, as before; the
+  // retained origin points the warning at that first definition's line.
+  const defined = new Map<string, Origin>();
+  for (const f of rawFootnotes) {
+    if (!defined.has(f.marker)) defined.set(f.marker, f.origin);
+  }
   for (const ref of referenced) {
     if (!defined.has(ref)) {
-      console.warn(
+      warn(
+        diagnostics,
+        'table-footnote-undefined',
         `[glyph] table cell references [${ref}] but no footnote defines it`,
+        origin,
       );
     }
   }
-  for (const def of defined) {
-    if (!referenced.has(def)) {
-      console.warn(
-        `[glyph] table footnote [${def}] is defined but never referenced`,
+  for (const [marker, defOrigin] of defined) {
+    if (!referenced.has(marker)) {
+      warn(
+        diagnostics,
+        'table-footnote-unreferenced',
+        `[glyph] table footnote [${marker}] is defined but never referenced`,
+        defOrigin,
       );
     }
   }
@@ -546,15 +625,23 @@ function buildTable(
     ? headerTok.cells.length
     : (sepTok?.aligns.length ?? 0);
   for (const row of rawRows) {
-    if (row.length !== colCount) {
-      console.warn(
-        `[glyph] table row "${row.join(' | ')}" has ${row.length} cells but the table has ${colCount} columns`,
+    if (row.cells.length !== colCount) {
+      warn(
+        diagnostics,
+        'table-ragged-row',
+        `[glyph] table row "${row.cells.join(' | ')}" has ${row.cells.length} cells but the table has ${colCount} columns`,
+        row.origin,
       );
     }
   }
 
-  const headers = (headerTok?.cells ?? []).map((c) => parseCellInline(c));
-  const rows = rawRows.map((row) => row.map((c) => parseCellInline(c)));
+  const headerOrigin = headerTok ? single(headerTok) : origin;
+  const headers = (headerTok?.cells ?? []).map((c) =>
+    parseCellInline(c, headerOrigin, diagnostics),
+  );
+  const rows = rawRows.map((row) =>
+    row.cells.map((c) => parseCellInline(c, row.origin, diagnostics)),
+  );
   const footnotes: TableFootnote[] = rawFootnotes.map((f) =>
     footnoteFromMarker(f.marker, parseInline(f.text)),
   );
@@ -567,10 +654,7 @@ function buildTable(
       alignments: sepTok?.aligns ?? [],
       rows,
       footnotes,
-      // Spans the opening token (header or, when headerless, the separator)
-      // through the last row/footnote consumed. `i` is the first unconsumed
-      // token, so `i - 1` is the last one that belongs to the table.
-      origin: { first: tokens[start].id, last: tokens[i - 1].id },
+      origin,
     },
     next: i,
   };
@@ -580,8 +664,9 @@ function consumeTable(
   tokens: Token[],
   start: number,
   body: BodyNode[],
+  diagnostics: Diagnostic[],
 ): { table: TableNode; next: number } {
-  const { node, next } = buildTable(tokens, start);
+  const { node, next } = buildTable(tokens, start, diagnostics);
   const prev = body[body.length - 1];
   if (prev && prev.type === 'heading' && prev.level >= 4) {
     node.caption = prev.content;
@@ -593,11 +678,13 @@ function consumeTable(
 function parseRule(
   tok: Extract<Token, { kind: 'block-open' }>,
   fullWidth: boolean,
+  diagnostics: Diagnostic[],
 ): RuleBlockNode {
   const content = parseSegmentsFromTokens(
     tok.children,
     'rule block',
     'rule',
+    diagnostics,
   ) as RuleSegment[];
   const origin = single(tok);
   // Column breaks inside rule() create a 2-column inner layout, but only when
@@ -608,8 +695,11 @@ function parseRule(
     const filtered: RuleSegment[] = [];
     for (const seg of content) {
       if (seg.kind === 'column-break') {
-        console.warn(
+        warn(
+          diagnostics,
+          'column-break-outside-full-width',
           '[glyph] rule block: column-break is only valid inside a full-width rule block; ignoring',
+          seg.origin,
         );
         continue;
       }
@@ -620,7 +710,10 @@ function parseRule(
   return { type: 'rule', fullWidth, content, origin };
 }
 
-function parseItem(tok: Extract<Token, { kind: 'block-open' }>): ItemBlockNode {
+function parseItem(
+  tok: Extract<Token, { kind: 'block-open' }>,
+  diagnostics: Diagnostic[],
+): ItemBlockNode {
   const tokens = tok.children;
   let i = 0;
   let name: Inline[] = [];
@@ -662,7 +755,14 @@ function parseItem(tok: Extract<Token, { kind: 'block-open' }>): ItemBlockNode {
   if (i < tokens.length && tokens[i].kind === 'hr') {
     i++;
   } else {
-    console.warn('[glyph] item: missing hr separator after heading');
+    // Anchored to the `item(` line: the hr is missing, so there is no token of
+    // its own to point at.
+    warn(
+      diagnostics,
+      'item-missing-hr',
+      '[glyph] item: missing hr separator after heading',
+      single(tok),
+    );
   }
 
   while (i < tokens.length && tokens[i].kind === 'blank') i++;
@@ -683,6 +783,7 @@ function parseItem(tok: Extract<Token, { kind: 'block-open' }>): ItemBlockNode {
     tokens.slice(i),
     ctxLabel,
     'item',
+    diagnostics,
   ) as ItemSegment[];
 
   return {
@@ -700,6 +801,7 @@ function parseSegmentsFromTokens(
   tokens: Token[],
   contextLabel: string,
   kind: Exclude<ContainerKind, 'body'>,
+  diagnostics: Diagnostic[],
 ): AnySegment[] {
   const segments: AnySegment[] = [];
   let i = 0;
@@ -714,24 +816,47 @@ function parseSegmentsFromTokens(
         i++;
         continue;
       case 'hr':
-        if (tryPushSegment(segments, { kind: 'hr' }, kind, contextLabel)) {
+        if (
+          tryPushSegment(
+            segments,
+            { kind: 'hr', origin: single(tok) },
+            kind,
+            contextLabel,
+            diagnostics,
+          )
+        ) {
           firstInSection = true;
         }
         i++;
         continue;
       case 'column-break':
-        tryPushSegment(segments, { kind: 'column-break' }, kind, contextLabel);
+        tryPushSegment(
+          segments,
+          { kind: 'column-break', origin: single(tok) },
+          kind,
+          contextLabel,
+          diagnostics,
+        );
         i++;
         continue;
       case 'page-break':
-        tryPushSegment(segments, { kind: 'page-break' }, kind, contextLabel);
+        tryPushSegment(
+          segments,
+          { kind: 'page-break', origin: single(tok) },
+          kind,
+          contextLabel,
+          diagnostics,
+        );
         i++;
         continue;
       case 'heading': {
         const maxLevel = MAX_HEADING_LEVEL[kind] ?? MAX_HEADING_LEVEL_DEFAULT;
         if (tok.level > maxLevel) {
-          console.warn(
+          warn(
+            diagnostics,
+            'heading-level-unsupported',
             `[glyph] ${contextLabel}: h${tok.level} is not valid inside ${kind}() (only h1..h${maxLevel}); ignoring`,
+            single(tok),
           );
           i++;
           continue;
@@ -743,9 +868,11 @@ function parseSegmentsFromTokens(
               kind: 'heading',
               level: tok.level,
               content: parseInline(tok.text),
+              origin: single(tok),
             },
             kind,
             contextLabel,
+            diagnostics,
           )
         ) {
           firstInSection = true;
@@ -759,18 +886,23 @@ function parseSegmentsFromTokens(
           {
             kind: 'centered-paragraph',
             content: parseInline(tok.content),
+            origin: single(tok),
           },
           kind,
           contextLabel,
+          diagnostics,
         );
         i++;
         continue;
       case 'list-item': {
         const items: Inline[][] = [];
+        const firstTok = tok;
+        let lastTok: Token = tok;
         while (i < tokens.length) {
           const t = tokens[i];
           if (t.kind === 'list-item') {
             items.push(parseInline(t.text));
+            lastTok = t;
             i++;
           } else if (t.kind === 'blank') {
             if (tokens[i + 1]?.kind === 'list-item') i++;
@@ -780,9 +912,15 @@ function parseSegmentsFromTokens(
         if (
           tryPushSegment(
             segments,
-            { kind: 'list', items, indent: listIndent(kind) },
+            {
+              kind: 'list',
+              items,
+              indent: listIndent(kind),
+              origin: { first: firstTok.id, last: lastTok.id },
+            },
             kind,
             contextLabel,
+            diagnostics,
           )
         ) {
           firstInSection = false;
@@ -791,9 +929,12 @@ function parseSegmentsFromTokens(
       }
       case 'text': {
         const lines: string[] = [tok.content];
+        let lastTok: Token = tok;
         i++;
         while (i < tokens.length && tokens[i].kind === 'text') {
-          lines.push((tokens[i] as { kind: 'text'; content: string }).content);
+          const t = tokens[i] as Extract<Token, { kind: 'text' }>;
+          lines.push(t.content);
+          lastTok = t;
           i++;
         }
         const joined = lines.map((l) => l.trim()).join(' ');
@@ -809,9 +950,11 @@ function parseSegmentsFromTokens(
                 firstInSection,
                 isBoldLead(content),
               ),
+              origin: { first: tok.id, last: lastTok.id },
             },
             kind,
             contextLabel,
+            diagnostics,
           )
         ) {
           firstInSection = false;
@@ -820,7 +963,7 @@ function parseSegmentsFromTokens(
       }
       case 'table-header':
       case 'table-sep': {
-        const { node, next } = buildTable(tokens, i);
+        const { node, next } = buildTable(tokens, i, diagnostics);
         // Caption-lift: a preceding heading4+ segment becomes the table's
         // caption. Same rule as body-level tables (see consumeTable).
         const prev = segments[segments.length - 1];
@@ -829,7 +972,14 @@ function parseSegmentsFromTokens(
           segments.pop();
         }
         if (
-          tryPushSegment(segments, { kind: 'table', node }, kind, contextLabel)
+          tryPushSegment(
+            segments,
+            // The wrapper mirrors the table's own origin — see `RuleSegment`.
+            { kind: 'table', node, origin: node.origin },
+            kind,
+            contextLabel,
+            diagnostics,
+          )
         ) {
           firstInSection = false;
         }
@@ -837,8 +987,11 @@ function parseSegmentsFromTokens(
         continue;
       }
       case 'content-ref':
-        console.warn(
+        warn(
+          diagnostics,
+          'content-ref-nested',
           `[glyph] ${contextLabel}: content reference "${tok.key} { ... }" must live at the body level, not inside a block; ignoring`,
+          single(tok),
         );
         i++;
         continue;
@@ -854,9 +1007,11 @@ function parseSegmentsFromTokens(
               kind: 'paragraph',
               content: literal,
               indent: paragraphIndent(kind, firstInSection, false),
+              origin: single(tok),
             },
             kind,
             contextLabel,
+            diagnostics,
           )
         ) {
           firstInSection = false;
@@ -876,8 +1031,11 @@ function parseSegmentsFromTokens(
   while (segments.length > 0) {
     const head = segments[0];
     if (head.kind === 'hr' || head.kind === 'column-break') {
-      console.warn(
+      warn(
+        diagnostics,
+        'leading-divider',
         `[glyph] ${contextLabel}: leading ${head.kind} is invalid; content must start with text`,
+        head.origin,
       );
       segments.shift();
     } else break;
@@ -885,7 +1043,12 @@ function parseSegmentsFromTokens(
   while (segments.length > 0) {
     const tail = segments[segments.length - 1];
     if (tail.kind === 'hr' || tail.kind === 'column-break') {
-      console.warn(`[glyph] ${contextLabel}: trailing ${tail.kind} is invalid`);
+      warn(
+        diagnostics,
+        'trailing-divider',
+        `[glyph] ${contextLabel}: trailing ${tail.kind} is invalid`,
+        tail.origin,
+      );
       segments.pop();
     } else break;
   }
@@ -911,6 +1074,10 @@ function collectContentRefs(tokens: Token[], doc: GlyphDocument): void {
     const subDoc: GlyphDocument = {
       contentRefs: new Map(),
       tokenMap: doc.tokenMap,
+      // Same array, not a copy: a definition's diagnostics belong to the
+      // document, anchored at the definition (they are raised once here, not
+      // again per `{{key}}` expansion).
+      diagnostics: doc.diagnostics,
       body: [],
     };
     parseBody(t.children, subDoc);
