@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { ALLOWED_SEGMENTS, MAX_HEADING_LEVEL, parse } from './parser';
+import type { DiagnosticCode, GlyphDocument, Origin } from './ir';
 
 describe('parse — preamble', () => {
   it('extracts custom CSS', () => {
@@ -264,7 +265,7 @@ describe('parse — item block', () => {
     const doc = parse('item(\n# Foo\n-\n; t\nFirst\n-\nSecond\n-\nThird\n)');
     const item = doc.body.find((n) => n.type === 'item');
     if (item?.type === 'item') {
-      expect(item.content).toEqual([
+      expect(item.content).toMatchObject([
         {
           kind: 'paragraph',
           content: [{ kind: 'text', text: 'First' }],
@@ -304,7 +305,7 @@ describe('parse — item block', () => {
     );
     const item = doc.body.find((n) => n.type === 'item');
     if (item?.type === 'item') {
-      expect(item.content).toEqual([
+      expect(item.content).toMatchObject([
         {
           kind: 'paragraph',
           content: [
@@ -325,7 +326,7 @@ describe('parse — item block', () => {
     if (item?.type === 'item') {
       // The second paragraph is "2nd+ in its section" — column-break is a
       // layout marker, not a section reset — so it picks up first-line indent.
-      expect(item.content).toEqual([
+      expect(item.content).toMatchObject([
         {
           kind: 'paragraph',
           content: [{ kind: 'text', text: 'Left' }],
@@ -365,7 +366,7 @@ describe('parse — info / rule / sample / head', () => {
     const doc = parse('info(\nLeft\n|\nRight\n)');
     const info = doc.body.find((n) => n.type === 'info');
     if (info?.type === 'info') {
-      expect(info.content).toEqual([
+      expect(info.content).toMatchObject([
         {
           kind: 'paragraph',
           content: [{ kind: 'text', text: 'Left' }],
@@ -959,5 +960,337 @@ describe('parse — provenance (origins)', () => {
         4,
       );
     }
+  });
+});
+
+// Parse with the console warnings muted. Diagnostics assertions read the
+// structured `doc.diagnostics` instead, so the printed copy is just noise here.
+function parseQuiet(src: string): GlyphDocument {
+  const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+  try {
+    return parse(src);
+  } finally {
+    warn.mockRestore();
+  }
+}
+
+function startLine(doc: GlyphDocument, origin: Origin): number {
+  return present(doc.tokenMap.get(origin.first)).startLine;
+}
+
+function endLine(doc: GlyphDocument, origin: Origin): number {
+  return present(doc.tokenMap.get(origin.last)).endLine;
+}
+
+function diag(doc: GlyphDocument, code: DiagnosticCode) {
+  return present(doc.diagnostics.find((d) => d.code === code));
+}
+
+// Every container block's segment list, flattened — used to assert that
+// provenance is total below the body level, not just on `BodyNode`s.
+function allSegments(doc: GlyphDocument) {
+  return doc.body.flatMap((node) =>
+    node.type === 'item' ||
+    node.type === 'info' ||
+    node.type === 'rule' ||
+    node.type === 'sample' ||
+    node.type === 'head'
+      ? [...node.content]
+      : [],
+  );
+}
+
+describe('parse — provenance (segment origins)', () => {
+  it('gives every segment of every container an origin that resolves in tokenMap', () => {
+    const doc = parseQuiet(
+      [
+        'item(',
+        '# Foo',
+        '-',
+        '; t',
+        'Body',
+        '* a',
+        ')',
+        '',
+        'info(',
+        'Left',
+        '|',
+        'Right',
+        ')',
+        '',
+        'sample(',
+        '# S',
+        '^ centered',
+        ')',
+        '',
+        'head(',
+        '# H',
+        'Sub',
+        ')',
+        '',
+        'rule(',
+        '# R',
+        'A | B',
+        '--- | ---',
+        '1 | 2',
+        ')',
+      ].join('\n'),
+    );
+    const segments = allSegments(doc);
+    expect(segments.length).toBeGreaterThan(0);
+    for (const seg of segments) {
+      expect(doc.tokenMap.get(seg.origin.first)).toBeDefined();
+      expect(doc.tokenMap.get(seg.origin.last)).toBeDefined();
+    }
+  });
+
+  it('anchors item segments at their own lines, not at the item() line', () => {
+    //           1       2      3    4     5        6       7    8      9    10
+    const doc = parse(
+      'item(\n# Foo\n-\n; t\nFirst\nsecond line\n-\n* a\n* b\n)',
+    );
+    const item = present(doc.body.find((n) => n.type === 'item'));
+    if (item.type !== 'item') throw new Error('expected item');
+    const [para, hr, list] = item.content;
+    // The item itself still anchors at `item(` — segments go finer.
+    expect(startLine(doc, item.origin)).toBe(1);
+    expect(startLine(doc, present(para).origin)).toBe(5);
+    // A paragraph joins its physical lines, so origin.last reaches line 6.
+    expect(endLine(doc, present(para).origin)).toBe(6);
+    expect(startLine(doc, present(hr).origin)).toBe(7);
+    expect(startLine(doc, present(list).origin)).toBe(8);
+    expect(endLine(doc, present(list).origin)).toBe(9);
+  });
+
+  it('anchors a sample() centered paragraph at its ^ line', () => {
+    const doc = parse('sample(\n# H\n\n^ centered\n\nText.\n)');
+    const sample = present(doc.body.find((n) => n.type === 'sample'));
+    if (sample.type !== 'sample') throw new Error('expected sample');
+    const centered = present(
+      sample.content.find((s) => s.kind === 'centered-paragraph'),
+    );
+    expect(startLine(doc, centered.origin)).toBe(4);
+    const heading = present(sample.content.find((s) => s.kind === 'heading'));
+    expect(startLine(doc, heading.origin)).toBe(2);
+  });
+
+  it('anchors an info() column-break at its | line', () => {
+    const doc = parse('info(\nLeft\n|\nRight\n)');
+    const info = present(doc.body.find((n) => n.type === 'info'));
+    if (info.type !== 'info') throw new Error('expected info');
+    expect(info.content.map((s) => startLine(doc, s.origin))).toEqual([
+      2, 3, 4,
+    ]);
+  });
+
+  it('mirrors a table segment origin onto its wrapper', () => {
+    const doc = parse('rule(\n#### Cap\n\nA | B\n--- | ---\n1 | 2\n)');
+    const rule = present(doc.body.find((n) => n.type === 'rule'));
+    if (rule.type !== 'rule') throw new Error('expected rule');
+    const seg = present(rule.content.find((s) => s.kind === 'table'));
+    if (seg.kind !== 'table') throw new Error('expected table segment');
+    expect(seg.origin).toEqual(seg.node.origin);
+    expect(startLine(doc, seg.origin)).toBe(4);
+  });
+
+  it('retargets segment origins of an expanded ref to the call site', () => {
+    //           1      2      3     4      5  6  7  8       9  10
+    const doc = parse('ref {\nrule(\n# T\nBody\n)\n}\n\nIntro.\n\n{{ref}}');
+    const template = present(present(doc.contentRefs.get('ref'))[0]);
+    if (template.type !== 'rule') throw new Error('expected rule template');
+    // Definition-site: the block on line 2, its segments on lines 3 and 4.
+    expect(startLine(doc, template.origin)).toBe(2);
+    expect(template.content.map((s) => startLine(doc, s.origin))).toEqual([
+      3, 4,
+    ]);
+
+    const expanded = present(doc.body.find((n) => n.type === 'rule'));
+    if (expanded.type !== 'rule') throw new Error('expected expanded rule');
+    // Call-site: the block *and every segment inside it* collapse onto the
+    // `{{ref}}` line, which is where the content reads in the document.
+    expect(startLine(doc, expanded.origin)).toBe(10);
+    expect(expanded.content.map((s) => startLine(doc, s.origin))).toEqual([
+      10, 10,
+    ]);
+  });
+
+  it('retargets segment origins of an expanded item ref too', () => {
+    //           1      2      3     4   5     6   7  8  9
+    const doc = parse('ref {\nitem(\n# Foo\n-\nBody\n)\n}\n\n{{ref}}');
+    const expanded = present(doc.body.find((n) => n.type === 'item'));
+    if (expanded.type !== 'item') throw new Error('expected item');
+    expect(startLine(doc, expanded.origin)).toBe(9);
+    for (const seg of expanded.content) {
+      expect(startLine(doc, seg.origin)).toBe(9);
+    }
+  });
+
+  it('retargets a table nested in an expanded rule ref, node and wrapper', () => {
+    // The deepest origin-bearer in the IR: a TableNode below a rule() segment.
+    // Exercises the one recursive branch of the retarget walk.
+    //                1      2      3      4          5      6  7  8  9
+    const doc = parse('ref {\nrule(\nA | B\n--- | ---\n1 | 2\n)\n}\n\n{{ref}}');
+
+    const template = present(present(doc.contentRefs.get('ref'))[0]);
+    if (template.type !== 'rule') throw new Error('expected rule template');
+    const tplSeg = present(template.content.find((s) => s.kind === 'table'));
+    if (tplSeg.kind !== 'table') throw new Error('expected table segment');
+    // Definition-site: the header row on line 3.
+    expect(startLine(doc, tplSeg.origin)).toBe(3);
+    expect(startLine(doc, tplSeg.node.origin)).toBe(3);
+
+    const expanded = present(doc.body.find((n) => n.type === 'rule'));
+    if (expanded.type !== 'rule') throw new Error('expected rule');
+    const seg = present(expanded.content.find((s) => s.kind === 'table'));
+    if (seg.kind !== 'table') throw new Error('expected table segment');
+    expect(startLine(doc, expanded.origin)).toBe(9);
+    expect(startLine(doc, seg.origin)).toBe(9);
+    // The nested node must move too — not just the segment wrapper.
+    expect(startLine(doc, seg.node.origin)).toBe(9);
+    expect(endLine(doc, seg.node.origin)).toBe(9);
+  });
+});
+
+describe('parse — diagnostics', () => {
+  it('reports none for a clean document', () => {
+    const doc = parse('# Title\n\nText.\n\nitem(\n# Foo\n-\nBody\n)');
+    expect(doc.diagnostics).toEqual([]);
+  });
+
+  it('anchors every diagnostic to a span that resolves in tokenMap', () => {
+    const doc = parseQuiet('##### Deep\n\n-\n\n;a,b\n\n^ centered');
+    expect(doc.diagnostics.length).toBeGreaterThan(0);
+    for (const d of doc.diagnostics) {
+      expect(doc.tokenMap.get(d.origin.first)).toBeDefined();
+      expect(doc.tokenMap.get(d.origin.last)).toBeDefined();
+    }
+  });
+
+  it('reports body-level strays with their code and line', () => {
+    const doc = parseQuiet('Intro.\n\n-\n\n;a,b\n\n^ centered\n\n##### Deep');
+    expect(doc.diagnostics.map((d) => d.code)).toEqual([
+      'top-level-hr',
+      'trait-line-outside-item',
+      'centered-text-outside-sample',
+      'heading-level-unsupported',
+    ]);
+    expect(startLine(doc, diag(doc, 'top-level-hr').origin)).toBe(3);
+    expect(startLine(doc, diag(doc, 'trait-line-outside-item').origin)).toBe(5);
+    expect(
+      startLine(doc, diag(doc, 'centered-text-outside-sample').origin),
+    ).toBe(7);
+    expect(startLine(doc, diag(doc, 'heading-level-unsupported').origin)).toBe(
+      9,
+    );
+  });
+
+  it('anchors a disallowed segment at the segment, not the block', () => {
+    //                 1      2      3   4     5     6        7
+    const doc = parseQuiet('item(\n# Foo\n-\n; t\nBody\n## Nope\n)');
+    const d = diag(doc, 'invalid-segment-in-container');
+    expect(d.message).toContain('heading is not valid inside item()');
+    expect(startLine(doc, d.origin)).toBe(6);
+  });
+
+  it('anchors a container heading-level violation at the heading', () => {
+    const doc = parseQuiet('head(\n# H\n### Deep\n)');
+    const d = diag(doc, 'heading-level-unsupported');
+    expect(d.message).toContain('only h1..h2');
+    expect(startLine(doc, d.origin)).toBe(3);
+  });
+
+  it('anchors a missing item hr at the item() line', () => {
+    const doc = parseQuiet('Intro.\n\nitem(\n# Foo\nBody\n)');
+    expect(startLine(doc, diag(doc, 'item-missing-hr').origin)).toBe(3);
+  });
+
+  it('anchors a nested content-ref definition at its own line', () => {
+    const doc = parseQuiet('rule(\nmyref {\nInside\n}\n)');
+    const d = diag(doc, 'content-ref-nested');
+    expect(startLine(doc, d.origin)).toBe(2);
+  });
+
+  it('anchors leading and trailing dividers at the divider line', () => {
+    const leading = parseQuiet('item(\n# Foo\n-\n; t\n-\nBody\n)');
+    expect(startLine(leading, diag(leading, 'leading-divider').origin)).toBe(5);
+    const trailing = parseQuiet('item(\n# Foo\n-\n; t\nBody\n|\n)');
+    expect(startLine(trailing, diag(trailing, 'trailing-divider').origin)).toBe(
+      6,
+    );
+  });
+
+  it('anchors a stripped rule() column-break at its | line', () => {
+    const doc = parseQuiet('rule(\nA\n|\nB\n)');
+    const d = diag(doc, 'column-break-outside-full-width');
+    expect(startLine(doc, d.origin)).toBe(3);
+  });
+
+  it('anchors a ragged table row at that row', () => {
+    const doc = parseQuiet('A | B\n--- | ---\n1 | 2\n3 | 4 | 5');
+    const d = diag(doc, 'table-ragged-row');
+    expect(startLine(doc, d.origin)).toBe(4);
+  });
+
+  it('anchors an undefined footnote ref at the whole table', () => {
+    // Any cell could hold the ref, so the table is the honest granularity.
+    const doc = parseQuiet('A | B\n--- | ---\n1[*] | 2');
+    const d = diag(doc, 'table-footnote-undefined');
+    expect(startLine(doc, d.origin)).toBe(1);
+    expect(endLine(doc, d.origin)).toBe(3);
+  });
+
+  it('anchors an unreferenced footnote at its own definition line', () => {
+    const doc = parseQuiet('A | B\n--- | ---\n1 | 2\n. [*] note');
+    expect(
+      startLine(doc, diag(doc, 'table-footnote-unreferenced').origin),
+    ).toBe(4);
+  });
+
+  it('reports a marker defined twice but never referenced only once', () => {
+    // Dedup is by marker, so the duplicate does not double-warn; the retained
+    // origin is the first definition.
+    const doc = parseQuiet('A | B\n--- | ---\n1 | 2\n. [*] one\n. [*] two');
+    const unreferenced = doc.diagnostics.filter(
+      (d) => d.code === 'table-footnote-unreferenced',
+    );
+    expect(unreferenced).toHaveLength(1);
+    expect(startLine(doc, present(unreferenced[0]).origin)).toBe(4);
+  });
+
+  it('anchors cell-level footnote problems at the offending row', () => {
+    const many = parseQuiet(
+      'A | B\n--- | ---\n1 | 2\nx[*][2] | y\n. [*] n\n. [2] m',
+    );
+    expect(
+      startLine(many, diag(many, 'table-cell-multiple-footnote-refs').origin),
+    ).toBe(4);
+
+    const trailingText = parseQuiet('A | B\n--- | ---\n1[*] tail | 2\n. [*] n');
+    expect(
+      startLine(
+        trailingText,
+        diag(trailingText, 'table-cell-footnote-ref-not-trailing').origin,
+      ),
+    ).toBe(3);
+  });
+
+  it('records a ref definition diagnostic once, at the definition', () => {
+    // The definition is parsed once at collection time; the two expansions
+    // clone already-validated nodes and must not re-report.
+    const doc = parseQuiet('bad {\n;trait\n}\n\n{{bad}}\n\n{{bad}}');
+    const traitDiags = doc.diagnostics.filter(
+      (d) => d.code === 'trait-line-outside-item',
+    );
+    expect(traitDiags).toHaveLength(1);
+    expect(startLine(doc, present(traitDiags[0]).origin)).toBe(2);
+  });
+
+  it('prints the same message it records', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    const doc = parse('-\n\n;a,b');
+    expect(doc.diagnostics.map((d) => d.message)).toEqual(
+      warn.mock.calls.map(([m]) => m),
+    );
+    warn.mockRestore();
   });
 });
