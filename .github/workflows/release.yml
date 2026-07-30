@@ -23,6 +23,11 @@ name: Release
 on:
   push:
     branches: [main]
+  # The Version workflow pushes its bump commit with the default GITHUB_TOKEN,
+  # which by design does not trigger other workflows — so it dispatches this
+  # one explicitly afterwards. Every job here probes npm / the GitHub releases
+  # before acting, so a manual run with nothing new to ship is a no-op.
+  workflow_dispatch:
 
 concurrency:
   group: release
