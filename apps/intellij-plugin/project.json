@@ -30,6 +30,14 @@
       "dependsOn": ["build-preview"],
       "outputs": ["{projectRoot}/build/distributions"]
     },
+    "test": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "./gradlew test",
+        "cwd": "{projectRoot}"
+      },
+      "outputs": ["{projectRoot}/build/test-results"]
+    },
     "run": {
       "executor": "nx:run-commands",
       "options": {
