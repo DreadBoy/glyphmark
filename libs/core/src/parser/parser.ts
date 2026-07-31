@@ -21,10 +21,10 @@ import type {
   TableFootnote,
   TableNode,
 } from './ir';
-import { parseInline } from './inline';
 import {
   buildTokenMap,
   partText,
+  scanInline,
   tokenize,
   type Part,
   type Token,
@@ -139,6 +139,68 @@ function tryPushSegment(
  */
 function text(tok: Token, part: Part): string {
   return partText(tok, part).trim();
+}
+
+/**
+ * Turn a line's text into inline IR.
+ *
+ * The grammar lives in {@link scanInline}, which locates each run of markup and
+ * says nothing about what it means. This is the other half: the runs become IR
+ * nodes and everything between them becomes text.
+ *
+ * Splitting it that way is what lets an editor highlight emphasis. A single
+ * function returning `Inline[]` threw the positions away, so nothing could
+ * colour `**bold**` without re-deriving the grammar somewhere else — see D7 in
+ * BUGS.md.
+ *
+ * Emphasis does not nest: a run's content becomes one text node, so
+ * `**bold *italic* bold**` keeps the inner `*`s literal. Combined bold and
+ * italic is only expressed with the triple form.
+ */
+export function parseInline(input: string): Inline[] {
+  const out: Inline[] = [];
+  let cursor = 0;
+
+  const literal = (from: number, to: number) => {
+    if (to > from) out.push({ kind: 'text', text: input.slice(from, to) });
+  };
+
+  for (const span of scanInline(input)) {
+    literal(cursor, span.start);
+    const inner: Inline[] = [
+      { kind: 'text', text: input.slice(span.contentStart, span.contentEnd) },
+    ];
+    switch (span.kind) {
+      case 'action':
+        out.push({
+          kind: 'action',
+          symbol: input.slice(span.start, span.end) as ActionSymbol,
+        });
+        break;
+      case 'strong':
+        out.push({ kind: 'strong', children: inner });
+        break;
+      case 'em':
+        out.push({ kind: 'em', children: inner });
+        break;
+      case 'strong-em':
+        out.push({
+          kind: 'strong',
+          children: [{ kind: 'em', children: inner }],
+        });
+        break;
+      case 'sup':
+        out.push({ kind: 'sup', children: inner });
+        break;
+      case 'sub':
+        out.push({ kind: 'sub', children: inner });
+        break;
+    }
+    cursor = span.end;
+  }
+  literal(cursor, input.length);
+
+  return out;
 }
 
 function isBoldLead(content: Inline[]): boolean {

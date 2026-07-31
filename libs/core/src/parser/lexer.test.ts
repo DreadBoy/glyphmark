@@ -1,5 +1,11 @@
 import { describe, it, expect } from 'vitest';
-import { tokenize, buildTokenMap, partText, type Token } from './lexer';
+import {
+  tokenize,
+  buildTokenMap,
+  partText,
+  scanInline,
+  type Token,
+} from './lexer';
 
 function isPart(v: unknown): v is { start: number; end: number } {
   return (
@@ -310,6 +316,81 @@ describe('tokenize — parts locate, they do not clean up', () => {
     const absStart = tok.span.startOffset + tok.content.start;
     const absEnd = tok.span.startOffset + tok.content.end;
     expect(src.slice(absStart, absEnd)).toBe('Title');
+  });
+});
+
+describe('scanInline', () => {
+  // Locating only. What a run *means* — which IR node it becomes — is the
+  // parser's reading of it, so nothing here mentions `strong` children or
+  // action symbols as values.
+  const runs = (s: string) =>
+    scanInline(s).map((r) => `${r.kind}:${r.start}-${r.end}`);
+  const contents = (s: string) =>
+    scanInline(s).map((r) => s.slice(r.contentStart, r.contentEnd));
+
+  it('finds nothing in plain prose', () => {
+    expect(scanInline('just words')).toEqual([]);
+  });
+
+  it('locates a run including its delimiters, and its content without them', () => {
+    expect(scanInline('a **bold** b')).toEqual([
+      {
+        kind: 'strong',
+        start: 2,
+        end: 10,
+        contentStart: 4,
+        contentEnd: 8,
+      },
+    ]);
+    expect(contents('a **bold** b')).toEqual(['bold']);
+  });
+
+  it.each([
+    ['**bold**', 'strong'],
+    ['__bold__', 'strong'],
+    ['*italic*', 'em'],
+    ['_italic_', 'em'],
+    ['***both***', 'strong-em'],
+    ['___both___', 'strong-em'],
+    ['^sup^', 'sup'],
+    ['~sub~', 'sub'],
+  ])('recognizes %s as %s', (input, kind) => {
+    expect(scanInline(input).map((r) => r.kind)).toEqual([kind]);
+  });
+
+  it('prefers the longest delimiter run', () => {
+    // `***` must bind before `**` before `*`, or a triple run would read as a
+    // strong immediately followed by an em.
+    expect(runs('***x***')).toEqual(['strong-em:0-7']);
+  });
+
+  it('does not nest — inner delimiters stay inside the content', () => {
+    expect(runs('**bold *italic* bold**')).toEqual(['strong:0-22']);
+    expect(contents('**bold *italic* bold**')).toEqual(['bold *italic* bold']);
+  });
+
+  it('ignores unbalanced delimiters and empty runs', () => {
+    for (const input of ['**unclosed', '*unclosed', '**', '****', '^^', '~~']) {
+      expect(scanInline(input), input).toEqual([]);
+    }
+  });
+
+  it('locates action symbols, longest first', () => {
+    expect(runs(':a: and :aaa:')).toEqual(['action:0-3', 'action:8-13']);
+    // An action's content is the symbol itself — there is nothing enclosed.
+    expect(contents(':aa:')).toEqual([':aa:']);
+  });
+
+  it('returns runs in order and non-overlapping', () => {
+    const input = 'Cast *avatar* :aa: for **big** effect';
+    let cursor = 0;
+    for (const run of scanInline(input)) {
+      expect(run.start).toBeGreaterThanOrEqual(cursor);
+      expect(run.contentStart).toBeGreaterThanOrEqual(run.start);
+      expect(run.contentEnd).toBeLessThanOrEqual(run.end);
+      cursor = run.end;
+    }
+    expect(runs(input)).toEqual(['em:5-13', 'action:14-18', 'strong:23-30']);
   });
 });
 

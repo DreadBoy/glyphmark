@@ -142,6 +142,131 @@ export function buildTokenMap(tokens: Token[]): Map<TokenId, TokenSpan> {
   return new Map(tokens.map((t) => [t.id, t.span]));
 }
 
+/** What an inline run of markup is, before anything decides what it means. */
+export type InlineKind =
+  | 'strong'
+  | 'em'
+  | 'strong-em'
+  | 'sup'
+  | 'sub'
+  | 'action';
+
+/**
+ * One run of inline markup, located within the text it was found in.
+ *
+ * `start`/`end` cover the whole run including its delimiters — what an editor
+ * needs to know it may not colour halfway through one. `contentStart`/
+ * `contentEnd` cover just the enclosed text, which is what carries meaning. For
+ * an action symbol the two coincide: the symbol is the content.
+ */
+export type InlineSpan = {
+  kind: InlineKind;
+  start: number;
+  end: number;
+  contentStart: number;
+  contentEnd: number;
+};
+
+// Longest first so `:aaa:` matches before `:aa:` before `:a:`.
+const ACTION_TOKENS: readonly string[] = [':aaa:', ':aa:', ':a:', ':r:', ':f:'];
+
+/**
+ * Emphasis delimiters, longest run first. Order matters: `***`/`___` are tried
+ * before `**`/`*` so a triple run binds as combined bold+italic rather than a
+ * strong immediately followed by an em. The delimiter is the same on both ends.
+ *
+ * NOTE: if strikethrough (`~~...~~`) is ever added, it must come *before* the
+ * `~` entry, exactly as `**` precedes `*`.
+ */
+const EMPHASIS: readonly { delim: string; kind: InlineKind }[] = [
+  { delim: '***', kind: 'strong-em' },
+  { delim: '___', kind: 'strong-em' },
+  { delim: '**', kind: 'strong' },
+  { delim: '__', kind: 'strong' },
+  { delim: '*', kind: 'em' },
+  { delim: '_', kind: 'em' },
+  // Superscript/subscript (Pandoc-native `^sup^`, `~sub~`). Single-char, so no
+  // prefix overlap with the runs above — array position is irrelevant here. The
+  // line-level `^ ` centered marker is caret+space and is recognized before
+  // this ever runs, so it never collides with inline `^...^`.
+  { delim: '^', kind: 'sup' },
+  { delim: '~', kind: 'sub' },
+];
+
+/**
+ * Locate the inline markup in a line's text.
+ *
+ * Recognizes `***bi***`/`___bi___`, `**bold**`/`__bold__`, `*italic*`/`_italic_`,
+ * `^sup^`, `~sub~`, and the action symbols `:a:`, `:aa:`, `:aaa:`, `:r:`, `:f:`.
+ *
+ * Delimiters are balanced on the same string and matched greedily, longest run
+ * first. There is no arbitrary nesting — `**bold *italic* bold**` keeps the
+ * inner `*`s literal; combined bold and italic is only expressed with the triple
+ * form. No escapes. Unbalanced delimiters and empty spans (`****`, `^^`, `~~`)
+ * are not runs at all, so they simply do not appear here and stay literal.
+ *
+ * Returns the runs in order, non-overlapping. Everything between them is plain
+ * text; this deliberately does not say so, because "the rest is prose" is a
+ * reading of the line rather than something found in it.
+ *
+ * Offsets are relative to `input`. Callers holding a {@link Part} add that
+ * part's `start` to place a run within the line.
+ */
+export function scanInline(input: string): InlineSpan[] {
+  const out: InlineSpan[] = [];
+  let i = 0;
+
+  while (i < input.length) {
+    if (input[i] === ':') {
+      // Plain for-of (mirroring the EMPHASIS loop below) rather than
+      // `.find(t => input.startsWith(t, i))` so the callback doesn't close over
+      // the mutating loop index `i`.
+      let match: string | undefined;
+      for (const t of ACTION_TOKENS) {
+        if (input.startsWith(t, i)) {
+          match = t;
+          break;
+        }
+      }
+      if (match) {
+        out.push({
+          kind: 'action',
+          start: i,
+          end: i + match.length,
+          contentStart: i,
+          contentEnd: i + match.length,
+        });
+        i += match.length;
+        continue;
+      }
+    }
+
+    let matched = false;
+    for (const { delim, kind } of EMPHASIS) {
+      if (!input.startsWith(delim, i)) continue;
+      const close = input.indexOf(delim, i + delim.length);
+      // Require a closing delimiter with at least one character between the
+      // two, otherwise fall through to a shorter delimiter (or literal text).
+      if (close <= i + delim.length) continue;
+      out.push({
+        kind,
+        start: i,
+        end: close + delim.length,
+        contentStart: i + delim.length,
+        contentEnd: close,
+      });
+      i = close + delim.length;
+      matched = true;
+      break;
+    }
+    if (matched) continue;
+
+    i++;
+  }
+
+  return out;
+}
+
 /**
  * Classify one physical line and locate its parts. Pure: same line in, same
  * token data out, regardless of position in the document.
