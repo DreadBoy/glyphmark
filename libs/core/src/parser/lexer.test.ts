@@ -1,17 +1,29 @@
 import { describe, it, expect } from 'vitest';
-import { tokenize, buildTokenMap, type Token } from './lexer';
+import { tokenize, buildTokenMap, partText, type Token } from './lexer';
 
-// Most assertions care about what a line was recognized as, not where it sat.
-// Provenance has its own block at the bottom.
-function stripMeta(tokens: Token[]): Array<Record<string, unknown>> {
+function isPart(v: unknown): v is { start: number; end: number } {
+  return (
+    typeof v === 'object' &&
+    v !== null &&
+    typeof (v as { start?: unknown }).start === 'number' &&
+    typeof (v as { end?: unknown }).end === 'number'
+  );
+}
+
+// Most assertions care about what a line was recognized as, not where it sat,
+// so provenance is dropped and each part is resolved to the text it points at.
+// The offsets themselves are covered in their own block below.
+function readable(tokens: Token[]): Array<Record<string, unknown>> {
   return tokens.map((t) => {
-    const rec = { ...t } as Record<string, unknown>;
-    delete rec.id;
-    delete rec.span;
+    const rec: Record<string, unknown> = {};
+    for (const [key, value] of Object.entries(t)) {
+      if (key === 'id' || key === 'span' || key === 'raw') continue;
+      rec[key] = isPart(value) ? partText(t, value) : value;
+    }
     return rec;
   });
 }
-const lex = (s: string) => stripMeta(tokenize(s));
+const lex = (s: string) => readable(tokenize(s));
 const kinds = (s: string) => tokenize(s).map((t) => t.kind);
 
 describe('tokenize — the stream tiles the source', () => {
@@ -61,10 +73,10 @@ describe('tokenize — line shapes', () => {
     expect(lex('')).toEqual([{ kind: 'blank' }]);
   });
 
-  it('emits text for a plain line, preserving it verbatim', () => {
-    expect(lex('  hello world  ')).toEqual([
-      { kind: 'text', content: '  hello world  ' },
-    ]);
+  it('emits text for a plain line, preserving it verbatim in raw', () => {
+    const [tok] = tokenize('  hello world  ');
+    expect(tok.kind).toBe('text');
+    expect(tok.raw).toBe('  hello world  ');
   });
 
   it.each([
@@ -88,8 +100,8 @@ describe('tokenize — line shapes', () => {
     // The level cap is a language rule the parser owns; recognition does not
     // second-guess it, so `#######` is a heading here and rejected later.
     expect(lex('# One\n####### Seven')).toEqual([
-      { kind: 'heading', level: 1, text: 'One' },
-      { kind: 'heading', level: 7, text: 'Seven' },
+      { kind: 'heading', level: 1, content: 'One' },
+      { kind: 'heading', level: 7, content: 'Seven' },
     ]);
   });
 
@@ -106,16 +118,14 @@ describe('tokenize — line shapes', () => {
 
   it('recognizes a trait line without splitting it', () => {
     // Which traits the line lists — and whether an empty entry counts — is the
-    // parser's reading of it.
-    expect(lex(';alpha, beta')).toEqual([
-      { kind: 'trait-line', raw: ';alpha, beta' },
-    ]);
+    // parser's reading of it, so the token carries no list at all.
+    expect(lex(';alpha, beta')).toEqual([{ kind: 'trait-line' }]);
   });
 
   it('parses list items, but not a lone dash', () => {
     expect(lex('* one\n- two\n-')).toEqual([
-      { kind: 'list-item', text: 'one' },
-      { kind: 'list-item', text: 'two' },
+      { kind: 'list-item', content: 'one' },
+      { kind: 'list-item', content: 'two' },
       { kind: 'hr' },
     ]);
   });
@@ -161,7 +171,7 @@ describe('tokenize — delimiters', () => {
   it('emits ref-open and ref-close for a definition', () => {
     expect(lex('key {\nInside\n}')).toEqual([
       { kind: 'ref-open', key: 'key' },
-      { kind: 'text', content: 'Inside' },
+      { kind: 'text' },
       { kind: 'ref-close' },
     ]);
   });
@@ -186,20 +196,17 @@ describe('tokenize — delimiters', () => {
       'block-close',
     ]);
     // The prose line survives intact, parenthesis and all.
-    expect(lex('rule(\nsmiley :) here\n)')[1]).toEqual({
-      kind: 'text',
-      content: 'smiley :) here',
-    });
+    expect(tokenize('rule(\nsmiley :) here\n)')[1].raw).toBe('smiley :) here');
   });
 });
 
 describe('tokenize — context-dependent shapes', () => {
   // These three are reported on appearance alone. Whether they form a table is
   // decided by the parser, so the lexer emits the same token either way.
-  it('emits pipe-line for any line with a pipe, carrying only the line', () => {
+  it('emits pipe-line for any line with a pipe, and says nothing more', () => {
     // Which cells the line holds is a decomposition the parser does; the lexer
     // reports only that the line is pipe-shaped.
-    expect(lex('A|B')).toEqual([{ kind: 'pipe-line', raw: 'A|B' }]);
+    expect(lex('A|B')).toEqual([{ kind: 'pipe-line' }]);
   });
 
   it('emits the same pipe-line whether or not a table follows', () => {
@@ -212,8 +219,8 @@ describe('tokenize — context-dependent shapes', () => {
     // Both are lines with pipes. Telling them apart means reading the cells
     // for dashes and colons, which is interpretation — so the parser does it
     // and the lexer emits one kind for both.
-    expect(lex('---|:---:')).toEqual([{ kind: 'pipe-line', raw: '---|:---:' }]);
-    expect(lex('A|B')).toEqual([{ kind: 'pipe-line', raw: 'A|B' }]);
+    expect(lex('---|:---:')).toEqual([{ kind: 'pipe-line' }]);
+    expect(lex('A|B')).toEqual([{ kind: 'pipe-line' }]);
   });
 
   it('keeps a bare --- as prose — no pipe, so nothing to be a row of', () => {
@@ -222,20 +229,17 @@ describe('tokenize — context-dependent shapes', () => {
 
   it('emits footnote-line for a bracketed marker line', () => {
     expect(lex('. [*] note')).toEqual([
-      { kind: 'footnote-line', marker: '*', text: 'note', raw: '. [*] note' },
+      { kind: 'footnote-line', marker: '*', content: 'note' },
     ]);
     expect(kinds('. [3] note')).toEqual(['footnote-line']);
   });
 
   it('keeps the raw line so a non-table use can recover it', () => {
-    const [tok] = tokenize('| a | b |');
-    expect(tok.kind === 'pipe-line' && tok.raw).toBe('| a | b |');
+    expect(tokenize('| a | b |')[0].raw).toBe('| a | b |');
   });
 
-  it('leaves indentation and spacing in raw untouched', () => {
-    expect(lex('  A |  B  ')).toEqual([
-      { kind: 'pipe-line', raw: '  A |  B  ' },
-    ]);
+  it('leaves indentation and spacing untouched', () => {
+    expect(tokenize('  A |  B  ')[0].raw).toBe('  A |  B  ');
   });
 
   it('emits a blank inside a would-be table body like anywhere else', () => {
@@ -258,6 +262,54 @@ describe('tokenize — context-dependent shapes', () => {
       'pipe-line',
       'column-break',
     ]);
+  });
+});
+
+describe('tokenize — parts locate, they do not clean up', () => {
+  // What a syntax highlighter consumes: offsets it can colour separately, with
+  // the marker distinguishable from the content. A pre-trimmed string could not
+  // support that, which is why payloads are ranges.
+  it('locates a heading marker and its text separately', () => {
+    const [tok] = tokenize('  ##  Title  ');
+    if (tok.kind !== 'heading') throw new Error('expected heading');
+    expect(tok.level).toBe(2);
+    // Starts after `  ##  `, runs to the end of the trimmed line.
+    expect(tok.content).toEqual({ start: 6, end: 11 });
+    expect(partText(tok, tok.content)).toBe('Title');
+    // The `#` marker is everything between the indent and the content.
+    expect(tok.raw.slice(2, tok.content.start)).toBe('##  ');
+  });
+
+  it('keeps indentation out of the content but in the raw line', () => {
+    const [tok] = tokenize('    * bullet');
+    if (tok.kind !== 'list-item') throw new Error('expected list-item');
+    expect(tok.content).toEqual({ start: 6, end: 12 });
+    expect(partText(tok, tok.content)).toBe('bullet');
+    expect(tok.raw).toBe('    * bullet');
+  });
+
+  it('does not trim the part it points at', () => {
+    // `.trim()` on the content is the parser's call, so a part that happens to
+    // cover trailing spaces still reports them.
+    const [tok] = tokenize('rule(  padded  )');
+    if (tok.kind !== 'block-inline') throw new Error('expected block-inline');
+    expect(partText(tok, tok.inner)).toBe('  padded  ');
+  });
+
+  it('locates a footnote marker apart from its text', () => {
+    const [tok] = tokenize('. [12] see below');
+    if (tok.kind !== 'footnote-line') throw new Error('expected footnote-line');
+    expect(partText(tok, tok.marker)).toBe('12');
+    expect(partText(tok, tok.content)).toBe('see below');
+  });
+
+  it('parts are relative to the line, so adding the span offset is absolute', () => {
+    const src = 'intro\n\n  # Title';
+    const tok = tokenize(src)[2];
+    if (tok.kind !== 'heading') throw new Error('expected heading');
+    const absStart = tok.span.startOffset + tok.content.start;
+    const absEnd = tok.span.startOffset + tok.content.end;
+    expect(src.slice(absStart, absEnd)).toBe('Title');
   });
 });
 

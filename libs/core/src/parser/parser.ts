@@ -22,7 +22,13 @@ import type {
   TableNode,
 } from './ir';
 import { parseInline } from './inline';
-import { buildTokenMap, tokenize, type Token } from './lexer';
+import {
+  buildTokenMap,
+  partText,
+  tokenize,
+  type Part,
+  type Token,
+} from './lexer';
 
 // Container kinds drive per-block indent decisions. "body" is the document
 // level (normal text); the rest correspond to block-open keywords.
@@ -123,6 +129,18 @@ function tryPushSegment(
   return false;
 }
 
+/**
+ * The text of one of a token's parts, trimmed.
+ *
+ * Recognition hands over locations, not cleaned-up strings, so every payload
+ * arrives exactly as written — indentation, trailing spaces and all. Deciding
+ * that surrounding whitespace is not part of a heading's text is a reading of
+ * the document, so it happens here.
+ */
+function text(tok: Token, part: Part): string {
+  return partText(tok, part).trim();
+}
+
 function isBoldLead(content: Inline[]): boolean {
   return content[0]?.kind === 'strong';
 }
@@ -206,7 +224,6 @@ function matchDelimited(
 function proseText(tok: Token): string | undefined {
   switch (tok.kind) {
     case 'text':
-      return tok.content;
     case 'pipe-line':
     case 'footnote-line':
       return tok.raw;
@@ -329,22 +346,18 @@ function blockBody(
  * line like `.foo {` lexes as a ref opener. Slicing the original source between
  * the delimiters sidesteps the question entirely.
  */
-function preambleContent(
-  tokens: Token[],
-  openIdx: number,
-  src: string,
-): string {
+function preambleContent(tokens: Token[], openIdx: number): string {
   const tok = tokens[openIdx];
-  if (tok.kind === 'block-inline') return tok.inner;
+  if (tok.kind === 'block-inline') return text(tok, tok.inner);
   const { inner } = matchDelimited(
     tokens,
     openIdx,
     'block-open',
     'block-close',
   );
-  if (inner.length === 0) return '';
-  return src
-    .slice(inner[0].span.startOffset, inner[inner.length - 1].span.endOffset)
+  return inner
+    .map((t) => t.raw)
+    .join('\n')
     .trim();
 }
 
@@ -478,11 +491,11 @@ export function parse(input: string): GlyphDocument {
   // Collect top-level ref definitions. A definition may sit in the visible
   // body or in the hidden section past `%`, but not nested inside a block —
   // nested ones are rejected with a warning by the segment parser.
-  collectContentRefs(tokens, doc, input);
+  collectContentRefs(tokens, doc);
 
   const hiddenIdx = tokens.findIndex((t) => t.kind === 'hidden-delimiter');
   const visible = hiddenIdx === -1 ? tokens : tokens.slice(0, hiddenIdx);
-  parseBody(visible, doc, input);
+  parseBody(visible, doc);
 
   // Flag every column-break in the trailing run (no real body content after
   // it). The renderer uses this to decide whether to emit the balancer-defeat
@@ -495,7 +508,7 @@ export function parse(input: string): GlyphDocument {
   return doc;
 }
 
-function parseBody(tokens: Token[], doc: GlyphDocument, src: string): void {
+function parseBody(tokens: Token[], doc: GlyphDocument): void {
   let i = 0;
   // "First in section" means: this is the first paragraph since the start of
   // the body or since the last semantic reset (heading, full-width toggle, or
@@ -599,7 +612,7 @@ function parseBody(tokens: Token[], doc: GlyphDocument, src: string): void {
         doc.body.push({
           type: 'heading',
           level: tok.level,
-          content: parseInline(tok.text),
+          content: parseInline(text(tok, tok.content)),
           origin: single(tok),
         });
         firstInSection = true;
@@ -613,7 +626,7 @@ function parseBody(tokens: Token[], doc: GlyphDocument, src: string): void {
         while (i < tokens.length) {
           const t = tokens[i];
           if (t.kind === 'list-item') {
-            items.push(parseInline(t.text));
+            items.push(parseInline(text(t, t.content)));
             lastTok = t;
             i++;
           } else if (t.kind === 'blank') {
@@ -636,11 +649,12 @@ function parseBody(tokens: Token[], doc: GlyphDocument, src: string): void {
       case 'block-open':
       case 'block-inline': {
         const { inner, closeIdx, origin } = blockBody(tokens, i);
-        if (isPreambleKeyword(tok.keyword)) {
-          applyPreamble(doc, tok.keyword, preambleContent(tokens, i, src));
-        } else if (isBlockKeyword(tok.keyword)) {
+        const keyword = text(tok, tok.keyword);
+        if (isPreambleKeyword(keyword)) {
+          applyPreamble(doc, keyword, preambleContent(tokens, i));
+        } else if (isBlockKeyword(keyword)) {
           doc.body.push(
-            buildBlock(tok.keyword, inner, origin, fullWidth, doc.diagnostics),
+            buildBlock(keyword, inner, origin, fullWidth, doc.diagnostics),
           );
           // A container block begins a new section on either side.
           firstInSection = true;
@@ -654,7 +668,7 @@ function parseBody(tokens: Token[], doc: GlyphDocument, src: string): void {
         // nodes were parsed and validated at collection time, so expansion
         // is just appending a clone of those nodes here. Unknown keys emit
         // the reference as literal text so the user can spot the typo.
-        const refNodes = doc.contentRefs.get(tok.key);
+        const refNodes = doc.contentRefs.get(text(tok, tok.key));
         if (refNodes !== undefined) {
           for (const n of refNodes) {
             const clone = structuredClone(n);
@@ -666,7 +680,7 @@ function parseBody(tokens: Token[], doc: GlyphDocument, src: string): void {
           i++;
           continue;
         }
-        const literal = parseInline(`{{${tok.key}}}`);
+        const literal = parseInline(`{{${text(tok, tok.key)}}}`);
         doc.body.push({
           type: 'paragraph',
           content: literal,
@@ -812,8 +826,8 @@ function buildTable(
       i++;
     } else if (t.kind === 'footnote-line') {
       rawFootnotes.push({
-        marker: t.marker,
-        text: t.text,
+        marker: text(t, t.marker),
+        text: text(t, t.content),
         origin: single(t),
       });
       i++;
@@ -988,13 +1002,13 @@ function parseItem(
   if (i < tokens.length) {
     const t = tokens[i];
     if (t.kind === 'heading' && t.level === 1) {
-      let text = t.text;
-      const m = text.match(/\s+(:(?:aaa|aa|a|r|f):)\s*$/);
+      let heading = text(t, t.content);
+      const m = heading.match(/\s+(:(?:aaa|aa|a|r|f):)\s*$/);
       if (m) {
         action = m[1] as ActionSymbol;
-        text = text.replace(m[0], '').trim();
+        heading = heading.replace(m[0], '').trim();
       }
-      name = parseInline(text);
+      name = parseInline(heading);
       i++;
     }
   }
@@ -1005,7 +1019,7 @@ function parseItem(
   if (i < tokens.length) {
     const t = tokens[i];
     if (t.kind === 'heading' && t.level === 2) {
-      subtitle = parseInline(t.text);
+      subtitle = parseInline(text(t, t.content));
       i++;
     }
   }
@@ -1191,7 +1205,7 @@ function parseSegmentsFromTokens(
             {
               kind: 'heading',
               level: tok.level,
-              content: parseInline(tok.text),
+              content: parseInline(text(tok, tok.content)),
               origin: single(tok),
             },
             kind,
@@ -1209,7 +1223,7 @@ function parseSegmentsFromTokens(
           segments,
           {
             kind: 'centered-paragraph',
-            content: parseInline(tok.content),
+            content: parseInline(text(tok, tok.content)),
             origin: single(tok),
           },
           kind,
@@ -1225,7 +1239,7 @@ function parseSegmentsFromTokens(
         while (i < tokens.length) {
           const t = tokens[i];
           if (t.kind === 'list-item') {
-            items.push(parseInline(t.text));
+            items.push(parseInline(text(t, t.content)));
             lastTok = t;
             i++;
           } else if (t.kind === 'blank') {
@@ -1266,7 +1280,7 @@ function parseSegmentsFromTokens(
         // References only expand at the body level. Inside a block we surface
         // the reference as literal text so the user can spot it instead of
         // having it silently dropped.
-        const literal = parseInline(`{{${tok.key}}}`);
+        const literal = parseInline(`{{${text(tok, tok.key)}}}`);
         if (
           tryPushSegment(
             segments,
@@ -1323,11 +1337,7 @@ function parseSegmentsFromTokens(
   return segments;
 }
 
-function collectContentRefs(
-  tokens: Token[],
-  doc: GlyphDocument,
-  src: string,
-): void {
+function collectContentRefs(tokens: Token[], doc: GlyphDocument): void {
   // Top-level only. Definitions sit at the same level as other blocks (visible
   // body or the hidden section past `%`). A `key { ... }` inside a block body
   // is rejected by the block's segment parser with a warning — we don't pull
@@ -1366,8 +1376,8 @@ function collectContentRefs(
       diagnostics: doc.diagnostics,
       body: [],
     };
-    parseBody(inner, subDoc, src);
-    doc.contentRefs.set(t.key, subDoc.body);
+    parseBody(inner, subDoc);
+    doc.contentRefs.set(text(t, t.key), subDoc.body);
   }
 }
 
