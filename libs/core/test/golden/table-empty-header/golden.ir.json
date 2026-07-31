@@ -1,0 +1,144 @@
+{
+  "contentRefs": {},
+  "body": [
+    {
+      "alignments": [
+        "left",
+        "center",
+        "center",
+        "center",
+        "right"
+      ],
+      "caption": [
+        {
+          "kind": "text",
+          "text": "This Table Is Not Real"
+        }
+      ],
+      "colCount": 5,
+      "footnotes": [],
+      "headers": [
+        [],
+        [
+          {
+            "kind": "text",
+            "text": "Made-Up Column"
+          }
+        ],
+        [],
+        [
+          {
+            "kind": "text",
+            "text": "Also Fabricated"
+          }
+        ],
+        []
+      ],
+      "origin": {
+        "startLine": 3,
+        "endLine": 7,
+        "startOffset": 29,
+        "endOffset": 398
+      },
+      "rows": [
+        [
+          [
+            {
+              "kind": "text",
+              "text": "Row one"
+            }
+          ],
+          [
+            {
+              "kind": "text",
+              "text": "invented value"
+            }
+          ],
+          [
+            {
+              "kind": "text",
+              "text": "nonsense"
+            }
+          ],
+          [
+            {
+              "kind": "text",
+              "text": "placeholder"
+            }
+          ],
+          [
+            {
+              "kind": "text",
+              "text": "trailing A"
+            }
+          ]
+        ],
+        [
+          [
+            {
+              "kind": "text",
+              "text": "Row two"
+            }
+          ],
+          [
+            {
+              "kind": "text",
+              "text": "bogus data"
+            }
+          ],
+          [
+            {
+              "kind": "text",
+              "text": "dummy"
+            }
+          ],
+          [
+            {
+              "kind": "text",
+              "text": "not real"
+            }
+          ],
+          [
+            {
+              "kind": "text",
+              "text": "trailing B"
+            }
+          ]
+        ],
+        [
+          [
+            {
+              "kind": "text",
+              "text": "Row three"
+            }
+          ],
+          [
+            {
+              "kind": "text",
+              "text": "fake entry"
+            }
+          ],
+          [
+            {
+              "kind": "text",
+              "text": "filler"
+            }
+          ],
+          [
+            {
+              "kind": "text",
+              "text": "imaginary"
+            }
+          ],
+          [
+            {
+              "kind": "text",
+              "text": "trailing C"
+            }
+          ]
+        ]
+      ],
+      "type": "table"
+    }
+  ]
+}

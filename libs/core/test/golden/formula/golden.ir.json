@@ -1,0 +1,155 @@
+{
+  "contentRefs": {},
+  "body": [
+    {
+      "content": [
+        {
+          "content": [
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "Melee attack roll result = d20 roll + Strength modifier"
+                }
+              ],
+              "kind": "strong"
+            },
+            {
+              "kind": "text",
+              "text": " (or optionally Dexterity modifier for a finesse weapon) "
+            },
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "+ proficiency bonus + other bonuses + penalties"
+                }
+              ],
+              "kind": "strong"
+            }
+          ],
+          "kind": "centered-paragraph",
+          "origin": {
+            "startLine": 2,
+            "endLine": 2,
+            "startOffset": 8,
+            "endOffset": 177
+          }
+        }
+      ],
+      "origin": {
+        "startLine": 1,
+        "endLine": 3,
+        "startOffset": 0,
+        "endOffset": 179
+      },
+      "type": "sample"
+    },
+    {
+      "content": [
+        {
+          "content": [
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "Ranged attack roll result = d20 roll + Dexterity modifier + proficiency bonus + other bonuses + penalties"
+                }
+              ],
+              "kind": "strong"
+            }
+          ],
+          "kind": "centered-paragraph",
+          "origin": {
+            "startLine": 6,
+            "endLine": 6,
+            "startOffset": 189,
+            "endOffset": 300
+          }
+        }
+      ],
+      "origin": {
+        "startLine": 5,
+        "endLine": 7,
+        "startOffset": 181,
+        "endOffset": 302
+      },
+      "type": "sample"
+    },
+    {
+      "content": [
+        {
+          "content": [
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "Melee damage roll = damage die of weapon or unarmed attack + Strength modifier + bonuses + penalties"
+                }
+              ],
+              "kind": "strong"
+            }
+          ],
+          "kind": "centered-paragraph",
+          "origin": {
+            "startLine": 10,
+            "endLine": 10,
+            "startOffset": 312,
+            "endOffset": 418
+          }
+        }
+      ],
+      "origin": {
+        "startLine": 9,
+        "endLine": 11,
+        "startOffset": 304,
+        "endOffset": 420
+      },
+      "type": "sample"
+    },
+    {
+      "content": [
+        {
+          "content": [
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "Ranged damage roll = damage die of weapon"
+                }
+              ],
+              "kind": "strong"
+            },
+            {
+              "kind": "text",
+              "text": " (+ Strength modifier for a thrown weapon or half Strength modifier for a propulsive weapon) "
+            },
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "+ bonuses + penalties"
+                }
+              ],
+              "kind": "strong"
+            }
+          ],
+          "kind": "centered-paragraph",
+          "origin": {
+            "startLine": 14,
+            "endLine": 14,
+            "startOffset": 430,
+            "endOffset": 595
+          }
+        }
+      ],
+      "origin": {
+        "startLine": 13,
+        "endLine": 15,
+        "startOffset": 422,
+        "endOffset": 597
+      },
+      "type": "sample"
+    }
+  ]
+}

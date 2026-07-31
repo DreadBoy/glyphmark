@@ -1,0 +1,288 @@
+{
+  "contentRefs": {},
+  "body": [
+    {
+      "origin": {
+        "startLine": 1,
+        "endLine": 1,
+        "startOffset": 0,
+        "endOffset": 1
+      },
+      "trailing": false,
+      "type": "column-break"
+    },
+    {
+      "action": ":a:",
+      "content": [
+        {
+          "content": [
+            {
+              "kind": "text",
+              "text": "You huddle behind cover or greater cover or deeper into concealment to become hidden, rather than observed. The GM rolls your Stealth check in secret and compares the result to the Perception DC of each creature you're observed by but that you have cover or greater cover against or are concealed from. You get a +2 circumstance bonus to your check if you have standard cover (or +4 from greater cover)."
+            }
+          ],
+          "indent": "none",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 8,
+            "endLine": 8,
+            "startOffset": 31,
+            "endOffset": 434
+          }
+        },
+        {
+          "kind": "page-break",
+          "origin": {
+            "startLine": 10,
+            "endLine": 10,
+            "startOffset": 436,
+            "endOffset": 437
+          }
+        },
+        {
+          "content": [
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "Success"
+                }
+              ],
+              "kind": "strong"
+            },
+            {
+              "kind": "text",
+              "text": " If the creature could see you, you're now hidden from it instead of observed. If you were hidden from or undetected by the creature, you retain that condition."
+            }
+          ],
+          "indent": "hanging",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 12,
+            "endLine": 12,
+            "startOffset": 439,
+            "endOffset": 610
+          }
+        },
+        {
+          "content": [
+            {
+              "kind": "text",
+              "text": "If you successfully become hidden to a creature but then cease to have cover or greater cover against it or be concealed from it, you become observed again. You cease being hidden if you do anything except Hide, Sneak, or Step. If you attempt to Strike a creature, the creature remains off-guard against that attack, and you then become observed. If you do anything else, you become observed just before you act unless the GM determines otherwise. The GM might allow you to perform a particularly unobtrusive action without being noticed, possibly requiring another Stealth check."
+            }
+          ],
+          "indent": "first-line",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 14,
+            "endLine": 14,
+            "startOffset": 612,
+            "endOffset": 1192
+          }
+        },
+        {
+          "content": [
+            {
+              "kind": "text",
+              "text": "If a creature uses Seek to make you observed by it, you must successfully Hide to become hidden from it again."
+            }
+          ],
+          "indent": "first-line",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 16,
+            "endLine": 16,
+            "startOffset": 1194,
+            "endOffset": 1304
+          }
+        }
+      ],
+      "name": [
+        {
+          "kind": "text",
+          "text": "Hide"
+        }
+      ],
+      "origin": {
+        "startLine": 3,
+        "endLine": 17,
+        "startOffset": 3,
+        "endOffset": 1306
+      },
+      "traits": [
+        "Secret"
+      ],
+      "type": "item"
+    },
+    {
+      "action": ":a:",
+      "content": [
+        {
+          "content": [
+            {
+              "kind": "text",
+              "text": "You attempt to move to another place while becoming or staying undetected. Stride up to half your Speed. (You can use Sneak while Burrowing, Climbing, Flying, or Swimming instead of Striding if you have the corresponding movement type; you must move at half that Speed.)"
+            }
+          ],
+          "indent": "none",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 24,
+            "endLine": 24,
+            "startOffset": 1343,
+            "endOffset": 1613
+          }
+        },
+        {
+          "content": [
+            {
+              "kind": "text",
+              "text": "At the end of your movement, the GM rolls your Stealth check in secret and compares the result to the Perception DC of each creature you were hidden from or undetected by at the start of your movement. If you have cover or greater cover from the creature throughout your Stride, you gain the +2 circumstance bonus from cover (or +4 from greater cover) to your Stealth check. Because you're moving, the bonus increase from Taking Cover doesn't apply. You don't get to roll against a creature if, at the end of your movement, you neither are concealed from it nor have cover or greater cover against it. You automatically become observed by such a creature."
+            }
+          ],
+          "indent": "first-line",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 26,
+            "endLine": 26,
+            "startOffset": 1615,
+            "endOffset": 2270
+          }
+        },
+        {
+          "content": [
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "Success"
+                }
+              ],
+              "kind": "strong"
+            },
+            {
+              "kind": "text",
+              "text": " You're undetected by the creature during your movement and remain undetected by the creature at the end of it."
+            }
+          ],
+          "indent": "hanging",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 28,
+            "endLine": 28,
+            "startOffset": 2272,
+            "endOffset": 2394
+          }
+        },
+        {
+          "content": [
+            {
+              "kind": "text",
+              "text": "You become observed as soon as you do anything other than Hide, Sneak, or Step. If you attempt to Strike a creature, the creature remains off-guard against that attack, and you then become observed. If you do anything else, you become observed just before you act unless the GM determines otherwise. The GM might allow you to perform a particularly unobtrusive action without being noticed, possibly requiring another Stealth check. If you speak or make a deliberate loud noise, you become hidden instead of undetected."
+            }
+          ],
+          "indent": "first-line",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 30,
+            "endLine": 30,
+            "startOffset": 2396,
+            "endOffset": 2915
+          }
+        },
+        {
+          "content": [
+            {
+              "kind": "text",
+              "text": "If a creature uses Seek and you become hidden to it as a result, you must Sneak if you want to become undetected by that creature again."
+            }
+          ],
+          "indent": "first-line",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 32,
+            "endLine": 32,
+            "startOffset": 2917,
+            "endOffset": 3053
+          }
+        },
+        {
+          "kind": "column-break",
+          "origin": {
+            "startLine": 34,
+            "endLine": 34,
+            "startOffset": 3055,
+            "endOffset": 3056
+          }
+        },
+        {
+          "content": [
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "Failure"
+                }
+              ],
+              "kind": "strong"
+            },
+            {
+              "kind": "text",
+              "text": " A telltale sound or other sign gives your position away, though you still remain unseen. You're hidden from the creature throughout your movement and remain so."
+            }
+          ],
+          "indent": "hanging",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 36,
+            "endLine": 36,
+            "startOffset": 3058,
+            "endOffset": 3230
+          }
+        },
+        {
+          "content": [
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "Critical Failure"
+                }
+              ],
+              "kind": "strong"
+            },
+            {
+              "kind": "text",
+              "text": " You're spotted! You're observed by the creature throughout your movement and remain so. If you're invisible and were hidden from the creature, instead of being observed you're hidden throughout your movement and remain so."
+            }
+          ],
+          "indent": "hanging",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 38,
+            "endLine": 38,
+            "startOffset": 3232,
+            "endOffset": 3475
+          }
+        }
+      ],
+      "name": [
+        {
+          "kind": "text",
+          "text": "Sneak"
+        }
+      ],
+      "origin": {
+        "startLine": 19,
+        "endLine": 39,
+        "startOffset": 1308,
+        "endOffset": 3477
+      },
+      "traits": [
+        "Move",
+        "Secret"
+      ],
+      "type": "item"
+    }
+  ]
+}

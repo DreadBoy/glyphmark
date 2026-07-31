@@ -1,0 +1,32 @@
+{
+  "contentRefs": {},
+  "body": [
+    {
+      "content": [
+        {
+          "content": [
+            {
+              "kind": "text",
+              "text": "GNOME"
+            }
+          ],
+          "kind": "heading",
+          "level": 1,
+          "origin": {
+            "startLine": 2,
+            "endLine": 2,
+            "startOffset": 6,
+            "endOffset": 13
+          }
+        }
+      ],
+      "origin": {
+        "startLine": 1,
+        "endLine": 3,
+        "startOffset": 0,
+        "endOffset": 15
+      },
+      "type": "head"
+    }
+  ]
+}

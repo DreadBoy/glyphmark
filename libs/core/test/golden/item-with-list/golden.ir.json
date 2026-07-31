@@ -1,0 +1,402 @@
+{
+  "contentRefs": {},
+  "body": [
+    {
+      "content": [
+        {
+          "content": [
+            {
+              "kind": "text",
+              "text": "You have a pet—a Tiny animal of a type you choose, such as a cat, bird, or rodent. It has the minion trait, meaning it gains 2 actions during your turn if you use the Command an Animal action to command it; this replaces the usual effects of Command an Animal, and you don't need to attempt a Nature check. A pet can't make Strikes."
+            }
+          ],
+          "indent": "none",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 7,
+            "endLine": 7,
+            "startOffset": 34,
+            "endOffset": 366
+          }
+        },
+        {
+          "content": [
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "Level"
+                }
+              ],
+              "kind": "strong"
+            },
+            {
+              "kind": "text",
+              "text": " Your pet's level is equal to yours."
+            }
+          ],
+          "indent": "hanging",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 9,
+            "endLine": 9,
+            "startOffset": 368,
+            "endOffset": 413
+          }
+        },
+        {
+          "content": [
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "Modifiers and AC"
+                }
+              ],
+              "kind": "strong"
+            },
+            {
+              "kind": "text",
+              "text": " Your pet's save modifiers and AC are equal to yours before applying circumstance or status bonuses or penalties. It uses 3 + your level as its modifier for Perception, Acrobatics, and Stealth, and just your level as its modifier for other skill checks. It doesn't have or use its own attribute modifiers and can never benefit from item bonuses."
+            }
+          ],
+          "indent": "hanging",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 11,
+            "endLine": 11,
+            "startOffset": 415,
+            "endOffset": 780
+          }
+        },
+        {
+          "content": [
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "Hit Points"
+                }
+              ],
+              "kind": "strong"
+            },
+            {
+              "kind": "text",
+              "text": " Your pet has 5 Hit Points per level."
+            }
+          ],
+          "indent": "hanging",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 13,
+            "endLine": 13,
+            "startOffset": 782,
+            "endOffset": 833
+          }
+        },
+        {
+          "content": [
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "Senses"
+                }
+              ],
+              "kind": "strong"
+            },
+            {
+              "kind": "text",
+              "text": " Your pet has low-light vision and can gain additional senses from pet abilities."
+            }
+          ],
+          "indent": "hanging",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 15,
+            "endLine": 15,
+            "startOffset": 835,
+            "endOffset": 926
+          }
+        },
+        {
+          "kind": "column-break",
+          "origin": {
+            "startLine": 16,
+            "endLine": 16,
+            "startOffset": 927,
+            "endOffset": 928
+          }
+        },
+        {
+          "content": [
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "Speed"
+                }
+              ],
+              "kind": "strong"
+            },
+            {
+              "kind": "text",
+              "text": " Your pet has a Speed of 25 feet. You can choose to instead have an aquatic pet, which breathes in water instead of air and has the aquatic trait, no land Speed, and a swim Speed of 25 feet."
+            }
+          ],
+          "indent": "hanging",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 17,
+            "endLine": 17,
+            "startOffset": 929,
+            "endOffset": 1128
+          }
+        },
+        {
+          "content": [
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "Pet Abilities"
+                }
+              ],
+              "kind": "strong"
+            },
+            {
+              "kind": "text",
+              "text": " When you gain your pet, choose two of the following abilities. If your pet is an animal that naturally has one of these abilities (for instance, an owl has a fly Speed), you must select that ability. Your pet can't be an animal that naturally has more pet abilities than the maximum."
+            }
+          ],
+          "indent": "hanging",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 19,
+            "endLine": 19,
+            "startOffset": 1130,
+            "endOffset": 1431
+          }
+        },
+        {
+          "indent": "block",
+          "items": [
+            [
+              {
+                "children": [
+                  {
+                    "kind": "text",
+                    "text": "Amphibious"
+                  }
+                ],
+                "kind": "strong"
+              },
+              {
+                "kind": "text",
+                "text": " It gains the amphibious trait, allowing it to breathe in both air and water, and has both a land Speed and a swim Speed, each equal to its highest land Speed or swim Speed."
+              }
+            ],
+            [
+              {
+                "children": [
+                  {
+                    "kind": "text",
+                    "text": "Burrower"
+                  }
+                ],
+                "kind": "strong"
+              },
+              {
+                "kind": "text",
+                "text": " It gains a burrow Speed of 5 feet, allowing it to dig Tiny holes."
+              }
+            ],
+            [
+              {
+                "children": [
+                  {
+                    "kind": "text",
+                    "text": "Climber"
+                  }
+                ],
+                "kind": "strong"
+              },
+              {
+                "kind": "text",
+                "text": " It gains a climb Speed of 25 feet."
+              }
+            ],
+            [
+              {
+                "children": [
+                  {
+                    "kind": "text",
+                    "text": "Darkvision"
+                  }
+                ],
+                "kind": "strong"
+              },
+              {
+                "kind": "text",
+                "text": " It gains darkvision."
+              }
+            ],
+            [
+              {
+                "children": [
+                  {
+                    "kind": "text",
+                    "text": "Echolocation"
+                  }
+                ],
+                "kind": "strong"
+              },
+              {
+                "kind": "text",
+                "text": " Your pet can use hearing as a precise sense within 20 feet."
+              }
+            ],
+            [
+              {
+                "children": [
+                  {
+                    "kind": "text",
+                    "text": "Fast Movement"
+                  }
+                ],
+                "kind": "strong"
+              },
+              {
+                "kind": "text",
+                "text": " Increase one of the pet's Speeds from 25 feet to 40 feet."
+              }
+            ],
+            [
+              {
+                "children": [
+                  {
+                    "kind": "text",
+                    "text": "Flier"
+                  }
+                ],
+                "kind": "strong"
+              },
+              {
+                "kind": "text",
+                "text": " It gains a fly Speed of 25 feet."
+              }
+            ],
+            [
+              {
+                "children": [
+                  {
+                    "kind": "text",
+                    "text": "Manual Dexterity"
+                  }
+                ],
+                "kind": "strong"
+              },
+              {
+                "kind": "text",
+                "text": " It can use up to two of its limbs as if they were hands to perform manipulate actions."
+              }
+            ],
+            [
+              {
+                "children": [
+                  {
+                    "kind": "text",
+                    "text": "Scent"
+                  }
+                ],
+                "kind": "strong"
+              },
+              {
+                "kind": "text",
+                "text": " Your pet can use scent as an imprecise sense within 30 feet."
+              }
+            ],
+            [
+              {
+                "children": [
+                  {
+                    "kind": "text",
+                    "text": "Tough"
+                  }
+                ],
+                "kind": "strong"
+              },
+              {
+                "kind": "text",
+                "text": " Your pet's max HP increase by 2 per level."
+              }
+            ]
+          ],
+          "kind": "list",
+          "origin": {
+            "startLine": 21,
+            "endLine": 30,
+            "startOffset": 1433,
+            "endOffset": 2230
+          }
+        },
+        {
+          "kind": "hr",
+          "origin": {
+            "startLine": 31,
+            "endLine": 31,
+            "startOffset": 2231,
+            "endOffset": 2232
+          }
+        },
+        {
+          "content": [
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "Special"
+                }
+              ],
+              "kind": "strong"
+            },
+            {
+              "kind": "text",
+              "text": " You can gain a new pet by retraining this feat, releasing any previous pet you have. If you later gain a familiar or other companion that uses the Pet feat, you can immediately retrain this feat."
+            }
+          ],
+          "indent": "hanging",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 32,
+            "endLine": 32,
+            "startOffset": 2233,
+            "endOffset": 2440
+          }
+        }
+      ],
+      "name": [
+        {
+          "kind": "text",
+          "text": "Pet"
+        }
+      ],
+      "origin": {
+        "startLine": 1,
+        "endLine": 33,
+        "startOffset": 0,
+        "endOffset": 2442
+      },
+      "subtitle": [
+        {
+          "kind": "text",
+          "text": "Feat 1"
+        }
+      ],
+      "traits": [
+        "General"
+      ],
+      "type": "item"
+    }
+  ]
+}

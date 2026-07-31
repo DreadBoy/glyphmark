@@ -1,0 +1,142 @@
+{
+  "contentRefs": {},
+  "body": [
+    {
+      "action": ":aa:",
+      "content": [
+        {
+          "content": [
+            {
+              "kind": "text",
+              "text": "This action allows you to disarm a trap or another complex device. Often, a device requires numerous successes before becoming disabled, depending on its construction and complexity. A thieves' toolkit is helpful and sometimes even required to Disable a Device, as determined by the GM, and sometimes a device requires a higher proficiency rank in Thievery to disable it."
+            }
+          ],
+          "indent": "none",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 6,
+            "endLine": 6,
+            "startOffset": 45,
+            "endOffset": 416
+          }
+        },
+        {
+          "content": [
+            {
+              "kind": "text",
+              "text": "Your Thievery check result determines your progress."
+            }
+          ],
+          "indent": "first-line",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 8,
+            "endLine": 8,
+            "startOffset": 418,
+            "endOffset": 470
+          }
+        },
+        {
+          "content": [
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "Critical Success"
+                }
+              ],
+              "kind": "strong"
+            },
+            {
+              "kind": "text",
+              "text": " You disable the device, or you achieve two successes toward disabling a device requiring more than one success. You leave no trace of your tampering, and you can rearm the device later, if that type of device can be rearmed."
+            }
+          ],
+          "indent": "hanging",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 10,
+            "endLine": 10,
+            "startOffset": 472,
+            "endOffset": 717
+          }
+        },
+        {
+          "kind": "column-break",
+          "origin": {
+            "startLine": 11,
+            "endLine": 11,
+            "startOffset": 718,
+            "endOffset": 719
+          }
+        },
+        {
+          "content": [
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "Success"
+                }
+              ],
+              "kind": "strong"
+            },
+            {
+              "kind": "text",
+              "text": " You disable the device, or you achieve one success toward disabling a device that requires more than one success."
+            }
+          ],
+          "indent": "hanging",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 12,
+            "endLine": 12,
+            "startOffset": 720,
+            "endOffset": 845
+          }
+        },
+        {
+          "content": [
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "Critical Failure"
+                }
+              ],
+              "kind": "strong"
+            },
+            {
+              "kind": "text",
+              "text": " You trigger the device."
+            }
+          ],
+          "indent": "hanging",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 14,
+            "endLine": 14,
+            "startOffset": 847,
+            "endOffset": 891
+          }
+        }
+      ],
+      "name": [
+        {
+          "kind": "text",
+          "text": "Disable a Device"
+        }
+      ],
+      "origin": {
+        "startLine": 1,
+        "endLine": 15,
+        "startOffset": 0,
+        "endOffset": 893
+      },
+      "traits": [
+        "Manipulate"
+      ],
+      "type": "item"
+    }
+  ]
+}

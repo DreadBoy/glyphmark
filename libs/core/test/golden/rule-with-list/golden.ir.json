@@ -1,0 +1,275 @@
+{
+  "contentRefs": {},
+  "body": [
+    {
+      "content": [
+        {
+          "content": [
+            {
+              "kind": "text",
+              "text": "Being Stealthy"
+            }
+          ],
+          "kind": "heading",
+          "level": 1,
+          "origin": {
+            "startLine": 2,
+            "endLine": 2,
+            "startOffset": 6,
+            "endOffset": 22
+          }
+        },
+        {
+          "content": [
+            {
+              "kind": "text",
+              "text": "If you want to sneak around when there are creatures that can see you, you can use a combination of Hide and Sneak to do so."
+            }
+          ],
+          "indent": "none",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 4,
+            "endLine": 4,
+            "startOffset": 24,
+            "endOffset": 148
+          }
+        },
+        {
+          "indent": "none",
+          "items": [
+            [
+              {
+                "kind": "text",
+                "text": "First, "
+              },
+              {
+                "children": [
+                  {
+                    "kind": "text",
+                    "text": "Hide"
+                  }
+                ],
+                "kind": "strong"
+              },
+              {
+                "kind": "text",
+                "text": " behind something (either by taking advantage of cover or having the concealed condition due to fog, a spell, or a similar effect). A successful Stealth check makes you hidden, though the creatures still know roughly where you are."
+              }
+            ],
+            [
+              {
+                "kind": "text",
+                "text": "Second, now that you're hidden, you can "
+              },
+              {
+                "children": [
+                  {
+                    "kind": "text",
+                    "text": "Sneak"
+                  }
+                ],
+                "kind": "strong"
+              },
+              {
+                "kind": "text",
+                "text": ". That means you can move at half your Speed and attempt another Stealth check. If it's successful, you're now undetected. That means the creatures don't know which square you're in anymore."
+              }
+            ]
+          ],
+          "kind": "list",
+          "origin": {
+            "startLine": 6,
+            "endLine": 7,
+            "startOffset": 150,
+            "endOffset": 640
+          }
+        },
+        {
+          "content": [
+            {
+              "kind": "text",
+              "text": "If you were approaching creatures that didn't know you were there, you could begin Sneaking right away, since they didn't know your location to start with. Some actions can cause you to become observed again, but they're mostly what you'd expect: standing out in the open, attacking someone, making a bunch of noise, and so forth. If you Strike someone after successfully Hiding or Sneaking, though, they're off-guard to that Strike."
+            }
+          ],
+          "indent": "first-line",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 9,
+            "endLine": 9,
+            "startOffset": 642,
+            "endOffset": 1075
+          }
+        },
+        {
+          "content": [
+            {
+              "kind": "text",
+              "text": "Creatures can try to find you using the Seek action, described on page 417."
+            }
+          ],
+          "indent": "first-line",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 11,
+            "endLine": 11,
+            "startOffset": 1077,
+            "endOffset": 1152
+          }
+        },
+        {
+          "content": [
+            {
+              "kind": "text",
+              "text": "Three conditions explain the states of detection. Remember that these conditions are relative to each creature—you can be observed by one creature while hidden to another and undetected by a third."
+            }
+          ],
+          "indent": "first-line",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 13,
+            "endLine": 13,
+            "startOffset": 1154,
+            "endOffset": 1351
+          }
+        },
+        {
+          "content": [
+            {
+              "kind": "text",
+              "text": "Observed (page 444)"
+            }
+          ],
+          "kind": "heading",
+          "level": 2,
+          "origin": {
+            "startLine": 15,
+            "endLine": 15,
+            "startOffset": 1353,
+            "endOffset": 1375
+          }
+        },
+        {
+          "content": [
+            {
+              "kind": "text",
+              "text": "You're in the creature's clear view."
+            }
+          ],
+          "indent": "none",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 17,
+            "endLine": 17,
+            "startOffset": 1377,
+            "endOffset": 1413
+          }
+        },
+        {
+          "content": [
+            {
+              "kind": "text",
+              "text": "Hidden (page 444)"
+            }
+          ],
+          "kind": "heading",
+          "level": 2,
+          "origin": {
+            "startLine": 19,
+            "endLine": 19,
+            "startOffset": 1415,
+            "endOffset": 1435
+          }
+        },
+        {
+          "content": [
+            {
+              "kind": "text",
+              "text": "The creature knows your location but can't see you."
+            }
+          ],
+          "indent": "none",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 21,
+            "endLine": 21,
+            "startOffset": 1437,
+            "endOffset": 1488
+          }
+        },
+        {
+          "content": [
+            {
+              "kind": "text",
+              "text": "Undetected (page 446)"
+            }
+          ],
+          "kind": "heading",
+          "level": 2,
+          "origin": {
+            "startLine": 23,
+            "endLine": 23,
+            "startOffset": 1490,
+            "endOffset": 1514
+          }
+        },
+        {
+          "content": [
+            {
+              "kind": "text",
+              "text": "The creature doesn't know your location."
+            }
+          ],
+          "indent": "none",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 25,
+            "endLine": 25,
+            "startOffset": 1516,
+            "endOffset": 1556
+          }
+        },
+        {
+          "content": [
+            {
+              "kind": "text",
+              "text": "Unobservable Stealth"
+            }
+          ],
+          "kind": "heading",
+          "level": 1,
+          "origin": {
+            "startLine": 27,
+            "endLine": 27,
+            "startOffset": 1558,
+            "endOffset": 1580
+          }
+        },
+        {
+          "content": [
+            {
+              "kind": "text",
+              "text": "In some cases, it can be impossible for a creature to fully observe you. Typically this happens if you’re invisible, the observer is blinded, or you’re in darkness and the creature can’t see in darkness. In such cases, any critical failure you roll on a check to Sneak is a failure instead. You also continue to be undetected if you lose cover or greater cover against or are no longer concealed from such a creature."
+            }
+          ],
+          "indent": "none",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 29,
+            "endLine": 29,
+            "startOffset": 1582,
+            "endOffset": 1999
+          }
+        }
+      ],
+      "fullWidth": false,
+      "origin": {
+        "startLine": 1,
+        "endLine": 30,
+        "startOffset": 0,
+        "endOffset": 2001
+      },
+      "type": "rule"
+    }
+  ]
+}

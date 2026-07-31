@@ -1,0 +1,409 @@
+{
+  "contentRefs": {},
+  "body": [
+    {
+      "index": 1,
+      "origin": {
+        "startLine": 1,
+        "endLine": 1,
+        "startOffset": 0,
+        "endOffset": 1
+      },
+      "type": "full-width-toggle"
+    },
+    {
+      "content": [
+        {
+          "content": [
+            {
+              "kind": "text",
+              "text": "Recall Knowledge Skills"
+            }
+          ],
+          "kind": "heading",
+          "level": 1,
+          "origin": {
+            "startLine": 4,
+            "endLine": 4,
+            "startOffset": 9,
+            "endOffset": 34
+          }
+        },
+        {
+          "content": [
+            {
+              "kind": "text",
+              "text": "The following skills can be used to Recall Knowledge about the listed topics. Some topics might appear on multiple lists, but the skills could give different information. For example, Arcana might tell you about the magical defenses of a construct, whereas Crafting could tell you about its sturdy resistance to physical attacks."
+            }
+          ],
+          "indent": "none",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 6,
+            "endLine": 6,
+            "startOffset": 36,
+            "endOffset": 365
+          }
+        },
+        {
+          "indent": "none",
+          "items": [
+            [
+              {
+                "children": [
+                  {
+                    "kind": "text",
+                    "text": "Arcana:"
+                  }
+                ],
+                "kind": "strong"
+              },
+              {
+                "kind": "text",
+                "text": " Arcane theories, magical traditions, creatures of arcane significance, and arcane planes."
+              }
+            ],
+            [
+              {
+                "children": [
+                  {
+                    "kind": "text",
+                    "text": "Crafting:"
+                  }
+                ],
+                "kind": "strong"
+              },
+              {
+                "kind": "text",
+                "text": " Alchemical reactions and creatures, item value, engineering, unusual materials, and constructs."
+              }
+            ],
+            [
+              {
+                "children": [
+                  {
+                    "kind": "text",
+                    "text": "Lore:"
+                  }
+                ],
+                "kind": "strong"
+              },
+              {
+                "kind": "text",
+                "text": " The subject of the Lore skill’s subcategory."
+              }
+            ],
+            [
+              {
+                "children": [
+                  {
+                    "kind": "text",
+                    "text": "Medicine:"
+                  }
+                ],
+                "kind": "strong"
+              },
+              {
+                "kind": "text",
+                "text": " Diseases, poisons, wounds, and forensics."
+              }
+            ],
+            [
+              {
+                "children": [
+                  {
+                    "kind": "text",
+                    "text": "Nature:"
+                  }
+                ],
+                "kind": "strong"
+              },
+              {
+                "kind": "text",
+                "text": " The environment, flora, geography, weather, creatures of natural origin, and natural planes."
+              }
+            ],
+            [
+              {
+                "children": [
+                  {
+                    "kind": "text",
+                    "text": "Occultism:"
+                  }
+                ],
+                "kind": "strong"
+              },
+              {
+                "kind": "text",
+                "text": " Ancient mysteries, folk superstition, obscure philosophy, creatures of occult significance, and esoteric planes."
+              }
+            ],
+            [
+              {
+                "children": [
+                  {
+                    "kind": "text",
+                    "text": "Religion:"
+                  }
+                ],
+                "kind": "strong"
+              },
+              {
+                "kind": "text",
+                "text": " Divine agents, divine planes, theology, obscure myths, and creatures of religious significance."
+              }
+            ],
+            [
+              {
+                "children": [
+                  {
+                    "kind": "text",
+                    "text": "Society:"
+                  }
+                ],
+                "kind": "strong"
+              },
+              {
+                "kind": "text",
+                "text": " Local history, key personalities, legal institutions, societal structure, and humanoid culture."
+              }
+            ]
+          ],
+          "kind": "list",
+          "origin": {
+            "startLine": 8,
+            "endLine": 15,
+            "startOffset": 367,
+            "endOffset": 1157
+          }
+        },
+        {
+          "content": [
+            {
+              "kind": "text",
+              "text": "Using an applicable Lore to Recall Knowledge about a topic, such as Engineering Lore instead of Crafting to find structural weaknesses in a bridge, typically comes with a lower DC. Your special interests can pay off! In some cases, you can get the GM’s permission to use a different but related skill, usually against a higher DC than normal. The GM might allow checks to Recall Knowledge using other skills. For example, you might assess the skill of an acrobat using Acrobatics. If you’re using a physical skill (like in this example), the GM will most likely have you use a mental modifier—typically Intelligence—instead of the skill’s normal physical attribute modifier."
+            }
+          ],
+          "indent": "first-line",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 18,
+            "endLine": 18,
+            "startOffset": 1160,
+            "endOffset": 1834
+          }
+        },
+        {
+          "kind": "column-break",
+          "origin": {
+            "startLine": 20,
+            "endLine": 20,
+            "startOffset": 1836,
+            "endOffset": 1837
+          }
+        },
+        {
+          "content": [
+            {
+              "kind": "text",
+              "text": "Recall Knowledge Questions"
+            }
+          ],
+          "kind": "heading",
+          "level": 1,
+          "origin": {
+            "startLine": 22,
+            "endLine": 22,
+            "startOffset": 1839,
+            "endOffset": 1867
+          }
+        },
+        {
+          "content": [
+            {
+              "kind": "text",
+              "text": "When encountering a subject for the first time, your first question will likely be a basic \"What is it?\", which the GM can answer with a name and basic description like, \"That's an ogre, a tough and cruel giant\" or \"This is the symbol of Urgathoa, a goddess of disease, gluttony, and undeath.\" If you already know this base level of detail on the subject, the list below includes some reasonable questions. The GM determines what other questions to allow. Usually this is simple as long as you stick to "
+            },
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "one"
+                }
+              ],
+              "kind": "em"
+            },
+            {
+              "kind": "text",
+              "text": " question. Any question must be about something observable in the game world, not the abstract numbers of the rules. The GM might tell you a lumbering monster’s Reflex save is its weakest—translating a concept your character could understand using the game term for clarity—but wouldn’t reveal the exact Reflex modifier. The GM can find more guidance on page 54 of "
+            },
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "GM Core"
+                }
+              ],
+              "kind": "em"
+            },
+            {
+              "kind": "text",
+              "text": "."
+            }
+          ],
+          "indent": "none",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 24,
+            "endLine": 24,
+            "startOffset": 1869,
+            "endOffset": 2752
+          }
+        },
+        {
+          "content": [
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "Creatures:"
+                }
+              ],
+              "kind": "strong"
+            },
+            {
+              "kind": "text",
+              "text": " \"Can it be reasoned with?\" \"What environments does it live in?\" \"What's its most notable offensive ability?\" \"Is it highly vulnerable or resistant to anything?\" \"Are any of its defenses weak?\""
+            }
+          ],
+          "indent": "first-line",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 26,
+            "endLine": 26,
+            "startOffset": 2754,
+            "endOffset": 2961
+          }
+        },
+        {
+          "content": [
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "Magic:"
+                }
+              ],
+              "kind": "strong"
+            },
+            {
+              "kind": "text",
+              "text": " \"How can it be avoided?\" \"What type of people use this magic?\" \"How long does it last?\""
+            }
+          ],
+          "indent": "first-line",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 28,
+            "endLine": 28,
+            "startOffset": 2963,
+            "endOffset": 3061
+          }
+        },
+        {
+          "content": [
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "Organizations:"
+                }
+              ],
+              "kind": "strong"
+            },
+            {
+              "kind": "text",
+              "text": " \"What kind of influence does it have?\" \"Where is it headquartered?\" \"How large is it?\" \"What kind of members does it have?\" \"Who are its major authorities?\" \"Do they have any notable allies and enemies?\""
+            }
+          ],
+          "indent": "first-line",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 30,
+            "endLine": 30,
+            "startOffset": 3063,
+            "endOffset": 3285
+          }
+        },
+        {
+          "content": [
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "People:"
+                }
+              ],
+              "kind": "strong"
+            },
+            {
+              "kind": "text",
+              "text": " \"What's their personality like?\" \"What do they look like?\" \"Do they have any notable talents?\" \"Do they have notable allies and enemies?\" \"What kind of influence do they have?\" \"Do they have any vices?\""
+            }
+          ],
+          "indent": "first-line",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 32,
+            "endLine": 32,
+            "startOffset": 3287,
+            "endOffset": 3501
+          }
+        },
+        {
+          "content": [
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "Sites:"
+                }
+              ],
+              "kind": "strong"
+            },
+            {
+              "kind": "text",
+              "text": " \"What's its general location?\" \"How large is it?\" \"What's the government like?\" \"Do any notable people live there?\" \"What kind of monsters dwell there?\" \"What's the environment and terrain like?\""
+            }
+          ],
+          "indent": "first-line",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 34,
+            "endLine": 34,
+            "startOffset": 3503,
+            "endOffset": 3709
+          }
+        }
+      ],
+      "fullWidth": true,
+      "origin": {
+        "startLine": 3,
+        "endLine": 35,
+        "startOffset": 3,
+        "endOffset": 3711
+      },
+      "type": "rule"
+    },
+    {
+      "index": 2,
+      "origin": {
+        "startLine": 37,
+        "endLine": 37,
+        "startOffset": 3713,
+        "endOffset": 3714
+      },
+      "type": "full-width-toggle"
+    }
+  ]
+}

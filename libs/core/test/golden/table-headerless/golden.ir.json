@@ -1,0 +1,121 @@
+{
+  "contentRefs": {},
+  "body": [
+    {
+      "alignments": [
+        "left",
+        "right"
+      ],
+      "caption": [
+        {
+          "kind": "text",
+          "text": "At a Glance"
+        }
+      ],
+      "colCount": 2,
+      "footnotes": [
+        {
+          "children": [
+            {
+              "kind": "text",
+              "text": "Add your Strength modifier to the listed damage."
+            }
+          ],
+          "type": "unnumbered"
+        }
+      ],
+      "headers": [],
+      "origin": {
+        "startLine": 3,
+        "endLine": 9,
+        "startOffset": 18,
+        "endOffset": 248
+      },
+      "rows": [
+        [
+          [
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "Cost"
+                }
+              ],
+              "kind": "strong"
+            }
+          ],
+          [
+            {
+              "kind": "text",
+              "text": "3 gp"
+            }
+          ]
+        ],
+        [
+          [
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "Bulk"
+                }
+              ],
+              "kind": "strong"
+            }
+          ],
+          [
+            {
+              "kind": "text",
+              "text": "1"
+            }
+          ]
+        ],
+        [
+          [
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "Hands"
+                }
+              ],
+              "kind": "strong"
+            }
+          ],
+          [
+            {
+              "kind": "text",
+              "text": "2"
+            }
+          ]
+        ],
+        [
+          [
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "Damage"
+                }
+              ],
+              "kind": "strong"
+            }
+          ],
+          [
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "1d8 slashing"
+                }
+              ],
+              "kind": "footnote-ref",
+              "type": "unnumbered"
+            }
+          ]
+        ]
+      ],
+      "type": "table"
+    }
+  ]
+}

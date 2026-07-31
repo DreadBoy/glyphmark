@@ -1,0 +1,133 @@
+{
+  "contentRefs": {},
+  "body": [
+    {
+      "content": [
+        {
+          "kind": "text",
+          "text": "Faiths and Philosophies"
+        }
+      ],
+      "level": 1,
+      "origin": {
+        "startLine": 1,
+        "endLine": 1,
+        "startOffset": 0,
+        "endOffset": 25
+      },
+      "type": "heading"
+    },
+    {
+      "content": [
+        {
+          "kind": "text",
+          "text": "Of course, faith can express itself in more ways than venerating a single deity—or a deity at all. A few examples of non-deific religions and philosophies are presented below."
+        }
+      ],
+      "indent": "none",
+      "origin": {
+        "startLine": 3,
+        "endLine": 3,
+        "startOffset": 27,
+        "endOffset": 202
+      },
+      "type": "paragraph"
+    },
+    {
+      "content": [
+        {
+          "kind": "text",
+          "text": "Atheism"
+        }
+      ],
+      "level": 2,
+      "origin": {
+        "startLine": 5,
+        "endLine": 5,
+        "startOffset": 204,
+        "endOffset": 214
+      },
+      "type": "heading"
+    },
+    {
+      "content": [
+        {
+          "kind": "text",
+          "text": "While most concede that the gods exist, some do not view them as worthy of worship, and a few even deny their presence altogether."
+        }
+      ],
+      "indent": "none",
+      "origin": {
+        "startLine": 7,
+        "endLine": 7,
+        "startOffset": 216,
+        "endOffset": 346
+      },
+      "type": "paragraph"
+    },
+    {
+      "content": [
+        {
+          "kind": "text",
+          "text": "Edicts"
+        }
+      ],
+      "level": 3,
+      "origin": {
+        "startLine": 9,
+        "endLine": 9,
+        "startOffset": 348,
+        "endOffset": 358
+      },
+      "type": "heading"
+    },
+    {
+      "content": [
+        {
+          "kind": "text",
+          "text": "Pursue your own agenda with faith in your ability to excel."
+        }
+      ],
+      "indent": "none",
+      "origin": {
+        "startLine": 11,
+        "endLine": 11,
+        "startOffset": 360,
+        "endOffset": 419
+      },
+      "type": "paragraph"
+    },
+    {
+      "content": [
+        {
+          "kind": "text",
+          "text": "Anathema"
+        }
+      ],
+      "level": 4,
+      "origin": {
+        "startLine": 13,
+        "endLine": 13,
+        "startOffset": 421,
+        "endOffset": 434
+      },
+      "type": "heading"
+    },
+    {
+      "content": [
+        {
+          "kind": "text",
+          "text": "Offer prayers to a deity."
+        }
+      ],
+      "indent": "none",
+      "origin": {
+        "startLine": 15,
+        "endLine": 15,
+        "startOffset": 436,
+        "endOffset": 461
+      },
+      "type": "paragraph"
+    }
+  ]
+}

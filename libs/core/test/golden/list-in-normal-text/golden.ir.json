@@ -1,0 +1,163 @@
+{
+  "contentRefs": {},
+  "body": [
+    {
+      "content": [
+        {
+          "kind": "text",
+          "text": "Religion (Wis)"
+        }
+      ],
+      "level": 1,
+      "origin": {
+        "startLine": 1,
+        "endLine": 1,
+        "startOffset": 0,
+        "endOffset": 16
+      },
+      "type": "heading"
+    },
+    {
+      "content": [
+        {
+          "kind": "text",
+          "text": "The secrets of deities, dogma, faith, and the realms of divine creatures both sublime and sinister are open to you. You also understand how magic works, though your training imparts a religious slant to that knowledge. Even if you're untrained in Religion, you can use it to Recall Knowledge."
+        }
+      ],
+      "indent": "none",
+      "origin": {
+        "startLine": 3,
+        "endLine": 3,
+        "startOffset": 18,
+        "endOffset": 310
+      },
+      "type": "paragraph"
+    },
+    {
+      "indent": "block",
+      "items": [
+        [
+          {
+            "children": [
+              {
+                "kind": "text",
+                "text": "Recall Knowledge"
+              }
+            ],
+            "kind": "strong"
+          },
+          {
+            "kind": "text",
+            "text": " (page 231) about divine agents, the finer points of theology, obscure myths regarding a faith, and creatures of religious significance (like celestials, fiends, and undead), Creation's Forge, the Void, and the Outer Sphere."
+          }
+        ]
+      ],
+      "origin": {
+        "startLine": 5,
+        "endLine": 5,
+        "startOffset": 312,
+        "endOffset": 558
+      },
+      "type": "list"
+    },
+    {
+      "content": [
+        {
+          "kind": "text",
+          "text": "Religion Trained Actions"
+        }
+      ],
+      "level": 2,
+      "origin": {
+        "startLine": 7,
+        "endLine": 7,
+        "startOffset": 560,
+        "endOffset": 587
+      },
+      "type": "heading"
+    },
+    {
+      "content": [
+        {
+          "kind": "text",
+          "text": "You must be trained in Religion to use it for the following general skill actions."
+        }
+      ],
+      "indent": "none",
+      "origin": {
+        "startLine": 9,
+        "endLine": 9,
+        "startOffset": 589,
+        "endOffset": 671
+      },
+      "type": "paragraph"
+    },
+    {
+      "indent": "block",
+      "items": [
+        [
+          {
+            "children": [
+              {
+                "kind": "text",
+                "text": "Decipher Writing"
+              }
+            ],
+            "kind": "strong"
+          },
+          {
+            "kind": "text",
+            "text": " (page 228) of a religious nature, including allegories, homilies, and proverbs."
+          }
+        ],
+        [
+          {
+            "children": [
+              {
+                "kind": "text",
+                "text": "Identify Magic"
+              }
+            ],
+            "kind": "strong"
+          },
+          {
+            "kind": "text",
+            "text": " (page 230), particularly magic of the divine tradition."
+          }
+        ],
+        [
+          {
+            "children": [
+              {
+                "kind": "text",
+                "text": "Learn a Spell"
+              }
+            ],
+            "kind": "strong"
+          },
+          {
+            "kind": "text",
+            "text": " (page 230) from the divine tradition."
+          }
+        ]
+      ],
+      "origin": {
+        "startLine": 11,
+        "endLine": 13,
+        "startOffset": 673,
+        "endOffset": 910
+      },
+      "type": "list"
+    },
+    {
+      "origin": {
+        "startLine": 15,
+        "endLine": 15,
+        "startOffset": 912,
+        "endOffset": 913
+      },
+      "trailing": true,
+      "type": "column-break"
+    }
+  ]
+}

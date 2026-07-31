@@ -1,0 +1,152 @@
+{
+  "contentRefs": {},
+  "body": [
+    {
+      "content": [
+        {
+          "kind": "text",
+          "text": "A short opening paragraph in the first column."
+        }
+      ],
+      "indent": "none",
+      "origin": {
+        "startLine": 1,
+        "endLine": 1,
+        "startOffset": 0,
+        "endOffset": 46
+      },
+      "type": "paragraph"
+    },
+    {
+      "origin": {
+        "startLine": 3,
+        "endLine": 3,
+        "startOffset": 48,
+        "endOffset": 49
+      },
+      "trailing": false,
+      "type": "column-break"
+    },
+    {
+      "content": [
+        {
+          "kind": "text",
+          "text": "A much longer second column. Without an explicit column break the auto-balancer would split this content roughly evenly across both columns; the leading `|` forces the break so the first column stays short and everything from here on flows into the second column."
+        }
+      ],
+      "indent": "first-line",
+      "origin": {
+        "startLine": 5,
+        "endLine": 8,
+        "startOffset": 51,
+        "endOffset": 314
+      },
+      "type": "paragraph"
+    },
+    {
+      "content": [
+        {
+          "kind": "text",
+          "text": "The second paragraph keeps going to give the renderer enough text to demonstrate that wrapping happens inside the second column, not back across into the first."
+        }
+      ],
+      "indent": "first-line",
+      "origin": {
+        "startLine": 10,
+        "endLine": 12,
+        "startOffset": 316,
+        "endOffset": 476
+      },
+      "type": "paragraph"
+    },
+    {
+      "content": [
+        {
+          "kind": "text",
+          "text": "A third paragraph for good measure — short columns on the left, a tall stack on the right."
+        }
+      ],
+      "indent": "first-line",
+      "origin": {
+        "startLine": 14,
+        "endLine": 15,
+        "startOffset": 478,
+        "endOffset": 568
+      },
+      "type": "paragraph"
+    },
+    {
+      "index": 1,
+      "origin": {
+        "startLine": 17,
+        "endLine": 17,
+        "startOffset": 570,
+        "endOffset": 571
+      },
+      "type": "full-width-toggle"
+    },
+    {
+      "content": [],
+      "fullWidth": true,
+      "origin": {
+        "startLine": 19,
+        "endLine": 19,
+        "startOffset": 573,
+        "endOffset": 579
+      },
+      "type": "rule"
+    },
+    {
+      "index": 2,
+      "origin": {
+        "startLine": 21,
+        "endLine": 21,
+        "startOffset": 581,
+        "endOffset": 582
+      },
+      "type": "full-width-toggle"
+    },
+    {
+      "content": [
+        {
+          "kind": "text",
+          "text": "After the full-width rule, body flow resumes in two columns. This paragraph sits in the first column and runs long enough that the balancer would normally split it across both — but the trailing `|` below forces everything here to stay on the left."
+        }
+      ],
+      "indent": "none",
+      "origin": {
+        "startLine": 23,
+        "endLine": 26,
+        "startOffset": 584,
+        "endOffset": 832
+      },
+      "type": "paragraph"
+    },
+    {
+      "content": [
+        {
+          "kind": "text",
+          "text": "A second paragraph keeps the column tall so the break has visible effect. Without the parser's trailing-break sentinel the balancer would ignore the final `|` and pull half of this text into the right column."
+        }
+      ],
+      "indent": "first-line",
+      "origin": {
+        "startLine": 28,
+        "endLine": 30,
+        "startOffset": 834,
+        "endOffset": 1042
+      },
+      "type": "paragraph"
+    },
+    {
+      "origin": {
+        "startLine": 32,
+        "endLine": 32,
+        "startOffset": 1044,
+        "endOffset": 1045
+      },
+      "trailing": true,
+      "type": "column-break"
+    }
+  ]
+}

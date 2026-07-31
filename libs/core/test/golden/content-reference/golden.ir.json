@@ -1,0 +1,298 @@
+{
+  "contentRefs": {
+    "artisan": [
+      {
+        "content": [
+          {
+            "content": [
+              {
+                "kind": "text",
+                "text": "As an apprentice, you practiced a particular form of building or crafting, developing a specialized skill. You might have been a blacksmith’s apprentice toiling over the forge for countless hours, a young tailor sewing garments of all kinds, or a shipwright shaping the hulls of ships."
+              }
+            ],
+            "indent": "none",
+            "kind": "paragraph",
+            "origin": {
+              "startLine": 6,
+              "endLine": 6,
+              "startOffset": 42,
+              "endOffset": 327
+            }
+          },
+          {
+            "content": [
+              {
+                "kind": "text",
+                "text": "Choose two attribute boosts. One must be to Strength or Intelligence, and one is a free attribute boost."
+              }
+            ],
+            "indent": "first-line",
+            "kind": "paragraph",
+            "origin": {
+              "startLine": 8,
+              "endLine": 8,
+              "startOffset": 329,
+              "endOffset": 433
+            }
+          },
+          {
+            "content": [
+              {
+                "kind": "text",
+                "text": "You’re trained in the Crafting skill and the Guild Lore skill. You gain the Specialty Crafting skill feat."
+              }
+            ],
+            "indent": "first-line",
+            "kind": "paragraph",
+            "origin": {
+              "startLine": 10,
+              "endLine": 10,
+              "startOffset": 435,
+              "endOffset": 541
+            }
+          }
+        ],
+        "name": [
+          {
+            "kind": "text",
+            "text": "ARTISAN"
+          }
+        ],
+        "origin": {
+          "startLine": 2,
+          "endLine": 11,
+          "startOffset": 10,
+          "endOffset": 543
+        },
+        "subtitle": [
+          {
+            "kind": "text",
+            "text": "BACKGROUND"
+          }
+        ],
+        "traits": [],
+        "type": "item"
+      }
+    ],
+    "artist": [
+      {
+        "content": [
+          {
+            "content": [
+              {
+                "kind": "text",
+                "text": "Your art is your greatest passion, whatever form it takes. Adventuring might help you find inspiration, or simply be a way to survive until you become a world-famous artist."
+              }
+            ],
+            "indent": "none",
+            "kind": "paragraph",
+            "origin": {
+              "startLine": 24,
+              "endLine": 24,
+              "startOffset": 613,
+              "endOffset": 786
+            }
+          },
+          {
+            "content": [
+              {
+                "kind": "text",
+                "text": "Choose two attribute boosts. One must be to Dexterity or Charisma, and one is a free attribute boost."
+              }
+            ],
+            "indent": "first-line",
+            "kind": "paragraph",
+            "origin": {
+              "startLine": 26,
+              "endLine": 26,
+              "startOffset": 788,
+              "endOffset": 889
+            }
+          },
+          {
+            "content": [
+              {
+                "kind": "text",
+                "text": "You’re trained in the Crafting skill and the Art Lore skill. You gain the Specialty Crafting skill feat."
+              }
+            ],
+            "indent": "first-line",
+            "kind": "paragraph",
+            "origin": {
+              "startLine": 28,
+              "endLine": 28,
+              "startOffset": 891,
+              "endOffset": 995
+            }
+          }
+        ],
+        "name": [
+          {
+            "kind": "text",
+            "text": "ARTIST"
+          }
+        ],
+        "origin": {
+          "startLine": 20,
+          "endLine": 29,
+          "startOffset": 582,
+          "endOffset": 997
+        },
+        "subtitle": [
+          {
+            "kind": "text",
+            "text": "BACKGROUND"
+          }
+        ],
+        "traits": [],
+        "type": "item"
+      }
+    ]
+  },
+  "body": [
+    {
+      "content": [
+        {
+          "content": [
+            {
+              "kind": "text",
+              "text": "As an apprentice, you practiced a particular form of building or crafting, developing a specialized skill. You might have been a blacksmith’s apprentice toiling over the forge for countless hours, a young tailor sewing garments of all kinds, or a shipwright shaping the hulls of ships."
+            }
+          ],
+          "indent": "none",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 14,
+            "endLine": 14,
+            "startOffset": 547,
+            "endOffset": 558
+          }
+        },
+        {
+          "content": [
+            {
+              "kind": "text",
+              "text": "Choose two attribute boosts. One must be to Strength or Intelligence, and one is a free attribute boost."
+            }
+          ],
+          "indent": "first-line",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 14,
+            "endLine": 14,
+            "startOffset": 547,
+            "endOffset": 558
+          }
+        },
+        {
+          "content": [
+            {
+              "kind": "text",
+              "text": "You’re trained in the Crafting skill and the Guild Lore skill. You gain the Specialty Crafting skill feat."
+            }
+          ],
+          "indent": "first-line",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 14,
+            "endLine": 14,
+            "startOffset": 547,
+            "endOffset": 558
+          }
+        }
+      ],
+      "name": [
+        {
+          "kind": "text",
+          "text": "ARTISAN"
+        }
+      ],
+      "origin": {
+        "startLine": 14,
+        "endLine": 14,
+        "startOffset": 547,
+        "endOffset": 558
+      },
+      "subtitle": [
+        {
+          "kind": "text",
+          "text": "BACKGROUND"
+        }
+      ],
+      "traits": [],
+      "type": "item"
+    },
+    {
+      "content": [
+        {
+          "content": [
+            {
+              "kind": "text",
+              "text": "Your art is your greatest passion, whatever form it takes. Adventuring might help you find inspiration, or simply be a way to survive until you become a world-famous artist."
+            }
+          ],
+          "indent": "none",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 15,
+            "endLine": 15,
+            "startOffset": 559,
+            "endOffset": 569
+          }
+        },
+        {
+          "content": [
+            {
+              "kind": "text",
+              "text": "Choose two attribute boosts. One must be to Dexterity or Charisma, and one is a free attribute boost."
+            }
+          ],
+          "indent": "first-line",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 15,
+            "endLine": 15,
+            "startOffset": 559,
+            "endOffset": 569
+          }
+        },
+        {
+          "content": [
+            {
+              "kind": "text",
+              "text": "You’re trained in the Crafting skill and the Art Lore skill. You gain the Specialty Crafting skill feat."
+            }
+          ],
+          "indent": "first-line",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 15,
+            "endLine": 15,
+            "startOffset": 559,
+            "endOffset": 569
+          }
+        }
+      ],
+      "name": [
+        {
+          "kind": "text",
+          "text": "ARTIST"
+        }
+      ],
+      "origin": {
+        "startLine": 15,
+        "endLine": 15,
+        "startOffset": 559,
+        "endOffset": 569
+      },
+      "subtitle": [
+        {
+          "kind": "text",
+          "text": "BACKGROUND"
+        }
+      ],
+      "traits": [],
+      "type": "item"
+    }
+  ]
+}

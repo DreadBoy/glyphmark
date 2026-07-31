@@ -1,0 +1,141 @@
+{
+  "contentRefs": {},
+  "body": [
+    {
+      "index": 1,
+      "origin": {
+        "startLine": 1,
+        "endLine": 1,
+        "startOffset": 0,
+        "endOffset": 1
+      },
+      "type": "full-width-toggle"
+    },
+    {
+      "content": [
+        {
+          "content": [
+            {
+              "kind": "text",
+              "text": "Key Attribute"
+            }
+          ],
+          "kind": "heading",
+          "level": 1,
+          "origin": {
+            "startLine": 4,
+            "endLine": 4,
+            "startOffset": 9,
+            "endOffset": 24
+          }
+        },
+        {
+          "content": [
+            {
+              "kind": "text",
+              "text": "Dexterity or other"
+            }
+          ],
+          "kind": "heading",
+          "level": 2,
+          "origin": {
+            "startLine": 6,
+            "endLine": 6,
+            "startOffset": 26,
+            "endOffset": 47
+          }
+        },
+        {
+          "content": [
+            {
+              "kind": "text",
+              "text": "At 1st level, your class gives you an attribute boost to Dexterity or an option from rogue's racket."
+            }
+          ],
+          "indent": "none",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 8,
+            "endLine": 8,
+            "startOffset": 49,
+            "endOffset": 149
+          }
+        },
+        {
+          "kind": "column-break",
+          "origin": {
+            "startLine": 10,
+            "endLine": 10,
+            "startOffset": 151,
+            "endOffset": 152
+          }
+        },
+        {
+          "content": [
+            {
+              "kind": "text",
+              "text": "Hit Points"
+            }
+          ],
+          "kind": "heading",
+          "level": 1,
+          "origin": {
+            "startLine": 12,
+            "endLine": 12,
+            "startOffset": 154,
+            "endOffset": 166
+          }
+        },
+        {
+          "content": [
+            {
+              "kind": "text",
+              "text": "8 plus your Constitution modifier"
+            }
+          ],
+          "kind": "heading",
+          "level": 2,
+          "origin": {
+            "startLine": 14,
+            "endLine": 14,
+            "startOffset": 168,
+            "endOffset": 204
+          }
+        },
+        {
+          "content": [
+            {
+              "kind": "text",
+              "text": "You increase your maximum number of HP by this number at 1st level and every level thereafter."
+            }
+          ],
+          "indent": "none",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 16,
+            "endLine": 16,
+            "startOffset": 206,
+            "endOffset": 300
+          }
+        }
+      ],
+      "origin": {
+        "startLine": 3,
+        "endLine": 17,
+        "startOffset": 3,
+        "endOffset": 302
+      },
+      "type": "info"
+    },
+    {
+      "index": 2,
+      "origin": {
+        "startLine": 19,
+        "endLine": 19,
+        "startOffset": 304,
+        "endOffset": 305
+      },
+      "type": "full-width-toggle"
+    }
+  ]
+}

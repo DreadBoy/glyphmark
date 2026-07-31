@@ -6,8 +6,7 @@ import { PNG } from 'pngjs';
 import pixelmatch from 'pixelmatch';
 import { parseGlyph } from '../../src/parser';
 import { renderToHtml } from '../../src/renderer/render';
-
-const HERE = path.resolve(import.meta.dirname, '.');
+import { discoverFixtures, GOLDEN_DIR as HERE } from './fixtures';
 
 // Toggle live reload in the saved output.html. Default off; set OUTPUT_HTML=1
 // when iterating in a browser via livejs.
@@ -44,29 +43,9 @@ import.meta.glob('./*/input{,.skip,.todo}.glyph', {
   eager: true,
 });
 
-// Discover fixture directories. A fixture marker file decides its mode:
-// - `input.glyph`        → regular test
-// - `input.skip.glyph`   → skipped (it.skip)
-// - `input.todo.glyph`   → todo (it.todo) — body is a note describing the
-//   block and the source book page; not parsed/rendered.
-type Mode = 'run' | 'skip' | 'todo';
-const fixtures = fs
-  .readdirSync(HERE, { withFileTypes: true })
-  .filter((d) => d.isDirectory())
-  .flatMap((d) => {
-    const dir = d.name;
-    const todoPath = path.join(HERE, dir, 'input.todo.glyph');
-    const skipPath = path.join(HERE, dir, 'input.skip.glyph');
-    const inputPath = path.join(HERE, dir, 'input.glyph');
-    if (fs.existsSync(todoPath))
-      return [{ dir, inputPath: todoPath, mode: 'todo' as Mode }];
-    if (fs.existsSync(skipPath))
-      return [{ dir, inputPath: skipPath, mode: 'skip' as Mode }];
-    if (fs.existsSync(inputPath))
-      return [{ dir, inputPath, mode: 'run' as Mode }];
-    return [];
-  })
-  .sort((a, b) => a.dir.localeCompare(b.dir));
+// Fixture discovery is shared with the IR suite (see ./fixtures.ts) so the two
+// can never disagree about which fixtures exist or which are skipped.
+const fixtures = discoverFixtures();
 
 // One chromium instance for the whole file. Pages are cheap; launching the
 // browser is not.
