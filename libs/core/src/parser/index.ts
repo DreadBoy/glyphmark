@@ -1,7 +1,8 @@
 export { parse as parseGlyph } from './parser';
 export { parseInline } from './inline';
 export { tokenize, buildTokenMap } from './lexer';
-export type { Token, BlockType, PreambleType } from './lexer';
+export type { Token } from './lexer';
+export type { BlockType, PreambleType } from './parser';
 export type {
   ActionSymbol,
   Align,

@@ -1,5 +1,6 @@
 import type {
   ActionSymbol,
+  Align,
   BodyNode,
   CellInline,
   ColumnBreakNode,
@@ -21,11 +22,40 @@ import type {
   TableNode,
 } from './ir';
 import { parseInline } from './inline';
-import { buildTokenMap, tokenize, type Token } from './lexer';
+import {
+  buildTokenMap,
+  partText,
+  tokenize,
+  type Part,
+  type Token,
+} from './lexer';
 
 // Container kinds drive per-block indent decisions. "body" is the document
 // level (normal text); the rest correspond to block-open keywords.
 type ContainerKind = 'body' | 'item' | 'rule' | 'sample' | 'info' | 'head';
+
+// What a block keyword means. The lexer hands over the word it saw; sorting
+// those words into containers, preambles, and neither is a semantic question,
+// so it is answered here.
+export type BlockType = Exclude<ContainerKind, 'body'>;
+export type PreambleType = 'css' | 'fonts';
+
+const PREAMBLE_KEYWORDS: readonly string[] = ['css', 'fonts'];
+const BLOCK_KEYWORDS: readonly string[] = [
+  'item',
+  'info',
+  'rule',
+  'sample',
+  'head',
+];
+
+function isPreambleKeyword(keyword: string): keyword is PreambleType {
+  return PREAMBLE_KEYWORDS.includes(keyword);
+}
+
+function isBlockKeyword(keyword: string): keyword is BlockType {
+  return BLOCK_KEYWORDS.includes(keyword);
+}
 
 // Widest possible segment shape the parser can emit. Each caller narrows to
 // its concrete container segment type via a (provably sound) cast — the
@@ -99,6 +129,18 @@ function tryPushSegment(
   return false;
 }
 
+/**
+ * The text of one of a token's parts, trimmed.
+ *
+ * Recognition hands over locations, not cleaned-up strings, so every payload
+ * arrives exactly as written — indentation, trailing spaces and all. Deciding
+ * that surrounding whitespace is not part of a heading's text is a reading of
+ * the document, so it happens here.
+ */
+function text(tok: Token, part: Part): string {
+  return partText(tok, part).trim();
+}
+
 function isBoldLead(content: Inline[]): boolean {
   return content[0]?.kind === 'strong';
 }
@@ -128,6 +170,267 @@ function listIndent(kind: ContainerKind): ListIndent {
   // else they sit flush with the column edge.
   if (kind === 'body' || kind === 'item') return 'block';
   return 'none';
+}
+
+/**
+ * Pair an opening delimiter with its closer in the flat token stream.
+ *
+ * The lexer emits `block-open`/`block-close` (and `ref-open`/`ref-close`) as
+ * peers and never pairs them — matching is a question about a token's
+ * surroundings, so it belongs here. Nested openers of the same kind raise the
+ * depth, so an `item()` containing a `rule()` closes at the right line.
+ *
+ * `closed` is false when the stream ends before the depth returns to zero. The
+ * inner range still covers everything after the opener, so an unterminated block
+ * parses as if it ran to the end of its enclosing range — but callers can now
+ * tell the difference, which they could not when the lexer swallowed it.
+ */
+function matchDelimited(
+  tokens: Token[],
+  openIdx: number,
+  openKind: Token['kind'],
+  closeKind: Token['kind'],
+): { inner: Token[]; closeIdx: number; closed: boolean } {
+  let depth = 1;
+  for (let i = openIdx + 1; i < tokens.length; i++) {
+    const kind = tokens[i].kind;
+    if (kind === openKind) depth++;
+    else if (kind === closeKind) {
+      depth--;
+      if (depth === 0)
+        return {
+          inner: tokens.slice(openIdx + 1, i),
+          closeIdx: i,
+          closed: true,
+        };
+    }
+  }
+  return {
+    inner: tokens.slice(openIdx + 1),
+    closeIdx: tokens.length - 1,
+    closed: false,
+  };
+}
+
+/**
+ * The source text of a line that carries prose, or `undefined` if this token
+ * is something else.
+ *
+ * The lexer classifies any line containing `|` as a `pipe-line` and any
+ * `. [n] text` line as a `footnote-line`, on shape alone. When the surrounding
+ * lines do not make a table out of them, they are simply prose, and this hands
+ * back the original text so they can join a paragraph.
+ */
+function proseText(tok: Token): string | undefined {
+  switch (tok.kind) {
+    case 'text':
+    case 'pipe-line':
+    case 'footnote-line':
+      return tok.raw;
+    default:
+      return undefined;
+  }
+}
+
+/**
+ * Split a pipe-delimited line into cells.
+ *
+ * Border pipes are stripped first so they don't produce phantom empty cells.
+ * Splitting on the interior `|`s then preserves genuinely empty cells — `| |
+ * Price |` is a blank header over a column, not a missing column — so we can't
+ * `.filter(Boolean)` away empties without desyncing the column count.
+ */
+function splitCells(line: string): string[] {
+  let s = line.trim();
+  if (s.startsWith('|')) s = s.slice(1);
+  if (s.endsWith('|')) s = s.slice(0, -1);
+  return s.split('|').map((c) => c.trim());
+}
+
+/**
+ * Read per-column alignment off a dash line: `:---:` centres, `---:` right-
+ * aligns, anything else is left.
+ *
+ * Capped at `columnCount` because the opening row fixes how many columns the
+ * table has; a separator with more cells than that is describing columns which
+ * do not exist.
+ */
+function parseAligns(dashLine: string, columnCount: number): Align[] {
+  return splitCells(dashLine)
+    .map((t): Align => {
+      if (t.startsWith(':') && t.endsWith(':')) return 'center';
+      if (t.endsWith(':')) return 'right';
+      return 'left';
+    })
+    .slice(0, columnCount);
+}
+
+/**
+ * Read the traits off a `;a, b` line.
+ *
+ * Empty entries are dropped, so `;` and `;,,` both yield no traits — a
+ * judgement about what the author meant, which is why it is made here rather
+ * than during recognition.
+ */
+function splitTraits(line: string): string[] {
+  return line
+    .trim()
+    .slice(1)
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean);
+}
+
+// One cell of a column rule: a run of dashes, optionally colon-anchored at
+// either end to set alignment. Two dashes is enough — `:--:` is what the
+// corpus actually writes for a centred column.
+const RULE_CELL_RE = /^:?-{2,}:?$/;
+
+/**
+ * Is this pipe line the rule between a table's header and its body, rather than
+ * a row of content?
+ *
+ * Every cell has to look like a rule. The lexer reports both as the same kind
+ * because they are the same shape — a line with pipes — and telling them apart
+ * means reading what is in the cells.
+ */
+function isColumnRule(tok: Token | undefined): boolean {
+  if (tok?.kind !== 'pipe-line') return false;
+  const cells = splitCells(tok.raw);
+  return cells.length > 0 && cells.every((c) => RULE_CELL_RE.test(c));
+}
+
+/** Does a table start at `i` — a pipe line with a column rule under it, or a
+ * lone column rule (the headerless form)? */
+function opensTable(tokens: Token[], i: number): boolean {
+  const tok = tokens[i];
+  if (isColumnRule(tok)) return true;
+  return tok.kind === 'pipe-line' && isColumnRule(tokens[i + 1]);
+}
+
+/**
+ * The token range a block covers, for either spelling of a block opener.
+ *
+ * A multi-line `keyword(` runs to its matching `)`, and the node's origin spans
+ * opener through closer — which resolves to the same source range the old
+ * single `block-open` token carried when the lexer built a tree. A one-line
+ * `keyword(...)` has no inner tokens; its content, if any, comes from the
+ * token's own `inner` text.
+ */
+function blockBody(
+  tokens: Token[],
+  openIdx: number,
+): { inner: Token[]; closeIdx: number; origin: Origin } {
+  const tok = tokens[openIdx];
+  if (tok.kind === 'block-inline')
+    return { inner: [], closeIdx: openIdx, origin: single(tok) };
+  const { inner, closeIdx } = matchDelimited(
+    tokens,
+    openIdx,
+    'block-open',
+    'block-close',
+  );
+  return {
+    inner,
+    closeIdx,
+    origin: { first: tok.id, last: tokens[closeIdx].id },
+  };
+}
+
+/**
+ * Verbatim source between a block's delimiters, used for the preamble blocks
+ * whose bodies are not glyph markup at all.
+ *
+ * `css(` holds CSS and `fonts(` holds font specs, so their contents must survive
+ * unexamined — reassembling them from token payloads would be wrong, since a
+ * line like `.foo {` lexes as a ref opener. Slicing the original source between
+ * the delimiters sidesteps the question entirely.
+ */
+function preambleContent(tokens: Token[], openIdx: number): string {
+  const tok = tokens[openIdx];
+  if (tok.kind === 'block-inline') return text(tok, tok.inner);
+  const { inner } = matchDelimited(
+    tokens,
+    openIdx,
+    'block-open',
+    'block-close',
+  );
+  return inner
+    .map((t) => t.raw)
+    .join('\n')
+    .trim();
+}
+
+function applyPreamble(
+  doc: GlyphDocument,
+  keyword: PreambleType,
+  content: string,
+): void {
+  if (keyword === 'css') {
+    doc.customCss = doc.customCss ? `${doc.customCss}\n${content}` : content;
+    return;
+  }
+  const specs = content
+    .split('\n')
+    .map((s) => s.trim())
+    .filter(Boolean);
+  doc.fonts = doc.fonts ? [...doc.fonts, ...specs] : specs;
+}
+
+/**
+ * Build the body node for a container block.
+ *
+ * Each branch casts the parser's wide `AnySegment[]` to the narrow segment type
+ * the target node accepts. The casts are sound because `parseSegmentsFromTokens`
+ * only emits kinds that `ALLOWED_SEGMENTS[kind]` permits — anything else is
+ * dropped with a warning.
+ */
+function buildBlock(
+  keyword: BlockType,
+  inner: Token[],
+  origin: Origin,
+  fullWidth: boolean,
+  diagnostics: Diagnostic[],
+): BodyNode {
+  switch (keyword) {
+    case 'item':
+      return parseItem(inner, origin, diagnostics);
+    case 'rule':
+      return parseRule(inner, origin, fullWidth, diagnostics);
+    case 'sample':
+      return {
+        type: 'sample',
+        content: parseSegmentsFromTokens(
+          inner,
+          'sample block',
+          'sample',
+          diagnostics,
+        ) as SampleSegment[],
+        origin,
+      };
+    case 'info':
+      return {
+        type: 'info',
+        content: parseSegmentsFromTokens(
+          inner,
+          'info block',
+          'info',
+          diagnostics,
+        ) as InfoSegment[],
+        origin,
+      };
+    case 'head':
+      return {
+        type: 'head',
+        content: parseSegmentsFromTokens(
+          inner,
+          'head block',
+          'head',
+          diagnostics,
+        ) as Segment[],
+        origin,
+      };
+  }
 }
 
 // A node's provenance handle when it maps to a single token (the common case):
@@ -219,24 +522,50 @@ function parseBody(tokens: Token[], doc: GlyphDocument): void {
   while (i < tokens.length) {
     const tok = tokens[i];
 
-    switch (tok.kind) {
-      case 'preamble':
-        if (tok.type === 'css') {
-          doc.customCss = doc.customCss
-            ? `${doc.customCss}\n${tok.content}`
-            : tok.content;
-        } else if (tok.type === 'fonts') {
-          const specs = tok.content
-            .split('\n')
-            .map((s) => s.trim())
-            .filter(Boolean);
-          doc.fonts = doc.fonts ? [...doc.fonts, ...specs] : specs;
-        }
-        i++;
-        continue;
+    // Checked ahead of the switch because both depend on a token's neighbours
+    // rather than its kind alone: whether pipe/dash lines form a table, and
+    // whether a run of lines is one paragraph.
+    if (opensTable(tokens, i)) {
+      const node = consumeTable(tokens, i, doc.body, doc.diagnostics);
+      doc.body.push(node.table);
+      i = node.next;
+      continue;
+    }
 
-      case 'content-ref':
-        // Already collected in pre-pass
+    const prose = proseText(tok);
+    if (prose !== undefined) {
+      const lines: string[] = [prose];
+      let lastTok: Token = tok;
+      i++;
+      while (i < tokens.length && !opensTable(tokens, i)) {
+        const more = proseText(tokens[i]);
+        if (more === undefined) break;
+        lines.push(more);
+        lastTok = tokens[i];
+        i++;
+      }
+      const content = parseInline(lines.map((l) => l.trim()).join(' '));
+      doc.body.push({
+        type: 'paragraph',
+        content,
+        indent: paragraphIndent('body', firstInSection, isBoldLead(content)),
+        origin: { first: tok.id, last: lastTok.id },
+      });
+      firstInSection = false;
+      continue;
+    }
+
+    switch (tok.kind) {
+      case 'ref-open': {
+        // Already collected in the pre-pass; skip the whole definition.
+        const { closeIdx } = matchDelimited(tokens, i, 'ref-open', 'ref-close');
+        i = closeIdx + 1;
+        continue;
+      }
+
+      case 'block-close':
+      case 'ref-close':
+        // A closer with no opener. Nothing to build from it.
         i++;
         continue;
 
@@ -283,7 +612,7 @@ function parseBody(tokens: Token[], doc: GlyphDocument): void {
         doc.body.push({
           type: 'heading',
           level: tok.level,
-          content: parseInline(tok.text),
+          content: parseInline(text(tok, tok.content)),
           origin: single(tok),
         });
         firstInSection = true;
@@ -297,7 +626,7 @@ function parseBody(tokens: Token[], doc: GlyphDocument): void {
         while (i < tokens.length) {
           const t = tokens[i];
           if (t.kind === 'list-item') {
-            items.push(parseInline(t.text));
+            items.push(parseInline(text(t, t.content)));
             lastTok = t;
             i++;
           } else if (t.kind === 'blank') {
@@ -317,65 +646,20 @@ function parseBody(tokens: Token[], doc: GlyphDocument): void {
         continue;
       }
 
-      // `table-header` opens a table with a header row; a standalone
-      // `table-sep` opens a headerless one (the lexer only emits a bare
-      // `table-sep` for the headerless form — the header form's separator is
-      // consumed by buildTable, so it never reaches here on its own).
-      case 'table-header':
-      case 'table-sep': {
-        const node = consumeTable(tokens, i, doc.body, doc.diagnostics);
-        doc.body.push(node.table);
-        i = node.next;
-        continue;
-      }
-
-      case 'block-open': {
-        // Each branch casts the parser's wide `AnySegment[]` to the narrow
-        // segment type the target node accepts. The casts are sound because
-        // `parseSegmentsFromTokens` only emits kinds that `ALLOWED_SEGMENTS[kind]`
-        // permits — anything else is dropped with a warning.
-        if (tok.type === 'item') {
-          doc.body.push(parseItem(tok, doc.diagnostics));
-        } else if (tok.type === 'sample') {
-          doc.body.push({
-            type: 'sample',
-            content: parseSegmentsFromTokens(
-              tok.children,
-              'sample block',
-              'sample',
-              doc.diagnostics,
-            ) as SampleSegment[],
-            origin: single(tok),
-          });
-        } else if (tok.type === 'rule') {
-          doc.body.push(parseRule(tok, fullWidth, doc.diagnostics));
-        } else if (tok.type === 'info') {
-          doc.body.push({
-            type: 'info',
-            content: parseSegmentsFromTokens(
-              tok.children,
-              'info block',
-              'info',
-              doc.diagnostics,
-            ) as InfoSegment[],
-            origin: single(tok),
-          });
-        } else {
-          // 'head' — floor Segment[].
-          doc.body.push({
-            type: tok.type,
-            content: parseSegmentsFromTokens(
-              tok.children,
-              `${tok.type} block`,
-              tok.type,
-              doc.diagnostics,
-            ) as Segment[],
-            origin: single(tok),
-          });
+      case 'block-open':
+      case 'block-inline': {
+        const { inner, closeIdx, origin } = blockBody(tokens, i);
+        const keyword = text(tok, tok.keyword);
+        if (isPreambleKeyword(keyword)) {
+          applyPreamble(doc, keyword, preambleContent(tokens, i));
+        } else if (isBlockKeyword(keyword)) {
+          doc.body.push(
+            buildBlock(keyword, inner, origin, fullWidth, doc.diagnostics),
+          );
+          // A container block begins a new section on either side.
+          firstInSection = true;
         }
-        // A container block begins a new section on either side.
-        firstInSection = true;
-        i++;
+        i = closeIdx + 1;
         continue;
       }
 
@@ -384,7 +668,7 @@ function parseBody(tokens: Token[], doc: GlyphDocument): void {
         // nodes were parsed and validated at collection time, so expansion
         // is just appending a clone of those nodes here. Unknown keys emit
         // the reference as literal text so the user can spot the typo.
-        const refNodes = doc.contentRefs.get(tok.key);
+        const refNodes = doc.contentRefs.get(text(tok, tok.key));
         if (refNodes !== undefined) {
           for (const n of refNodes) {
             const clone = structuredClone(n);
@@ -396,7 +680,7 @@ function parseBody(tokens: Token[], doc: GlyphDocument): void {
           i++;
           continue;
         }
-        const literal = parseInline(`{{${tok.key}}}`);
+        const literal = parseInline(`{{${text(tok, tok.key)}}}`);
         doc.body.push({
           type: 'paragraph',
           content: literal,
@@ -405,28 +689,6 @@ function parseBody(tokens: Token[], doc: GlyphDocument): void {
         });
         firstInSection = false;
         i++;
-        continue;
-      }
-
-      case 'text': {
-        const lines: string[] = [tok.content];
-        let lastTok: Token = tok;
-        i++;
-        while (i < tokens.length && tokens[i].kind === 'text') {
-          const t = tokens[i] as Extract<Token, { kind: 'text' }>;
-          lines.push(t.content);
-          lastTok = t;
-          i++;
-        }
-        const joined = lines.map((l) => l.trim()).join(' ');
-        const content = parseInline(joined);
-        doc.body.push({
-          type: 'paragraph',
-          content,
-          indent: paragraphIndent('body', firstInSection, isBoldLead(content)),
-          origin: { first: tok.id, last: lastTok.id },
-        });
-        firstInSection = false;
         continue;
       }
 
@@ -456,11 +718,6 @@ function parseBody(tokens: Token[], doc: GlyphDocument): void {
           '[glyph] trait line (;) is only valid inside item(); ignoring',
           single(tok),
         );
-        i++;
-        continue;
-      case 'table-row':
-      case 'table-footnote':
-        // Only valid as part of a table (opened above); stray here — drop.
         i++;
         continue;
       case 'hidden-delimiter':
@@ -542,15 +799,18 @@ function buildTable(
   diagnostics: Diagnostic[],
 ): { node: TableNode; next: number } {
   const first = tokens[start];
-  const headerless = first.kind === 'table-sep';
+  const headerless = isColumnRule(first);
   const headerTok = headerless
     ? undefined
-    : (first as Extract<Token, { kind: 'table-header' }>);
+    : (first as Extract<Token, { kind: 'pipe-line' }>);
   const sepTok = headerless
-    ? (first as Extract<Token, { kind: 'table-sep' }>)
-    : tokens[start + 1]?.kind === 'table-sep'
-      ? (tokens[start + 1] as Extract<Token, { kind: 'table-sep' }>)
+    ? (first as Extract<Token, { kind: 'dash-line' }>)
+    : isColumnRule(tokens[start + 1])
+      ? (tokens[start + 1] as Extract<Token, { kind: 'pipe-line' }>)
       : undefined;
+  // Rows keep the origin of the line they came from, so a per-row or per-cell
+  // diagnostic points at that row rather than at the whole table.
+  const headerCells = headerTok ? splitCells(headerTok.raw) : [];
   // Rows keep the origin of the line they came from, so a per-row or per-cell
   // diagnostic points at that row rather than at the whole table.
   const rawRows: { cells: string[]; origin: Origin }[] = [];
@@ -559,16 +819,26 @@ function buildTable(
   let i = headerless ? start + 1 : sepTok ? start + 2 : start + 1;
   while (i < tokens.length) {
     const t = tokens[i];
-    if (t.kind === 'table-row') {
-      rawRows.push({ cells: t.cells, origin: single(t) });
+    // A rule-shaped line below the opening one is not a separator, just
+    // another row — only the first fixes alignment.
+    if (t.kind === 'pipe-line') {
+      rawRows.push({ cells: splitCells(t.raw), origin: single(t) });
       i++;
-    } else if (t.kind === 'table-footnote') {
+    } else if (t.kind === 'footnote-line') {
       rawFootnotes.push({
-        marker: t.marker,
-        text: t.text,
+        marker: text(t, t.marker),
+        text: text(t, t.content),
         origin: single(t),
       });
       i++;
+    } else if (t.kind === 'blank') {
+      // A gap keeps the table open only if footnotes follow it — they are
+      // conventionally set off from the rows they annotate. Anything else
+      // after the gap ends the table.
+      let peek = i + 1;
+      while (peek < tokens.length && tokens[peek].kind === 'blank') peek++;
+      if (tokens[peek]?.kind !== 'footnote-line') break;
+      i = peek;
     } else {
       break;
     }
@@ -588,7 +858,7 @@ function buildTable(
   const collectRefs = (s: string) => {
     for (const m of s.matchAll(FOOTNOTE_REF_RE)) referenced.add(m[1]);
   };
-  for (const c of headerTok?.cells ?? []) collectRefs(c);
+  for (const c of headerCells) collectRefs(c);
   for (const row of rawRows) for (const c of row.cells) collectRefs(c);
   // Marker → where it was first defined. Keyed by marker (not one entry per
   // definition) so a marker defined twice still warns once, as before; the
@@ -621,9 +891,14 @@ function buildTable(
   // The opening row fixes the column count — the header for a normal table,
   // the separator (its alignment count) for a headerless one. Every data row
   // must match it; a ragged row is almost always a missing or stray `|`.
+  // The opening row fixes the column count, and therefore how much of the
+  // separator's alignment is meaningful.
   const colCount = headerTok
-    ? headerTok.cells.length
-    : (sepTok?.aligns.length ?? 0);
+    ? headerCells.length
+    : sepTok
+      ? splitCells(sepTok.raw).length
+      : 0;
+  const alignments = sepTok ? parseAligns(sepTok.raw, colCount) : [];
   for (const row of rawRows) {
     if (row.cells.length !== colCount) {
       warn(
@@ -636,7 +911,7 @@ function buildTable(
   }
 
   const headerOrigin = headerTok ? single(headerTok) : origin;
-  const headers = (headerTok?.cells ?? []).map((c) =>
+  const headers = headerCells.map((c) =>
     parseCellInline(c, headerOrigin, diagnostics),
   );
   const rows = rawRows.map((row) =>
@@ -651,7 +926,7 @@ function buildTable(
       type: 'table',
       colCount,
       headers,
-      alignments: sepTok?.aligns ?? [],
+      alignments,
       rows,
       footnotes,
       origin,
@@ -676,17 +951,17 @@ function consumeTable(
 }
 
 function parseRule(
-  tok: Extract<Token, { kind: 'block-open' }>,
+  inner: Token[],
+  origin: Origin,
   fullWidth: boolean,
   diagnostics: Diagnostic[],
 ): RuleBlockNode {
   const content = parseSegmentsFromTokens(
-    tok.children,
+    inner,
     'rule block',
     'rule',
     diagnostics,
   ) as RuleSegment[];
-  const origin = single(tok);
   // Column breaks inside rule() create a 2-column inner layout, but only when
   // the block is rendered full-width. Outside of full-width they have no
   // sensible meaning (the surrounding 2-column flow already handles that), so
@@ -711,10 +986,10 @@ function parseRule(
 }
 
 function parseItem(
-  tok: Extract<Token, { kind: 'block-open' }>,
+  tokens: Token[],
+  blockOrigin: Origin,
   diagnostics: Diagnostic[],
 ): ItemBlockNode {
-  const tokens = tok.children;
   let i = 0;
   let name: Inline[] = [];
   let action: ActionSymbol | undefined;
@@ -727,13 +1002,13 @@ function parseItem(
   if (i < tokens.length) {
     const t = tokens[i];
     if (t.kind === 'heading' && t.level === 1) {
-      let text = t.text;
-      const m = text.match(/\s+(:(?:aaa|aa|a|r|f):)\s*$/);
+      let heading = text(t, t.content);
+      const m = heading.match(/\s+(:(?:aaa|aa|a|r|f):)\s*$/);
       if (m) {
         action = m[1] as ActionSymbol;
-        text = text.replace(m[0], '').trim();
+        heading = heading.replace(m[0], '').trim();
       }
-      name = parseInline(text);
+      name = parseInline(heading);
       i++;
     }
   }
@@ -744,7 +1019,7 @@ function parseItem(
   if (i < tokens.length) {
     const t = tokens[i];
     if (t.kind === 'heading' && t.level === 2) {
-      subtitle = parseInline(t.text);
+      subtitle = parseInline(text(t, t.content));
       i++;
     }
   }
@@ -761,7 +1036,7 @@ function parseItem(
       diagnostics,
       'item-missing-hr',
       '[glyph] item: missing hr separator after heading',
-      single(tok),
+      blockOrigin,
     );
   }
 
@@ -770,7 +1045,7 @@ function parseItem(
   // Optional traits (one or more `;` lines)
   while (i < tokens.length && tokens[i].kind === 'trait-line') {
     traits.push(
-      ...(tokens[i] as { kind: 'trait-line'; traits: string[] }).traits,
+      ...splitTraits((tokens[i] as Extract<Token, { kind: 'trait-line' }>).raw),
     );
     i++;
   }
@@ -793,7 +1068,7 @@ function parseItem(
     subtitle,
     traits,
     content,
-    origin: single(tok),
+    origin: blockOrigin,
   };
 }
 
@@ -811,6 +1086,69 @@ function parseSegmentsFromTokens(
 
   while (i < tokens.length) {
     const tok = tokens[i];
+
+    // Depends on the following line, not this one's kind — so it is settled
+    // before the switch, and pipe/dash lines that don't open a table fall
+    // through to the prose case below.
+    if (opensTable(tokens, i)) {
+      const { node, next } = buildTable(tokens, i, diagnostics);
+      // Caption-lift: a preceding heading4+ segment becomes the table's
+      // caption. Same rule as body-level tables (see consumeTable).
+      const prev = segments[segments.length - 1];
+      if (prev && prev.kind === 'heading' && prev.level >= 4) {
+        node.caption = prev.content;
+        segments.pop();
+      }
+      if (
+        tryPushSegment(
+          segments,
+          // The wrapper mirrors the table's own origin — see `RuleSegment`.
+          { kind: 'table', node, origin: node.origin },
+          kind,
+          contextLabel,
+          diagnostics,
+        )
+      ) {
+        firstInSection = false;
+      }
+      i = next;
+      continue;
+    }
+
+    // Same reasoning as the table check: a paragraph is a run of lines, not a
+    // property of any one of them.
+    const prose = proseText(tok);
+    if (prose !== undefined) {
+      const lines: string[] = [prose];
+      let lastTok: Token = tok;
+      i++;
+      while (i < tokens.length && !opensTable(tokens, i)) {
+        const more = proseText(tokens[i]);
+        if (more === undefined) break;
+        lines.push(more);
+        lastTok = tokens[i];
+        i++;
+      }
+      const content = parseInline(lines.map((l) => l.trim()).join(' '));
+      if (
+        tryPushSegment(
+          segments,
+          {
+            kind: 'paragraph',
+            content,
+            indent: paragraphIndent(kind, firstInSection, isBoldLead(content)),
+            origin: { first: tok.id, last: lastTok.id },
+          },
+          kind,
+          contextLabel,
+          diagnostics,
+        )
+      ) {
+        firstInSection = false;
+      }
+      continue;
+    }
+
     switch (tok.kind) {
       case 'blank':
         i++;
@@ -867,7 +1205,7 @@ function parseSegmentsFromTokens(
             {
               kind: 'heading',
               level: tok.level,
-              content: parseInline(tok.text),
+              content: parseInline(text(tok, tok.content)),
               origin: single(tok),
             },
             kind,
@@ -885,7 +1223,7 @@ function parseSegmentsFromTokens(
           segments,
           {
             kind: 'centered-paragraph',
-            content: parseInline(tok.content),
+            content: parseInline(text(tok, tok.content)),
             origin: single(tok),
           },
           kind,
@@ -901,7 +1239,7 @@ function parseSegmentsFromTokens(
         while (i < tokens.length) {
           const t = tokens[i];
           if (t.kind === 'list-item') {
-            items.push(parseInline(t.text));
+            items.push(parseInline(text(t, t.content)));
             lastTok = t;
             i++;
           } else if (t.kind === 'blank') {
@@ -927,79 +1265,22 @@ function parseSegmentsFromTokens(
         }
         continue;
       }
-      case 'text': {
-        const lines: string[] = [tok.content];
-        let lastTok: Token = tok;
-        i++;
-        while (i < tokens.length && tokens[i].kind === 'text') {
-          const t = tokens[i] as Extract<Token, { kind: 'text' }>;
-          lines.push(t.content);
-          lastTok = t;
-          i++;
-        }
-        const joined = lines.map((l) => l.trim()).join(' ');
-        const content = parseInline(joined);
-        if (
-          tryPushSegment(
-            segments,
-            {
-              kind: 'paragraph',
-              content,
-              indent: paragraphIndent(
-                kind,
-                firstInSection,
-                isBoldLead(content),
-              ),
-              origin: { first: tok.id, last: lastTok.id },
-            },
-            kind,
-            contextLabel,
-            diagnostics,
-          )
-        ) {
-          firstInSection = false;
-        }
-        continue;
-      }
-      case 'table-header':
-      case 'table-sep': {
-        const { node, next } = buildTable(tokens, i, diagnostics);
-        // Caption-lift: a preceding heading4+ segment becomes the table's
-        // caption. Same rule as body-level tables (see consumeTable).
-        const prev = segments[segments.length - 1];
-        if (prev && prev.kind === 'heading' && prev.level >= 4) {
-          node.caption = prev.content;
-          segments.pop();
-        }
-        if (
-          tryPushSegment(
-            segments,
-            // The wrapper mirrors the table's own origin — see `RuleSegment`.
-            { kind: 'table', node, origin: node.origin },
-            kind,
-            contextLabel,
-            diagnostics,
-          )
-        ) {
-          firstInSection = false;
-        }
-        i = next;
-        continue;
-      }
-      case 'content-ref':
+      case 'ref-open': {
+        const { closeIdx } = matchDelimited(tokens, i, 'ref-open', 'ref-close');
         warn(
           diagnostics,
           'content-ref-nested',
           `[glyph] ${contextLabel}: content reference "${tok.key} { ... }" must live at the body level, not inside a block; ignoring`,
-          single(tok),
+          { first: tok.id, last: tokens[closeIdx].id },
         );
-        i++;
+        i = closeIdx + 1;
         continue;
+      }
       case 'reference': {
         // References only expand at the body level. Inside a block we surface
         // the reference as literal text so the user can spot it instead of
         // having it silently dropped.
-        const literal = parseInline(`{{${tok.key}}}`);
+        const literal = parseInline(`{{${text(tok, tok.key)}}}`);
         if (
           tryPushSegment(
             segments,
@@ -1069,8 +1350,23 @@ function collectContentRefs(tokens: Token[], doc: GlyphDocument): void {
   // at parse time) and ensures that references inside a definition stay literal,
   // so references can't nest. The definition was already lexed into the
   // content-ref's `children`, so nothing is re-tokenized here.
-  for (const t of tokens) {
-    if (t.kind !== 'content-ref') continue;
+  for (let i = 0; i < tokens.length; i++) {
+    const t = tokens[i];
+    // Skip over block bodies. In a flat stream "top level" is not structural —
+    // a `key { ... }` inside a `rule()` is only a few array slots away from one
+    // at the body level, so depth has to be walked explicitly.
+    if (t.kind === 'block-open') {
+      i = matchDelimited(tokens, i, 'block-open', 'block-close').closeIdx;
+      continue;
+    }
+    if (t.kind !== 'ref-open') continue;
+    const { inner, closeIdx } = matchDelimited(
+      tokens,
+      i,
+      'ref-open',
+      'ref-close',
+    );
+    i = closeIdx;
     const subDoc: GlyphDocument = {
       contentRefs: new Map(),
       tokenMap: doc.tokenMap,
@@ -1080,8 +1376,8 @@ function collectContentRefs(tokens: Token[], doc: GlyphDocument): void {
       diagnostics: doc.diagnostics,
       body: [],
     };
-    parseBody(t.children, subDoc);
-    doc.contentRefs.set(t.key, subDoc.body);
+    parseBody(inner, subDoc);
+    doc.contentRefs.set(text(t, t.key), subDoc.body);
   }
 }
 
