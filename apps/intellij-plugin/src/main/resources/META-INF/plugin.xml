@@ -28,6 +28,13 @@
             extensions="glyph"
             implementationClass="com.glyphmark.intellij.GlyphFileType"
             fieldName="INSTANCE"/>
+        <!-- Syntax highlighting. `lang.syntaxHighlighterFactory` is keyed by
+             Language, which GlyphFileType deliberately does not have, so the
+             file-type-keyed equivalent is what applies here. -->
+        <editorHighlighterProvider
+            filetype="Glyph"
+            implementationClass="com.glyphmark.intellij.GlyphEditorHighlighterProvider"/>
+        <colorSettingsPage implementation="com.glyphmark.intellij.GlyphColorSettingsPage"/>
         <fileEditorProvider implementation="com.glyphmark.intellij.GlyphEditorWithPreviewProvider"/>
         <enterHandlerDelegate implementation="com.glyphmark.intellij.GlyphEnterHandler"/>
         <actionPromoter implementation="com.glyphmark.intellij.GlyphActionPromoter"/>
