@@ -1,0 +1,9 @@
+[
+  {"kind":"block-open","line":1,"span":[0,5],"keyword":[0,4]},
+  {"kind":"heading","line":2,"span":[6,19],"level":2,"content":[3,13]},
+  {"kind":"heading","line":3,"span":[20,34],"level":1,"content":[2,14]},
+  {"kind":"blank","line":4,"span":[35,35]},
+  {"kind":"text","line":5,"span":[36,352]},
+  {"kind":"block-close","line":6,"span":[353,354]},
+  {"kind":"blank","line":7,"span":[355,355]}
+]

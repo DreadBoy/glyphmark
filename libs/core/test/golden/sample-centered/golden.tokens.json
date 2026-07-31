@@ -1,0 +1,18 @@
+[
+  {"kind":"block-open","line":1,"span":[0,7],"keyword":[0,6]},
+  {"kind":"heading","line":2,"span":[8,21],"level":1,"content":[2,13]},
+  {"kind":"blank","line":3,"span":[22,22]},
+  {"kind":"text","line":4,"span":[23,331],"inline":[["em",116,131,117,130]]},
+  {"kind":"blank","line":5,"span":[332,332]},
+  {"kind":"heading","line":6,"span":[333,356],"level":2,"content":[3,23]},
+  {"kind":"blank","line":7,"span":[357,357]},
+  {"kind":"text","line":8,"span":[358,609],"inline":[["em",114,129,115,128]]},
+  {"kind":"blank","line":9,"span":[610,610]},
+  {"kind":"heading","line":10,"span":[611,633],"level":2,"content":[3,22]},
+  {"kind":"blank","line":11,"span":[634,634]},
+  {"kind":"text","line":12,"span":[635,987]},
+  {"kind":"blank","line":13,"span":[988,988]},
+  {"kind":"centered-text","line":14,"span":[989,1024],"content":[2,35],"inline":[["strong",2,35,4,33]]},
+  {"kind":"block-close","line":15,"span":[1025,1026]},
+  {"kind":"blank","line":16,"span":[1027,1027]}
+]

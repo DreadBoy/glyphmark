@@ -1,0 +1,5 @@
+[
+  {"kind":"block-open","line":1,"span":[0,5],"keyword":[0,4]},
+  {"kind":"heading","line":2,"span":[6,13],"level":1,"content":[2,7]},
+  {"kind":"block-close","line":3,"span":[14,15]}
+]
