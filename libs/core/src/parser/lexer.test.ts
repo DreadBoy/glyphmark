@@ -1,5 +1,11 @@
 import { describe, it, expect } from 'vitest';
-import { tokenize, buildTokenMap, partText, type Token } from './lexer';
+import {
+  tokenize,
+  buildTokenMap,
+  partText,
+  scanInline,
+  type Token,
+} from './lexer';
 
 function isPart(v: unknown): v is { start: number; end: number } {
   return (
@@ -18,6 +24,12 @@ function readable(tokens: Token[]): Array<Record<string, unknown>> {
     const rec: Record<string, unknown> = {};
     for (const [key, value] of Object.entries(t)) {
       if (key === 'id' || key === 'span' || key === 'raw') continue;
+      // Inline markup has its own block below; dropped when absent so the
+      // shape assertions stay about the line itself.
+      if (key === 'inline') {
+        if (t.inline.length > 0) rec.inline = t.inline.map((r) => r.kind);
+        continue;
+      }
       rec[key] = isPart(value) ? partText(t, value) : value;
     }
     return rec;
@@ -310,6 +322,123 @@ describe('tokenize — parts locate, they do not clean up', () => {
     const absStart = tok.span.startOffset + tok.content.start;
     const absEnd = tok.span.startOffset + tok.content.end;
     expect(src.slice(absStart, absEnd)).toBe('Title');
+  });
+});
+
+describe('scanInline', () => {
+  // Locating only. What a run *means* — which IR node it becomes — is the
+  // parser's reading of it, so nothing here mentions `strong` children or
+  // action symbols as values.
+  const runs = (s: string) =>
+    scanInline(s).map((r) => `${r.kind}:${r.start}-${r.end}`);
+  const contents = (s: string) =>
+    scanInline(s).map((r) => s.slice(r.contentStart, r.contentEnd));
+
+  it('finds nothing in plain prose', () => {
+    expect(scanInline('just words')).toEqual([]);
+  });
+
+  it('locates a run including its delimiters, and its content without them', () => {
+    expect(scanInline('a **bold** b')).toEqual([
+      {
+        kind: 'strong',
+        start: 2,
+        end: 10,
+        contentStart: 4,
+        contentEnd: 8,
+      },
+    ]);
+    expect(contents('a **bold** b')).toEqual(['bold']);
+  });
+
+  it.each([
+    ['**bold**', 'strong'],
+    ['__bold__', 'strong'],
+    ['*italic*', 'em'],
+    ['_italic_', 'em'],
+    ['***both***', 'strong-em'],
+    ['___both___', 'strong-em'],
+    ['^sup^', 'sup'],
+    ['~sub~', 'sub'],
+  ])('recognizes %s as %s', (input, kind) => {
+    expect(scanInline(input).map((r) => r.kind)).toEqual([kind]);
+  });
+
+  it('prefers the longest delimiter run', () => {
+    // `***` must bind before `**` before `*`, or a triple run would read as a
+    // strong immediately followed by an em.
+    expect(runs('***x***')).toEqual(['strong-em:0-7']);
+  });
+
+  it('does not nest — inner delimiters stay inside the content', () => {
+    expect(runs('**bold *italic* bold**')).toEqual(['strong:0-22']);
+    expect(contents('**bold *italic* bold**')).toEqual(['bold *italic* bold']);
+  });
+
+  it('ignores unbalanced delimiters and empty runs', () => {
+    for (const input of ['**unclosed', '*unclosed', '**', '****', '^^', '~~']) {
+      expect(scanInline(input), input).toEqual([]);
+    }
+  });
+
+  it('locates action symbols, longest first', () => {
+    expect(runs(':a: and :aaa:')).toEqual(['action:0-3', 'action:8-13']);
+    // An action's content is the symbol itself — there is nothing enclosed.
+    expect(contents(':aa:')).toEqual([':aa:']);
+  });
+
+  it('returns runs in order and non-overlapping', () => {
+    const input = 'Cast *avatar* :aa: for **big** effect';
+    let cursor = 0;
+    for (const run of scanInline(input)) {
+      expect(run.start).toBeGreaterThanOrEqual(cursor);
+      expect(run.contentStart).toBeGreaterThanOrEqual(run.start);
+      expect(run.contentEnd).toBeLessThanOrEqual(run.end);
+      cursor = run.end;
+    }
+    expect(runs(input)).toEqual(['em:5-13', 'action:14-18', 'strong:23-30']);
+  });
+});
+
+describe('tokenize — inline markup on tokens', () => {
+  // Every token carries the markup found in whatever part of its line holds
+  // prose, in the line's own coordinates. That is what a highlighter consumes,
+  // and what the cross-language fixtures pin.
+  const inlineOf = (s: string, i = 0) => tokenize(s)[i].inline;
+
+  it('locates markup inside a paragraph line', () => {
+    expect(inlineOf('a **bold** b')).toEqual([
+      { kind: 'strong', start: 2, end: 10, contentStart: 4, contentEnd: 8 },
+    ]);
+  });
+
+  it('offsets are relative to the line, not the part', () => {
+    // A heading's prose starts after `## `, so a run at the very start of that
+    // prose still reports column 3.
+    const [run] = inlineOf('## **Bold** heading');
+    expect(run.start).toBe(3);
+    expect(partText(tokenize('## **Bold** heading')[0], run)).toBe('**Bold**');
+  });
+
+  it('picks up markup in every part that carries prose', () => {
+    expect(inlineOf('# A *b*').map((r) => r.kind)).toEqual(['em']);
+    expect(inlineOf('* A *b*').map((r) => r.kind)).toEqual(['em']);
+    expect(inlineOf('^ A *b*').map((r) => r.kind)).toEqual(['em']);
+    expect(inlineOf('. [*] A *b*').map((r) => r.kind)).toEqual(['em']);
+    expect(inlineOf('rule(A *b*)').map((r) => r.kind)).toEqual(['em']);
+    expect(inlineOf('A *b* | C').map((r) => r.kind)).toEqual(['em']);
+  });
+
+  it('finds none on lines that are pure structure', () => {
+    for (const line of ['item(', ')', 'key {', '}', '-', '=', ';a,b', '']) {
+      expect(inlineOf(line), line).toEqual([]);
+    }
+  });
+
+  it('does not mistake a centered marker for superscript', () => {
+    // `^ ` is a line marker, consumed before the prose region begins, so the
+    // caret cannot pair with a later one.
+    expect(inlineOf('^ up ^high^ down').map((r) => r.kind)).toEqual(['sup']);
   });
 });
 
