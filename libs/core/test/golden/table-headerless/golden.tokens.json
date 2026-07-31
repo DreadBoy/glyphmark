@@ -1,0 +1,12 @@
+[
+  {"kind":"heading","line":1,"span":[0,16],"level":4,"content":[5,16]},
+  {"kind":"blank","line":2,"span":[17,17]},
+  {"kind":"pipe-line","line":3,"span":[18,52]},
+  {"kind":"pipe-line","line":4,"span":[53,87],"inline":[["strong",2,10,4,8]]},
+  {"kind":"pipe-line","line":5,"span":[88,122],"inline":[["strong",2,10,4,8]]},
+  {"kind":"pipe-line","line":6,"span":[123,157],"inline":[["strong",2,11,4,9]]},
+  {"kind":"pipe-line","line":7,"span":[158,192],"inline":[["strong",2,12,4,10]]},
+  {"kind":"blank","line":8,"span":[193,193]},
+  {"kind":"footnote-line","line":9,"span":[194,248],"marker":[3,4],"content":[6,54]},
+  {"kind":"blank","line":10,"span":[249,249]}
+]

@@ -1,0 +1,17 @@
+[
+  {"kind":"full-width-toggle","line":1,"span":[0,1]},
+  {"kind":"blank","line":2,"span":[2,2]},
+  {"kind":"heading","line":3,"span":[3,15],"level":4,"content":[5,12]},
+  {"kind":"blank","line":4,"span":[16,16]},
+  {"kind":"pipe-line","line":5,"span":[17,100]},
+  {"kind":"pipe-line","line":6,"span":[101,184]},
+  {"kind":"pipe-line","line":7,"span":[185,268]},
+  {"kind":"pipe-line","line":8,"span":[269,352]},
+  {"kind":"pipe-line","line":9,"span":[353,436]},
+  {"kind":"pipe-line","line":10,"span":[437,520]},
+  {"kind":"blank","line":11,"span":[521,521]},
+  {"kind":"footnote-line","line":12,"span":[522,633],"marker":[3,4],"content":[6,111]},
+  {"kind":"footnote-line","line":13,"span":[634,759],"marker":[3,4],"content":[6,125]},
+  {"kind":"blank","line":14,"span":[760,760]},
+  {"kind":"full-width-toggle","line":15,"span":[761,762]}
+]

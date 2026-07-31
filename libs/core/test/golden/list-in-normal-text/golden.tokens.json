@@ -1,0 +1,17 @@
+[
+  {"kind":"heading","line":1,"span":[0,16],"level":1,"content":[2,16]},
+  {"kind":"blank","line":2,"span":[17,17]},
+  {"kind":"text","line":3,"span":[18,310]},
+  {"kind":"blank","line":4,"span":[311,311]},
+  {"kind":"list-item","line":5,"span":[312,558],"content":[2,246],"inline":[["strong",2,22,4,20]]},
+  {"kind":"blank","line":6,"span":[559,559]},
+  {"kind":"heading","line":7,"span":[560,587],"level":2,"content":[3,27]},
+  {"kind":"blank","line":8,"span":[588,588]},
+  {"kind":"text","line":9,"span":[589,671]},
+  {"kind":"blank","line":10,"span":[672,672]},
+  {"kind":"list-item","line":11,"span":[673,775],"content":[2,102],"inline":[["strong",2,22,4,20]]},
+  {"kind":"list-item","line":12,"span":[776,852],"content":[2,76],"inline":[["strong",2,20,4,18]]},
+  {"kind":"list-item","line":13,"span":[853,910],"content":[2,57],"inline":[["strong",2,19,4,17]]},
+  {"kind":"blank","line":14,"span":[911,911]},
+  {"kind":"column-break","line":15,"span":[912,913]}
+]

@@ -1,0 +1,17 @@
+[
+  {"kind":"column-break","line":1,"span":[0,1]},
+  {"kind":"block-open","line":2,"span":[2,7],"keyword":[0,4]},
+  {"kind":"heading","line":3,"span":[8,28],"level":1,"content":[2,20],"inline":[["action",17,20,17,20]]},
+  {"kind":"heading","line":4,"span":[29,38],"level":2,"content":[3,9]},
+  {"kind":"hr","line":5,"span":[39,40]},
+  {"kind":"trait-line","line":6,"span":[41,54]},
+  {"kind":"blank","line":7,"span":[55,55]},
+  {"kind":"text","line":8,"span":[56,557]},
+  {"kind":"blank","line":9,"span":[558,558]},
+  {"kind":"text","line":10,"span":[559,905],"inline":[["strong",0,20,2,18]]},
+  {"kind":"blank","line":11,"span":[906,906]},
+  {"kind":"text","line":12,"span":[907,1007],"inline":[["strong",0,11,2,9]]},
+  {"kind":"blank","line":13,"span":[1008,1008]},
+  {"kind":"text","line":14,"span":[1009,1099],"inline":[["strong",0,20,2,18]]},
+  {"kind":"block-close","line":15,"span":[1100,1101]}
+]
