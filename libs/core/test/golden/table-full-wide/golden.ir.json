@@ -1,0 +1,308 @@
+{
+  "contentRefs": {},
+  "body": [
+    {
+      "index": 1,
+      "origin": {
+        "startLine": 1,
+        "endLine": 1,
+        "startOffset": 0,
+        "endOffset": 1
+      },
+      "type": "full-width-toggle"
+    },
+    {
+      "alignments": [
+        "left",
+        "center",
+        "center",
+        "center",
+        "center",
+        "center",
+        "center"
+      ],
+      "caption": [
+        {
+          "kind": "text",
+          "text": "Shields"
+        }
+      ],
+      "colCount": 7,
+      "footnotes": [
+        {
+          "children": [
+            {
+              "kind": "text",
+              "text": "Gaining a shield's circumstance bonus to AC requires using the Raise a Shield action (found on page 419)."
+            }
+          ],
+          "type": "numbered",
+          "value": "1"
+        },
+        {
+          "children": [
+            {
+              "kind": "text",
+              "text": "Getting the higher bonus for a tower shield requires using the Take Cover action (page 418) while the shield is raised."
+            }
+          ],
+          "type": "numbered",
+          "value": "2"
+        }
+      ],
+      "headers": [
+        [
+          {
+            "kind": "text",
+            "text": "Shield"
+          }
+        ],
+        [
+          {
+            "kind": "text",
+            "text": "Price"
+          }
+        ],
+        [
+          {
+            "children": [
+              {
+                "kind": "text",
+                "text": "AC Bonus"
+              }
+            ],
+            "kind": "footnote-ref",
+            "type": "numbered",
+            "value": "1"
+          }
+        ],
+        [
+          {
+            "kind": "text",
+            "text": "Speed Penalty"
+          }
+        ],
+        [
+          {
+            "kind": "text",
+            "text": "Bulk"
+          }
+        ],
+        [
+          {
+            "kind": "text",
+            "text": "Hardness"
+          }
+        ],
+        [
+          {
+            "kind": "text",
+            "text": "HP (BT)"
+          }
+        ]
+      ],
+      "origin": {
+        "startLine": 5,
+        "endLine": 13,
+        "startOffset": 17,
+        "endOffset": 759
+      },
+      "rows": [
+        [
+          [
+            {
+              "kind": "text",
+              "text": "Buckler"
+            }
+          ],
+          [
+            {
+              "kind": "text",
+              "text": "1 gp"
+            }
+          ],
+          [
+            {
+              "kind": "text",
+              "text": "+1"
+            }
+          ],
+          [
+            {
+              "kind": "text",
+              "text": "—"
+            }
+          ],
+          [
+            {
+              "kind": "text",
+              "text": "L"
+            }
+          ],
+          [
+            {
+              "kind": "text",
+              "text": "3"
+            }
+          ],
+          [
+            {
+              "kind": "text",
+              "text": "6 (3)"
+            }
+          ]
+        ],
+        [
+          [
+            {
+              "kind": "text",
+              "text": "Wooden shield"
+            }
+          ],
+          [
+            {
+              "kind": "text",
+              "text": "1 gp"
+            }
+          ],
+          [
+            {
+              "kind": "text",
+              "text": "+2"
+            }
+          ],
+          [
+            {
+              "kind": "text",
+              "text": "—"
+            }
+          ],
+          [
+            {
+              "kind": "text",
+              "text": "1"
+            }
+          ],
+          [
+            {
+              "kind": "text",
+              "text": "3"
+            }
+          ],
+          [
+            {
+              "kind": "text",
+              "text": "12 (6)"
+            }
+          ]
+        ],
+        [
+          [
+            {
+              "kind": "text",
+              "text": "Steel shield"
+            }
+          ],
+          [
+            {
+              "kind": "text",
+              "text": "2 gp"
+            }
+          ],
+          [
+            {
+              "kind": "text",
+              "text": "+2"
+            }
+          ],
+          [
+            {
+              "kind": "text",
+              "text": "—"
+            }
+          ],
+          [
+            {
+              "kind": "text",
+              "text": "1"
+            }
+          ],
+          [
+            {
+              "kind": "text",
+              "text": "5"
+            }
+          ],
+          [
+            {
+              "kind": "text",
+              "text": "20 (10)"
+            }
+          ]
+        ],
+        [
+          [
+            {
+              "kind": "text",
+              "text": "Tower shield"
+            }
+          ],
+          [
+            {
+              "kind": "text",
+              "text": "10 gp"
+            }
+          ],
+          [
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "+2/+4"
+                }
+              ],
+              "kind": "footnote-ref",
+              "type": "numbered",
+              "value": "2"
+            }
+          ],
+          [
+            {
+              "kind": "text",
+              "text": "–5 ft."
+            }
+          ],
+          [
+            {
+              "kind": "text",
+              "text": "4"
+            }
+          ],
+          [
+            {
+              "kind": "text",
+              "text": "5"
+            }
+          ],
+          [
+            {
+              "kind": "text",
+              "text": "20 (10)"
+            }
+          ]
+        ]
+      ],
+      "type": "table"
+    },
+    {
+      "index": 2,
+      "origin": {
+        "startLine": 15,
+        "endLine": 15,
+        "startOffset": 761,
+        "endOffset": 762
+      },
+      "type": "full-width-toggle"
+    }
+  ]
+}

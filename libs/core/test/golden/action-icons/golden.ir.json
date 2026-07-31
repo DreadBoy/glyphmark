@@ -1,0 +1,413 @@
+{
+  "contentRefs": {},
+  "body": [
+    {
+      "content": [
+        {
+          "kind": "text",
+          "text": "Format of Rules"
+        }
+      ],
+      "level": 1,
+      "origin": {
+        "startLine": 1,
+        "endLine": 1,
+        "startOffset": 0,
+        "endOffset": 17
+      },
+      "type": "heading"
+    },
+    {
+      "content": [
+        {
+          "kind": "text",
+          "text": "Throughout this rulebook, you will see formatting standards that might look a bit unusual at first. These standards are in place to make the rules elements in this book easier to recognize."
+        }
+      ],
+      "indent": "none",
+      "origin": {
+        "startLine": 3,
+        "endLine": 3,
+        "startOffset": 19,
+        "endOffset": 208
+      },
+      "type": "paragraph"
+    },
+    {
+      "content": [
+        {
+          "kind": "text",
+          "text": "The names of specific statistics, skills, feats, actions, and some other mechanical elements in Pathfinder are capitalized. This way, when you see the statement \"a Strike targets Armor Class,\" you know that both Strike and Armor Class are referring to rules."
+        }
+      ],
+      "indent": "first-line",
+      "origin": {
+        "startLine": 5,
+        "endLine": 5,
+        "startOffset": 210,
+        "endOffset": 468
+      },
+      "type": "paragraph"
+    },
+    {
+      "content": [
+        {
+          "kind": "text",
+          "text": "If a word or a phrase is italicized, it's describing a spell or a magic item. This way, when you see the statement \"the door is sealed by "
+        },
+        {
+          "children": [
+            {
+              "kind": "text",
+              "text": "lock"
+            }
+          ],
+          "kind": "em"
+        },
+        {
+          "kind": "text",
+          "text": ",\" you know that the word denotes the "
+        },
+        {
+          "children": [
+            {
+              "kind": "text",
+              "text": "lock"
+            }
+          ],
+          "kind": "em"
+        },
+        {
+          "kind": "text",
+          "text": " spell, rather than a physical item."
+        }
+      ],
+      "indent": "first-line",
+      "origin": {
+        "startLine": 7,
+        "endLine": 7,
+        "startOffset": 470,
+        "endOffset": 694
+      },
+      "type": "paragraph"
+    },
+    {
+      "content": [
+        {
+          "kind": "text",
+          "text": "Pathfinder also uses many terms that are typically expressed as abbreviations, like AC for Armor Class, DC for Difficulty Class, and HP for Hit Points. If you're ever confused about a game term or an abbreviation, you can always turn to the Glossary and Index, beginning on page 452, and look it up."
+        }
+      ],
+      "indent": "first-line",
+      "origin": {
+        "startLine": 9,
+        "endLine": 9,
+        "startOffset": 696,
+        "endOffset": 995
+      },
+      "type": "paragraph"
+    },
+    {
+      "content": [
+        {
+          "kind": "text",
+          "text": "Understanding Actions"
+        }
+      ],
+      "level": 2,
+      "origin": {
+        "startLine": 11,
+        "endLine": 11,
+        "startOffset": 997,
+        "endOffset": 1021
+      },
+      "type": "heading"
+    },
+    {
+      "content": [
+        {
+          "kind": "text",
+          "text": "Characters and their adversaries affect the world of Pathfinder by using actions and producing effects. This is especially the case during encounters, when every action counts. When you use an action, you generate an effect. This effect might be automatic, but sometimes actions necessitate that you roll a die, and the effect is based on what you rolled."
+        }
+      ],
+      "indent": "none",
+      "origin": {
+        "startLine": 13,
+        "endLine": 13,
+        "startOffset": 1023,
+        "endOffset": 1378
+      },
+      "type": "paragraph"
+    },
+    {
+      "content": [
+        {
+          "kind": "text",
+          "text": "Throughout this book, you will see special icons to denote actions."
+        }
+      ],
+      "indent": "first-line",
+      "origin": {
+        "startLine": 15,
+        "endLine": 15,
+        "startOffset": 1380,
+        "endOffset": 1447
+      },
+      "type": "paragraph"
+    },
+    {
+      "content": [
+        {
+          "kind": "action",
+          "symbol": ":a:"
+        },
+        {
+          "kind": "text",
+          "text": " Single Actions"
+        }
+      ],
+      "level": 3,
+      "origin": {
+        "startLine": 17,
+        "endLine": 17,
+        "startOffset": 1449,
+        "endOffset": 1471
+      },
+      "type": "heading"
+    },
+    {
+      "content": [
+        {
+          "kind": "text",
+          "text": "Single actions use this symbol: "
+        },
+        {
+          "kind": "action",
+          "symbol": ":a:"
+        },
+        {
+          "kind": "text",
+          "text": ". They're the simplest, most common type of action. You can use three single actions on your turn in an encounter, in any order you see fit."
+        }
+      ],
+      "indent": "none",
+      "origin": {
+        "startLine": 19,
+        "endLine": 19,
+        "startOffset": 1473,
+        "endOffset": 1648
+      },
+      "type": "paragraph"
+    },
+    {
+      "content": [
+        {
+          "kind": "action",
+          "symbol": ":r:"
+        },
+        {
+          "kind": "text",
+          "text": " Reactions"
+        }
+      ],
+      "level": 3,
+      "origin": {
+        "startLine": 21,
+        "endLine": 21,
+        "startOffset": 1650,
+        "endOffset": 1667
+      },
+      "type": "heading"
+    },
+    {
+      "content": [
+        {
+          "kind": "text",
+          "text": "Reactions use this symbol: "
+        },
+        {
+          "kind": "action",
+          "symbol": ":r:"
+        },
+        {
+          "kind": "text",
+          "text": ". These actions can be used even when it's not your turn. You only get one reaction per encounter round, and you can use it only when its specific trigger is fulfilled. Often, the trigger is another creature's action."
+        }
+      ],
+      "indent": "none",
+      "origin": {
+        "startLine": 23,
+        "endLine": 23,
+        "startOffset": 1669,
+        "endOffset": 1916
+      },
+      "type": "paragraph"
+    },
+    {
+      "content": [
+        {
+          "kind": "action",
+          "symbol": ":f:"
+        },
+        {
+          "kind": "text",
+          "text": " Free Actions"
+        }
+      ],
+      "level": 3,
+      "origin": {
+        "startLine": 25,
+        "endLine": 25,
+        "startOffset": 1918,
+        "endOffset": 1938
+      },
+      "type": "heading"
+    },
+    {
+      "content": [
+        {
+          "kind": "text",
+          "text": "Free actions use this symbol: "
+        },
+        {
+          "kind": "action",
+          "symbol": ":f:"
+        },
+        {
+          "kind": "text",
+          "text": ". Free actions don't require you to spend any of your three single actions or your reaction. A free action might have a trigger like a reaction does. If so, you can use it just like a reaction—even if it's not your turn. However, you can use only one free action per trigger, so if you have multiple free actions with the same trigger, you have to decide which to use. If a free action doesn't have a trigger, you use it like a single action, just without spending any of your actions for the turn."
+        }
+      ],
+      "indent": "none",
+      "origin": {
+        "startLine": 27,
+        "endLine": 27,
+        "startOffset": 1940,
+        "endOffset": 2471
+      },
+      "type": "paragraph"
+    },
+    {
+      "origin": {
+        "startLine": 29,
+        "endLine": 29,
+        "startOffset": 2473,
+        "endOffset": 2474
+      },
+      "trailing": false,
+      "type": "column-break"
+    },
+    {
+      "content": [
+        {
+          "kind": "text",
+          "text": "Activities"
+        }
+      ],
+      "level": 3,
+      "origin": {
+        "startLine": 31,
+        "endLine": 31,
+        "startOffset": 2476,
+        "endOffset": 2490
+      },
+      "type": "heading"
+    },
+    {
+      "content": [
+        {
+          "kind": "text",
+          "text": "Activities are special tasks that you complete by spending one or more of your actions together. Usually, an activity uses two or more actions and lets you do more than a single action would allow. You have to spend all the actions an activity requires for its effects to happen. Spellcasting is one of the most common activities, as most spells take more than a single action to cast."
+        }
+      ],
+      "indent": "none",
+      "origin": {
+        "startLine": 33,
+        "endLine": 33,
+        "startOffset": 2492,
+        "endOffset": 2877
+      },
+      "type": "paragraph"
+    },
+    {
+      "content": [
+        {
+          "kind": "text",
+          "text": "Activities that use two actions use this symbol: "
+        },
+        {
+          "kind": "action",
+          "symbol": ":aa:"
+        },
+        {
+          "kind": "text",
+          "text": ". Activities that use three actions use this symbol: "
+        },
+        {
+          "kind": "action",
+          "symbol": ":aaa:"
+        },
+        {
+          "kind": "text",
+          "text": ". A few special activities, such as spells you can cast in an instant, use a free action or a reaction."
+        }
+      ],
+      "indent": "first-line",
+      "origin": {
+        "startLine": 35,
+        "endLine": 35,
+        "startOffset": 2879,
+        "endOffset": 3093
+      },
+      "type": "paragraph"
+    },
+    {
+      "content": [
+        {
+          "kind": "text",
+          "text": "All tasks that take longer than a turn are activities. If an activity is meant to be done during exploration, it has the exploration trait. An activity that takes a day or more of commitment and that can be done only during downtime has the downtime trait."
+        }
+      ],
+      "indent": "first-line",
+      "origin": {
+        "startLine": 37,
+        "endLine": 37,
+        "startOffset": 3095,
+        "endOffset": 3351
+      },
+      "type": "paragraph"
+    },
+    {
+      "content": [
+        {
+          "kind": "text",
+          "text": "Reading Rules"
+        }
+      ],
+      "level": 2,
+      "origin": {
+        "startLine": 39,
+        "endLine": 39,
+        "startOffset": 3353,
+        "endOffset": 3369
+      },
+      "type": "heading"
+    },
+    {
+      "content": [
+        {
+          "kind": "text",
+          "text": "This book contains many rules elements that give characters new and interesting ways to respond to situations in the game. All characters can use the basic actions found in Chapter 9, but an individual character often has special rules that empower them to do things most other characters can't. Most of these options are feats, which are gained by making certain choices at character creation or when a character advances in level."
+        }
+      ],
+      "indent": "none",
+      "origin": {
+        "startLine": 41,
+        "endLine": 41,
+        "startOffset": 3371,
+        "endOffset": 3803
+      },
+      "type": "paragraph"
+    }
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "contentRefs": {},
+  "body": [
+    {
+      "content": [
+        {
+          "content": [
+            {
+              "kind": "text",
+              "text": "CHAPTER 1:"
+            }
+          ],
+          "kind": "heading",
+          "level": 2,
+          "origin": {
+            "startLine": 2,
+            "endLine": 2,
+            "startOffset": 6,
+            "endOffset": 19
+          }
+        },
+        {
+          "content": [
+            {
+              "kind": "text",
+              "text": "INTRODUCTION"
+            }
+          ],
+          "kind": "heading",
+          "level": 1,
+          "origin": {
+            "startLine": 3,
+            "endLine": 3,
+            "startOffset": 20,
+            "endOffset": 34
+          }
+        },
+        {
+          "content": [
+            {
+              "kind": "text",
+              "text": "Pathfinder is a fantasy tabletop roleplaying game (RPG) where you and a group of friends gather to tell a tale of brave heroes and cunning villains in a world filled with terrifying monsters and amazing treasures. More importantly, Pathfinder is a game where your character's choices determine how the story unfolds."
+            }
+          ],
+          "indent": "none",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 5,
+            "endLine": 5,
+            "startOffset": 36,
+            "endOffset": 352
+          }
+        }
+      ],
+      "origin": {
+        "startLine": 1,
+        "endLine": 6,
+        "startOffset": 0,
+        "endOffset": 354
+      },
+      "type": "head"
+    }
+  ]
+}

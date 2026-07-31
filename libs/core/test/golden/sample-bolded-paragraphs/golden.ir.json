@@ -1,0 +1,173 @@
+{
+  "contentRefs": {},
+  "body": [
+    {
+      "content": [
+        {
+          "content": [
+            {
+              "kind": "text",
+              "text": "Recall Knowledge Tasks"
+            }
+          ],
+          "kind": "heading",
+          "level": 2,
+          "origin": {
+            "startLine": 2,
+            "endLine": 2,
+            "startOffset": 8,
+            "endOffset": 33
+          }
+        },
+        {
+          "content": [
+            {
+              "kind": "text",
+              "text": "The following examples use Society or Religion."
+            }
+          ],
+          "indent": "none",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 4,
+            "endLine": 4,
+            "startOffset": 35,
+            "endOffset": 82
+          }
+        },
+        {
+          "content": [
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "Untrained"
+                }
+              ],
+              "kind": "strong"
+            },
+            {
+              "kind": "text",
+              "text": " name of a ruler, head of state, key noble, or major deity"
+            }
+          ],
+          "indent": "none",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 6,
+            "endLine": 6,
+            "startOffset": 84,
+            "endOffset": 155
+          }
+        },
+        {
+          "content": [
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "Trained"
+                }
+              ],
+              "kind": "strong"
+            },
+            {
+              "kind": "text",
+              "text": " line of succession for a major noble family, core doctrines of a major deity"
+            }
+          ],
+          "indent": "none",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 8,
+            "endLine": 8,
+            "startOffset": 157,
+            "endOffset": 245
+          }
+        },
+        {
+          "content": [
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "Expert"
+                }
+              ],
+              "kind": "strong"
+            },
+            {
+              "kind": "text",
+              "text": " genealogy of a minor noble, teachings of an ancient priest"
+            }
+          ],
+          "indent": "none",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 10,
+            "endLine": 10,
+            "startOffset": 247,
+            "endOffset": 316
+          }
+        },
+        {
+          "content": [
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "Master"
+                }
+              ],
+              "kind": "strong"
+            },
+            {
+              "kind": "text",
+              "text": " hierarchy of a genie noble court, major extraplanar temples of a deity"
+            }
+          ],
+          "indent": "none",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 12,
+            "endLine": 12,
+            "startOffset": 318,
+            "endOffset": 399
+          }
+        },
+        {
+          "content": [
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "Legendary"
+                }
+              ],
+              "kind": "strong"
+            },
+            {
+              "kind": "text",
+              "text": " existence of a long-lost noble heir, secret doctrines of a religion"
+            }
+          ],
+          "indent": "none",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 14,
+            "endLine": 14,
+            "startOffset": 401,
+            "endOffset": 482
+          }
+        }
+      ],
+      "origin": {
+        "startLine": 1,
+        "endLine": 15,
+        "startOffset": 0,
+        "endOffset": 484
+      },
+      "type": "sample"
+    }
+  ]
+}

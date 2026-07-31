@@ -1,0 +1,254 @@
+{
+  "contentRefs": {},
+  "body": [
+    {
+      "content": [
+        {
+          "content": [
+            {
+              "kind": "text",
+              "text": "Materials"
+            }
+          ],
+          "kind": "heading",
+          "level": 1,
+          "origin": {
+            "startLine": 2,
+            "endLine": 2,
+            "startOffset": 6,
+            "endOffset": 17
+          }
+        },
+        {
+          "content": [
+            {
+              "kind": "text",
+              "text": "Most suits of armor and weapons are made from ordinary, commonly available materials like iron, leather, steel, and wood. If you’re not sure what a suit of armor is made of, the GM determines the details."
+            }
+          ],
+          "indent": "none",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 3,
+            "endLine": 3,
+            "startOffset": 18,
+            "endOffset": 222
+          }
+        },
+        {
+          "content": [
+            {
+              "kind": "text",
+              "text": "Some armor, shields, and weapons are instead made of precious materials. These often have inherent supernatural properties. Cold iron, for example, harms fey, and silver can damage werecreatures. These materials are detailed in GM Core beginning on page 252."
+            }
+          ],
+          "indent": "first-line",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 5,
+            "endLine": 5,
+            "startOffset": 224,
+            "endOffset": 482
+          }
+        },
+        {
+          "content": [
+            {
+              "kind": "text",
+              "text": "Damaging Armor"
+            }
+          ],
+          "kind": "heading",
+          "level": 1,
+          "origin": {
+            "startLine": 7,
+            "endLine": 7,
+            "startOffset": 484,
+            "endOffset": 500
+          }
+        },
+        {
+          "content": [
+            {
+              "kind": "text",
+              "text": "Your armor's statistics are based on the material it's predominantly made from. It's not likely your armor will take damage, as explained in Item Damage on page 269."
+            }
+          ],
+          "indent": "none",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 9,
+            "endLine": 9,
+            "startOffset": 502,
+            "endOffset": 667
+          }
+        },
+        {
+          "kind": "table",
+          "node": {
+            "alignments": [
+              "left",
+              "center",
+              "center",
+              "center",
+              "left"
+            ],
+            "colCount": 5,
+            "footnotes": [],
+            "headers": [
+              [
+                {
+                  "kind": "text",
+                  "text": "Material"
+                }
+              ],
+              [
+                {
+                  "kind": "text",
+                  "text": "Hardness"
+                }
+              ],
+              [
+                {
+                  "kind": "text",
+                  "text": "HP"
+                }
+              ],
+              [
+                {
+                  "kind": "text",
+                  "text": "BT"
+                }
+              ],
+              [
+                {
+                  "kind": "text",
+                  "text": "Armors"
+                }
+              ]
+            ],
+            "origin": {
+              "startLine": 11,
+              "endLine": 15,
+              "startOffset": 669,
+              "endOffset": 954
+            },
+            "rows": [
+              [
+                [
+                  {
+                    "kind": "text",
+                    "text": "Cloth"
+                  }
+                ],
+                [
+                  {
+                    "kind": "text",
+                    "text": "1"
+                  }
+                ],
+                [
+                  {
+                    "kind": "text",
+                    "text": "4"
+                  }
+                ],
+                [
+                  {
+                    "kind": "text",
+                    "text": "2"
+                  }
+                ],
+                [
+                  {
+                    "kind": "text",
+                    "text": "Explorer's clothing, padded armor"
+                  }
+                ]
+              ],
+              [
+                [
+                  {
+                    "kind": "text",
+                    "text": "Leather"
+                  }
+                ],
+                [
+                  {
+                    "kind": "text",
+                    "text": "4"
+                  }
+                ],
+                [
+                  {
+                    "kind": "text",
+                    "text": "16"
+                  }
+                ],
+                [
+                  {
+                    "kind": "text",
+                    "text": "8"
+                  }
+                ],
+                [
+                  {
+                    "kind": "text",
+                    "text": "Hide, leather, studded leather"
+                  }
+                ]
+              ],
+              [
+                [
+                  {
+                    "kind": "text",
+                    "text": "Metal"
+                  }
+                ],
+                [
+                  {
+                    "kind": "text",
+                    "text": "9"
+                  }
+                ],
+                [
+                  {
+                    "kind": "text",
+                    "text": "36"
+                  }
+                ],
+                [
+                  {
+                    "kind": "text",
+                    "text": "18"
+                  }
+                ],
+                [
+                  {
+                    "kind": "text",
+                    "text": "Breastplate, chain mail, chain shirt, full plate, half plate, scale mail, splint mail"
+                  }
+                ]
+              ]
+            ],
+            "type": "table"
+          },
+          "origin": {
+            "startLine": 11,
+            "endLine": 15,
+            "startOffset": 669,
+            "endOffset": 954
+          }
+        }
+      ],
+      "fullWidth": false,
+      "origin": {
+        "startLine": 1,
+        "endLine": 16,
+        "startOffset": 0,
+        "endOffset": 956
+      },
+      "type": "rule"
+    }
+  ]
+}

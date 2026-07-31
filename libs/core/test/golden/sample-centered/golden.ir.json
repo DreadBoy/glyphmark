@@ -1,0 +1,158 @@
+{
+  "contentRefs": {},
+  "body": [
+    {
+      "content": [
+        {
+          "content": [
+            {
+              "kind": "text",
+              "text": "Damage Dice"
+            }
+          ],
+          "kind": "heading",
+          "level": 1,
+          "origin": {
+            "startLine": 2,
+            "endLine": 2,
+            "startOffset": 8,
+            "endOffset": 21
+          }
+        },
+        {
+          "content": [
+            {
+              "kind": "text",
+              "text": "Each weapon lists the damage die used for its damage roll. A standard weapon deals one die of damage, but a magical "
+            },
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "striking rune"
+                }
+              ],
+              "kind": "em"
+            },
+            {
+              "kind": "text",
+              "text": " can increase the number of dice rolled, as can some special actions and spells. These additional dice use the same die size as the weapon or unarmed attack's normal damage die."
+            }
+          ],
+          "indent": "none",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 4,
+            "endLine": 4,
+            "startOffset": 23,
+            "endOffset": 331
+          }
+        },
+        {
+          "content": [
+            {
+              "kind": "text",
+              "text": "Counting Damage Dice"
+            }
+          ],
+          "kind": "heading",
+          "level": 2,
+          "origin": {
+            "startLine": 6,
+            "endLine": 6,
+            "startOffset": 333,
+            "endOffset": 356
+          }
+        },
+        {
+          "content": [
+            {
+              "kind": "text",
+              "text": "Effects based on a weapon's number of damage dice include only the weapon's damage die plus any extra dice from a "
+            },
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "striking rune"
+                }
+              ],
+              "kind": "em"
+            },
+            {
+              "kind": "text",
+              "text": ". They don't count extra dice from abilities, critical specialization effects, property runes, weapon traits, or the like."
+            }
+          ],
+          "indent": "none",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 8,
+            "endLine": 8,
+            "startOffset": 358,
+            "endOffset": 609
+          }
+        },
+        {
+          "content": [
+            {
+              "kind": "text",
+              "text": "Increasing Die Size"
+            }
+          ],
+          "kind": "heading",
+          "level": 2,
+          "origin": {
+            "startLine": 10,
+            "endLine": 10,
+            "startOffset": 611,
+            "endOffset": 633
+          }
+        },
+        {
+          "content": [
+            {
+              "kind": "text",
+              "text": "When an effect calls on you to increase the size of your weapon damage dice, instead of using its normal weapon damage dice, use the next larger die, as listed below (so if you were using a d4, you'd use a d6, and so on). If you are already using a d12, the size is already at its maximum. You can't increase your weapon damage die size more than once."
+            }
+          ],
+          "indent": "none",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 12,
+            "endLine": 12,
+            "startOffset": 635,
+            "endOffset": 987
+          }
+        },
+        {
+          "content": [
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "1d4 » 1d6 » 1d8 » 1d10 » 1d12"
+                }
+              ],
+              "kind": "strong"
+            }
+          ],
+          "kind": "centered-paragraph",
+          "origin": {
+            "startLine": 14,
+            "endLine": 14,
+            "startOffset": 989,
+            "endOffset": 1024
+          }
+        }
+      ],
+      "origin": {
+        "startLine": 1,
+        "endLine": 15,
+        "startOffset": 0,
+        "endOffset": 1026
+      },
+      "type": "sample"
+    }
+  ]
+}

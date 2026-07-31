@@ -1,0 +1,269 @@
+{
+  "contentRefs": {},
+  "body": [
+    {
+      "content": [
+        {
+          "kind": "text",
+          "text": "Superscript & Subscript"
+        }
+      ],
+      "level": 1,
+      "origin": {
+        "startLine": 1,
+        "endLine": 1,
+        "startOffset": 0,
+        "endOffset": 25
+      },
+      "type": "heading"
+    },
+    {
+      "content": [
+        {
+          "kind": "text",
+          "text": "Rarity markers in the Monster Core index use inline superscript — Herexen"
+        },
+        {
+          "children": [
+            {
+              "kind": "text",
+              "text": "U"
+            }
+          ],
+          "kind": "sup"
+        },
+        {
+          "kind": "text",
+          "text": " (uncommon), Mummy pharaoh"
+        },
+        {
+          "children": [
+            {
+              "kind": "text",
+              "text": "R"
+            }
+          ],
+          "kind": "sup"
+        },
+        {
+          "kind": "text",
+          "text": " (rare), and Treerazer"
+        },
+        {
+          "children": [
+            {
+              "kind": "text",
+              "text": "Uq"
+            }
+          ],
+          "kind": "sup"
+        },
+        {
+          "kind": "text",
+          "text": " (unique). Subscript covers chemistry such as H"
+        },
+        {
+          "children": [
+            {
+              "kind": "text",
+              "text": "2"
+            }
+          ],
+          "kind": "sub"
+        },
+        {
+          "kind": "text",
+          "text": "O and CO"
+        },
+        {
+          "children": [
+            {
+              "kind": "text",
+              "text": "2"
+            }
+          ],
+          "kind": "sub"
+        },
+        {
+          "kind": "text",
+          "text": "."
+        }
+      ],
+      "indent": "none",
+      "origin": {
+        "startLine": 3,
+        "endLine": 3,
+        "startOffset": 27,
+        "endOffset": 220
+      },
+      "type": "paragraph"
+    },
+    {
+      "alignments": [
+        "left",
+        "right"
+      ],
+      "caption": [
+        {
+          "kind": "text",
+          "text": "Creatures by Rarity"
+        }
+      ],
+      "colCount": 2,
+      "footnotes": [],
+      "headers": [
+        [
+          {
+            "kind": "text",
+            "text": "Creature"
+          }
+        ],
+        [
+          {
+            "kind": "text",
+            "text": "Level"
+          }
+        ]
+      ],
+      "origin": {
+        "startLine": 7,
+        "endLine": 11,
+        "startOffset": 248,
+        "endOffset": 392
+      },
+      "rows": [
+        [
+          [
+            {
+              "kind": "text",
+              "text": "Herexen"
+            },
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "U"
+                }
+              ],
+              "kind": "sup"
+            }
+          ],
+          [
+            {
+              "kind": "text",
+              "text": "6"
+            }
+          ]
+        ],
+        [
+          [
+            {
+              "kind": "text",
+              "text": "Mummy pharaoh"
+            },
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "R"
+                }
+              ],
+              "kind": "sup"
+            }
+          ],
+          [
+            {
+              "kind": "text",
+              "text": "14"
+            }
+          ]
+        ],
+        [
+          [
+            {
+              "kind": "text",
+              "text": "Treerazer"
+            },
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "Uq"
+                }
+              ],
+              "kind": "sup"
+            }
+          ],
+          [
+            {
+              "kind": "text",
+              "text": "25"
+            }
+          ]
+        ]
+      ],
+      "type": "table"
+    },
+    {
+      "content": [
+        {
+          "content": [
+            {
+              "kind": "text",
+              "text": "x"
+            },
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "2"
+                }
+              ],
+              "kind": "sup"
+            },
+            {
+              "kind": "text",
+              "text": " + y"
+            },
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "2"
+                }
+              ],
+              "kind": "sup"
+            },
+            {
+              "kind": "text",
+              "text": " = r"
+            },
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "2"
+                }
+              ],
+              "kind": "sup"
+            }
+          ],
+          "kind": "centered-paragraph",
+          "origin": {
+            "startLine": 14,
+            "endLine": 14,
+            "startOffset": 402,
+            "endOffset": 422
+          }
+        }
+      ],
+      "origin": {
+        "startLine": 13,
+        "endLine": 15,
+        "startOffset": 394,
+        "endOffset": 424
+      },
+      "type": "sample"
+    }
+  ]
+}

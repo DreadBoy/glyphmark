@@ -1,0 +1,249 @@
+{
+  "contentRefs": {},
+  "body": [
+    {
+      "origin": {
+        "startLine": 1,
+        "endLine": 1,
+        "startOffset": 0,
+        "endOffset": 1
+      },
+      "trailing": false,
+      "type": "column-break"
+    },
+    {
+      "alignments": [
+        "center",
+        "center",
+        "center",
+        "center",
+        "center"
+      ],
+      "caption": [
+        {
+          "kind": "text",
+          "text": "Differently Sized Items"
+        }
+      ],
+      "colCount": 5,
+      "footnotes": [
+        {
+          "children": [
+            {
+              "kind": "text",
+              "text": "An item that would have its Bulk reduced below 1 has light Bulk."
+            }
+          ],
+          "type": "unnumbered"
+        }
+      ],
+      "headers": [
+        [
+          {
+            "kind": "text",
+            "text": "Creature Size"
+          }
+        ],
+        [
+          {
+            "kind": "text",
+            "text": "Price"
+          }
+        ],
+        [
+          {
+            "kind": "text",
+            "text": "Bulk"
+          }
+        ],
+        [
+          {
+            "kind": "text",
+            "text": "Light Becomes"
+          }
+        ],
+        [
+          {
+            "kind": "text",
+            "text": "Negligible Becomes"
+          }
+        ]
+      ],
+      "origin": {
+        "startLine": 4,
+        "endLine": 12,
+        "startOffset": 32,
+        "endOffset": 644
+      },
+      "rows": [
+        [
+          [
+            {
+              "kind": "text",
+              "text": "Tiny"
+            }
+          ],
+          [
+            {
+              "kind": "text",
+              "text": "Standard"
+            }
+          ],
+          [
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "Half"
+                }
+              ],
+              "kind": "footnote-ref",
+              "type": "unnumbered"
+            }
+          ],
+          [
+            {
+              "kind": "text",
+              "text": "—"
+            }
+          ],
+          [
+            {
+              "kind": "text",
+              "text": "—"
+            }
+          ]
+        ],
+        [
+          [
+            {
+              "kind": "text",
+              "text": "Small or Med."
+            }
+          ],
+          [
+            {
+              "kind": "text",
+              "text": "Standard"
+            }
+          ],
+          [
+            {
+              "kind": "text",
+              "text": "Standard"
+            }
+          ],
+          [
+            {
+              "kind": "text",
+              "text": "L"
+            }
+          ],
+          [
+            {
+              "kind": "text",
+              "text": "—"
+            }
+          ]
+        ],
+        [
+          [
+            {
+              "kind": "text",
+              "text": "Large"
+            }
+          ],
+          [
+            {
+              "kind": "text",
+              "text": "x2"
+            }
+          ],
+          [
+            {
+              "kind": "text",
+              "text": "x2"
+            }
+          ],
+          [
+            {
+              "kind": "text",
+              "text": "1 Bulk"
+            }
+          ],
+          [
+            {
+              "kind": "text",
+              "text": "L"
+            }
+          ]
+        ],
+        [
+          [
+            {
+              "kind": "text",
+              "text": "Huge"
+            }
+          ],
+          [
+            {
+              "kind": "text",
+              "text": "x4"
+            }
+          ],
+          [
+            {
+              "kind": "text",
+              "text": "x4"
+            }
+          ],
+          [
+            {
+              "kind": "text",
+              "text": "2 Bulk"
+            }
+          ],
+          [
+            {
+              "kind": "text",
+              "text": "1 Bulk"
+            }
+          ]
+        ],
+        [
+          [
+            {
+              "kind": "text",
+              "text": "Gargantuan"
+            }
+          ],
+          [
+            {
+              "kind": "text",
+              "text": "x8"
+            }
+          ],
+          [
+            {
+              "kind": "text",
+              "text": "x8"
+            }
+          ],
+          [
+            {
+              "kind": "text",
+              "text": "4 Bulk"
+            }
+          ],
+          [
+            {
+              "kind": "text",
+              "text": "2 Bulk"
+            }
+          ]
+        ]
+      ],
+      "type": "table"
+    }
+  ]
+}

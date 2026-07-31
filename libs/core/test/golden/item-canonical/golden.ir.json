@@ -1,0 +1,134 @@
+{
+  "contentRefs": {},
+  "body": [
+    {
+      "origin": {
+        "startLine": 1,
+        "endLine": 1,
+        "startOffset": 0,
+        "endOffset": 1
+      },
+      "trailing": false,
+      "type": "column-break"
+    },
+    {
+      "action": ":a:",
+      "content": [
+        {
+          "content": [
+            {
+              "kind": "text",
+              "text": "You use a performer's cold reading techniques, aura reading, and other tricks to discover your foe's strengths and weaknesses. The GM rolls a secret Occultism check for you against the Deception or Stealth DC (whichever is higher) of an enemy of your choice who is not concealed from you, hidden from you, or undetected by you, and who is engaged in combat. The GM might apply a penalty for the distance between you and the enemy. The enemy is then temporarily immune to your Combat Reading for 1 day."
+            }
+          ],
+          "indent": "none",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 8,
+            "endLine": 8,
+            "startOffset": 56,
+            "endOffset": 557
+          }
+        },
+        {
+          "content": [
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "Critical Success"
+                }
+              ],
+              "kind": "strong"
+            },
+            {
+              "kind": "text",
+              "text": " The GM chooses and tells you two of the following pieces of information about the enemy: which of the enemy's weaknesses is highest, which of the enemy's saving throws has the lowest modifier, one immunity the enemy has, or which of the enemy's resistances is highest. In the event of a tie, the GM should pick one at random."
+            }
+          ],
+          "indent": "hanging",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 10,
+            "endLine": 10,
+            "startOffset": 559,
+            "endOffset": 905
+          }
+        },
+        {
+          "content": [
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "Success"
+                }
+              ],
+              "kind": "strong"
+            },
+            {
+              "kind": "text",
+              "text": " The GM chooses one piece of information from the above list to tell you about the enemy."
+            }
+          ],
+          "indent": "hanging",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 12,
+            "endLine": 12,
+            "startOffset": 907,
+            "endOffset": 1007
+          }
+        },
+        {
+          "content": [
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "Critical Failure"
+                }
+              ],
+              "kind": "strong"
+            },
+            {
+              "kind": "text",
+              "text": " The GM gives you false information (the GM makes up the information)."
+            }
+          ],
+          "indent": "hanging",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 14,
+            "endLine": 14,
+            "startOffset": 1009,
+            "endOffset": 1099
+          }
+        }
+      ],
+      "name": [
+        {
+          "kind": "text",
+          "text": "Combat Reading"
+        }
+      ],
+      "origin": {
+        "startLine": 2,
+        "endLine": 15,
+        "startOffset": 2,
+        "endOffset": 1101
+      },
+      "subtitle": [
+        {
+          "kind": "text",
+          "text": "Feat 4"
+        }
+      ],
+      "traits": [
+        "Bard",
+        "Secret"
+      ],
+      "type": "item"
+    }
+  ]
+}
