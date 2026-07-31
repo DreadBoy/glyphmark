@@ -12,6 +12,9 @@
         level, plus <code>item</code>, <code>info</code>, <code>rule</code>,
         <code>sample</code> and <code>head</code> blocks under the heading they
         belong to.</p>
+        <p>Editing actions under <em>Edit | Glyph</em> and the editor's context
+        menu toggle bold, italic, superscript and subscript, and pressing Enter
+        inside a list carries the bullet onto the next line.</p>
     ]]></description>
 
     <depends>com.intellij.modules.platform</depends>
@@ -26,5 +29,44 @@
             implementationClass="com.glyphmark.intellij.GlyphFileType"
             fieldName="INSTANCE"/>
         <fileEditorProvider implementation="com.glyphmark.intellij.GlyphEditorWithPreviewProvider"/>
+        <enterHandlerDelegate implementation="com.glyphmark.intellij.GlyphEnterHandler"/>
+        <actionPromoter implementation="com.glyphmark.intellij.GlyphActionPromoter"/>
     </extensions>
+
+    <actions>
+        <!-- One group, shown in two places: under Edit for discoverability and
+             on the editor's context menu for reach. Every action hides itself
+             outside `.glyph` files, so the group collapses to nothing
+             elsewhere. -->
+        <group id="Glyphmark.MarkupActions" text="Glyph" popup="true">
+            <add-to-group group-id="EditMenu" anchor="last"/>
+            <add-to-group group-id="EditorPopupMenu" anchor="last"/>
+
+            <action id="Glyphmark.Strong"
+                    class="com.glyphmark.intellij.GlyphStrongAction"
+                    text="Bold"
+                    description="Wrap the selection in ** **, or unwrap it">
+                <!-- `$default` only: the macOS keymap rewrites Ctrl to meta, so
+                     a separate `Mac OS X 10.5+` entry would be redundant. Go to
+                     Declaration holds the same keystroke and wins on ordering
+                     alone, so GlyphActionPromoter is what actually makes this
+                     binding take effect. -->
+                <keyboard-shortcut keymap="$default" first-keystroke="ctrl B"/>
+            </action>
+            <action id="Glyphmark.Em"
+                    class="com.glyphmark.intellij.GlyphEmAction"
+                    text="Italic"
+                    description="Wrap the selection in * *, or unwrap it">
+                <keyboard-shortcut keymap="$default" first-keystroke="ctrl I"/>
+            </action>
+            <action id="Glyphmark.Superscript"
+                    class="com.glyphmark.intellij.GlyphSuperscriptAction"
+                    text="Superscript"
+                    description="Wrap the selection in ^ ^, or unwrap it"/>
+            <action id="Glyphmark.Subscript"
+                    class="com.glyphmark.intellij.GlyphSubscriptAction"
+                    text="Subscript"
+                    description="Wrap the selection in ~ ~, or unwrap it"/>
+        </group>
+    </actions>
 </idea-plugin>
