@@ -1,30 +1,43 @@
-import type { Align, TokenId, TokenSpan } from './ir';
-
-export type BlockType = 'item' | 'info' | 'rule' | 'sample' | 'head';
-
-export type PreambleType = 'css' | 'fonts';
+import type { TokenId, TokenSpan } from './ir';
 
 // The intrinsic data of a token, before provenance metadata is attached. Kept
-// separate so `tokenizeInto` can stamp `id`/`span` onto every variant in one
-// place. `block-open` and `content-ref` additionally carry their already-lexed
-// inner tokens as `children`, so the parser never re-tokenizes raw strings.
+// separate so the lexer can stamp `id`/`span` onto every variant in one place.
+//
+// Every token covers exactly one physical line, and every line produces exactly
+// one token: the stream tiles the source with no gaps and no overlaps. Nesting
+// is not represented here — `block-open`/`block-close` and `ref-open`/`ref-close`
+// are peers in the stream, and matching them up is the parser's job.
 type TokenData =
-  | { kind: 'preamble'; type: PreambleType; content: string }
+  // `keyword(` — the opening line of a block or a preamble. Which of the two it
+  // is depends on the keyword, and that is a question about meaning, so the
+  // lexer records the keyword verbatim and lets the parser decide.
+  | { kind: 'block-open'; keyword: string }
+  | { kind: 'block-close' }
+  // `keyword(...)` opened and closed on one line, e.g. `rule()`. A separate kind
+  // rather than a synthetic open/close pair, because one line is one token.
+  | { kind: 'block-inline'; keyword: string; inner: string }
+  | { kind: 'ref-open'; key: string }
+  | { kind: 'ref-close' }
   | { kind: 'hidden-delimiter' }
-  | { kind: 'content-ref'; key: string; content: string; children: Token[] }
   | { kind: 'page-break' }
   | { kind: 'column-break' }
   | { kind: 'full-width-toggle' }
   | { kind: 'hr' }
   | { kind: 'heading'; level: number; text: string }
   | { kind: 'centered-text'; content: string }
-  | { kind: 'block-open'; type: BlockType; raw: string; children: Token[] }
-  | { kind: 'table-header'; cells: string[] }
-  | { kind: 'table-sep'; aligns: Align[] }
-  | { kind: 'table-row'; cells: string[] }
-  | { kind: 'table-footnote'; marker: string; text: string }
+  // Any line carrying a `|`, and nothing more said about it. Whether it is a
+  // header, a data row, or the rule between them is a question about the lines
+  // around it — and telling a rule from a row means reading the dashes, which
+  // is interpretation. Both stay with the parser.
+  | { kind: 'pipe-line'; raw: string }
+  // `marker`/`text` are the groups its own recognizer captured, not an
+  // interpretation: there is no way to know this line is footnote-shaped
+  // without capturing them.
+  | { kind: 'footnote-line'; marker: string; text: string; raw: string }
   | { kind: 'list-item'; text: string }
-  | { kind: 'trait-line'; traits: string[] }
+  // Carries the line, not a trait list: splitting on commas, trimming, and
+  // deciding what an empty entry means are all the parser's calls.
+  | { kind: 'trait-line'; raw: string }
   | { kind: 'reference'; key: string }
   | { kind: 'text'; content: string }
   | { kind: 'blank' };
@@ -40,63 +53,41 @@ type WithMeta<T> = T extends unknown ? T & TokenMeta : never;
 
 export type Token = WithMeta<TokenData>;
 
-const PREAMBLE_KEYWORDS: readonly PreambleType[] = ['css', 'fonts'];
-const BLOCK_KEYWORDS: readonly BlockType[] = [
-  'item',
-  'info',
-  'rule',
-  'sample',
-  'head',
-];
-const ALL_KEYWORDS = [...PREAMBLE_KEYWORDS, ...BLOCK_KEYWORDS] as const;
-const KEYWORD_RE = new RegExp(`^(${ALL_KEYWORDS.join('|')})\\s*\\(`);
+// Which words are keywords is a lexical fact — it is what distinguishes
+// `item(` from prose that happens to end in a paren. What each keyword *means*
+// is not: whether `css` introduces a preamble or a container is a question the
+// parser answers, so the lexer records the word verbatim and stops there.
+const KEYWORD = 'item|info|rule|sample|head|css|fonts';
+const BLOCK_OPEN_RE = new RegExp(`^(${KEYWORD})\\s*\\($`);
+const BLOCK_INLINE_RE = new RegExp(`^(${KEYWORD})\\s*\\((.*)\\)$`);
+const REF_OPEN_RE = /^(\w+)\s*\{$/;
+const HEADING_RE = /^(#+)\s+(.+)$/;
+const CENTERED_RE = /^\^\s+(.+)$/;
+const REFERENCE_RE = /^\{\{(\w+)}}$/;
 
-// Running state shared across the whole lex of one document: a monotonic token
-// id counter. Ids are allocated in reading order (pre-order over the token
-// tree — a block/ref parent is stamped before its children are lexed).
-type LexCtx = { next: number };
+// Footnote line: `. [<marker>] <text>` where marker is `*` (unnumbered) or one
+// or more digits. Anchored to the start of the trimmed line so prose dots don't
+// masquerade as footnotes.
+const FOOTNOTE_RE = /^\.\s*\[(\*|\d+)]\s+(.+)$/;
 
 /**
- * Tokenize a `.glyph` document. Every token carries a parse-scoped `id` and an
- * absolute source `span`; `block-open`/`content-ref` tokens additionally carry
- * their inner `children` tokens. Ids are unique per call and allocated in
- * reading order, but treat them as opaque — resolve them against the map from
- * {@link buildTokenMap} (or `GlyphDocument.tokenMap`) of the *same* lex.
+ * Tokenize a `.glyph` document into a flat stream, one token per physical line.
+ *
+ * Every token carries a parse-scoped `id` and an absolute source `span`. Ids are
+ * unique per call and allocated in reading order, but treat them as opaque —
+ * resolve them against the map from {@link buildTokenMap} (or
+ * `GlyphDocument.tokenMap`) of the *same* lex.
+ *
+ * Line recognition only. The lexer answers "what does this line look like?" and
+ * nothing else: it does not pair delimiters, decide whether a run of lines is a
+ * table, or reject constructs that are invalid where they appear. Those are all
+ * questions about a line's surroundings, which makes them the parser's.
  */
 export function tokenize(input: string): Token[] {
-  return tokenizeInto(input, { next: 0 }, 0, 1);
-}
-
-/**
- * Flatten a token tree into a `TokenId → span` lookup, walking into
- * `block-open`/`content-ref` children so every token — at any depth — is
- * resolvable through one map.
- */
-export function buildTokenMap(tokens: Token[]): Map<TokenId, TokenSpan> {
-  const map = new Map<TokenId, TokenSpan>();
-  const walk = (ts: Token[]): void => {
-    for (const t of ts) {
-      map.set(t.id, t.span);
-      if (t.kind === 'block-open' || t.kind === 'content-ref') walk(t.children);
-    }
-  };
-  walk(tokens);
-  return map;
-}
-
-// Lex `input` whose first character sits at absolute offset `baseOffset` on
-// absolute (1-based) line `baseLine` of the original document. The top-level
-// call passes `0`/`1`; nested block/ref content passes the base of its trimmed
-// inner (see `captureBalanced`), so every span is absolute and composes exactly
-// across nesting (each inner is a contiguous substring of its parent's).
-function tokenizeInto(
-  input: string,
-  ctx: LexCtx,
-  baseOffset: number,
-  baseLine: number,
-): Token[] {
   const lines = input.split('\n');
-  // Absolute-within-`input` start offset of each line (column 0).
+
+  // Absolute start offset of each line (column 0). One pass up front, so
+  // recognizing a line never needs to know what came before it.
   const lineStart: number[] = [];
   {
     let acc = 0;
@@ -105,361 +96,100 @@ function tokenizeInto(
       acc += line.length + 1; // +1 for the '\n' that split() removed
     }
   }
-  const tokens: Token[] = [];
 
-  // Span covering physical lines [startLi..endLi]: column 0 of the first line
-  // to just past the last char of the last (exclusive end — the position of the
-  // trailing '\n', or EOF).
-  const spanOf = (startLi: number, endLi: number): TokenSpan => ({
-    startLine: baseLine + startLi,
-    endLine: baseLine + endLi,
-    startOffset: baseOffset + lineStart[startLi],
-    endOffset: baseOffset + lineStart[endLi] + lines[endLi].length,
-  });
+  return lines.map((line, i) => ({
+    ...recognize(line),
+    id: i,
+    span: {
+      startLine: i + 1,
+      endLine: i + 1,
+      startOffset: lineStart[i],
+      endOffset: lineStart[i] + line.length,
+    },
+  })) as Token[];
+}
 
-  // Stamp id + span onto a token and append it. Allocates the id at append
-  // time, which keeps single-line tokens in reading order.
-  const push = (data: TokenData, startLi: number, endLi: number = startLi) => {
-    tokens.push({
-      ...data,
-      id: ctx.next++,
-      span: spanOf(startLi, endLi),
-    } as Token);
-  };
+/**
+ * Build a `TokenId → span` lookup.
+ *
+ * Kept as a function (rather than callers indexing the array directly) because
+ * ids are documented as opaque handles; the map is the sanctioned way to resolve
+ * one, and it stays correct if ids ever stop being array indices.
+ */
+export function buildTokenMap(tokens: Token[]): Map<TokenId, TokenSpan> {
+  return new Map(tokens.map((t) => [t.id, t.span]));
+}
 
-  let i = 0;
-  while (i < lines.length) {
-    const line = lines[i];
-    const trimmed = line.trim();
+/**
+ * Classify one physical line. Pure: same line in, same token data out,
+ * regardless of position in the document.
+ */
+function recognize(line: string): TokenData {
+  const trimmed = line.trim();
 
-    if (trimmed === '') {
-      push({ kind: 'blank' }, i);
-      i++;
-      continue;
-    }
+  if (trimmed === '') return { kind: 'blank' };
 
-    // Lone-marker tokens require no leading whitespace.
-    if (line === '%') {
-      push({ kind: 'hidden-delimiter' }, i);
-      i++;
-      continue;
-    }
-    if (line === '=') {
-      push({ kind: 'page-break' }, i);
-      i++;
-      continue;
-    }
-    if (line === '|') {
-      push({ kind: 'column-break' }, i);
-      i++;
-      continue;
-    }
-    if (line === '/') {
-      push({ kind: 'full-width-toggle' }, i);
-      i++;
-      continue;
-    }
-    if (line === '-') {
-      push({ kind: 'hr' }, i);
-      i++;
-      continue;
-    }
-
-    // Preamble or block-open: keyword followed by (
-    const kwMatch = trimmed.match(KEYWORD_RE);
-    if (kwMatch) {
-      const keyword = kwMatch[1];
-      const captured = captureBalanced(lines, i, '(', ')');
-      if (PREAMBLE_KEYWORDS.includes(keyword as PreambleType)) {
-        push(
-          {
-            kind: 'preamble',
-            type: keyword as PreambleType,
-            content: captured.inner,
-          },
-          i,
-          captured.endLine,
-        );
-      } else {
-        // Allocate the block's id *before* lexing its children so ids stay in
-        // reading order (the `keyword(` line precedes its inner content).
-        const id = ctx.next++;
-        const childBaseOffset = baseOffset + lineStart[i] + captured.innerStart;
-        const childBaseLine = baseLine + i + captured.innerStartLineOffset;
-        const children = tokenizeInto(
-          captured.inner,
-          ctx,
-          childBaseOffset,
-          childBaseLine,
-        );
-        tokens.push({
-          kind: 'block-open',
-          type: keyword as BlockType,
-          raw: captured.inner,
-          children,
-          id,
-          span: spanOf(i, captured.endLine),
-        } as Token);
-      }
-      i = captured.endLine + 1;
-      continue;
-    }
-
-    // Content-ref definition: key {
-    const refMatch = line.match(/^(\w+)\s*\{\s*$/);
-    if (refMatch) {
-      const captured = captureBalanced(lines, i, '{', '}');
-      const id = ctx.next++;
-      const childBaseOffset = baseOffset + lineStart[i] + captured.innerStart;
-      const childBaseLine = baseLine + i + captured.innerStartLineOffset;
-      const children = tokenizeInto(
-        captured.inner,
-        ctx,
-        childBaseOffset,
-        childBaseLine,
-      );
-      tokens.push({
-        kind: 'content-ref',
-        key: refMatch[1],
-        content: captured.inner,
-        children,
-        id,
-        span: spanOf(i, captured.endLine),
-      } as Token);
-      i = captured.endLine + 1;
-      continue;
-    }
-
-    // Heading
-    const hMatch = trimmed.match(/^(#{1,6})\s+(.+)$/);
-    if (hMatch) {
-      push({ kind: 'heading', level: hMatch[1].length, text: hMatch[2] }, i);
-      i++;
-      continue;
-    }
-
-    // Centered text marker: ^ text
-    const cMatch = trimmed.match(/^\^\s+(.+)$/);
-    if (cMatch) {
-      push({ kind: 'centered-text', content: cMatch[1] }, i);
-      i++;
-      continue;
-    }
-
-    // Trait line: ;a,b,c
-    if (trimmed.startsWith(';')) {
-      const traits = trimmed
-        .slice(1)
-        .split(',')
-        .map((s) => s.trim())
-        .filter(Boolean);
-      push({ kind: 'trait-line', traits }, i);
-      i++;
-      continue;
-    }
-
-    // Content reference. A line that's *only* `{{key}}` is its own token so
-    // the parser can expand it as a block; inline uses like "Hello {{name}}!"
-    // fall through to the text branch and stay literal (references are
-    // block-level, defined elsewhere as `key { ... }`).
-    const refMatchUse = trimmed.match(/^\{\{(\w+)}}$/);
-    if (refMatchUse) {
-      push({ kind: 'reference', key: refMatchUse[1] }, i);
-      i++;
-      continue;
-    }
-
-    // List item: * foo or - foo (lone - is hr, handled above)
-    if (
-      trimmed.startsWith('* ') ||
-      (trimmed.startsWith('- ') && trimmed.length > 2)
-    ) {
-      push({ kind: 'list-item', text: trimmed.slice(2) }, i);
-      i++;
-      continue;
-    }
-
-    // Headerless table: a leading separator/rule row (`|---|---|`) with no
-    // header line above it. The rule row still carries per-column alignment;
-    // its cell count fixes the column count. A bare `---` (no `|`) isn't a
-    // separator row, so it stays plain text and doesn't get swallowed here.
-    if (isSeparatorRow(trimmed)) {
-      const aligns = parseAligns(trimmed, splitTableRow(trimmed).length);
-      push({ kind: 'table-sep', aligns }, i);
-      i++;
-      i = consumeTableBody(lines, i, push);
-      continue;
-    }
-
-    // Table: line with `|` and a `---` separator on the next line
-    if (trimmed.includes('|') && i + 1 < lines.length) {
-      const nextTrim = lines[i + 1].trim();
-      if (isSeparatorRow(nextTrim)) {
-        const headerCells = splitTableRow(line);
-        const aligns = parseAligns(nextTrim, headerCells.length);
-        push({ kind: 'table-header', cells: headerCells }, i);
-        push({ kind: 'table-sep', aligns }, i + 1);
-        i += 2;
-        i = consumeTableBody(lines, i, push);
-        continue;
-      }
-    }
-
-    // Default: text
-    push({ kind: 'text', content: line }, i);
-    i++;
+  // Lone-marker lines require no leading whitespace.
+  switch (line) {
+    case '%':
+      return { kind: 'hidden-delimiter' };
+    case '=':
+      return { kind: 'page-break' };
+    case '|':
+      return { kind: 'column-break' };
+    case '/':
+      return { kind: 'full-width-toggle' };
+    case '-':
+      return { kind: 'hr' };
+    case ')':
+      return { kind: 'block-close' };
+    case '}':
+      return { kind: 'ref-close' };
   }
 
-  return tokens;
-}
+  const openMatch = trimmed.match(BLOCK_OPEN_RE);
+  if (openMatch) return { kind: 'block-open', keyword: openMatch[1] };
 
-// Emit a token spanning physical lines [startLi..endLi].
-type PushFn = (data: TokenData, startLi: number, endLi?: number) => void;
-
-// Footnote line: `. [<marker>] <text>` where marker is `*` (unnumbered) or one
-// or more digits. Anchored to the start of the trimmed line so prose dots
-// don't masquerade as footnotes.
-const FOOTNOTE_RE = /^\.\s*\[(\*|\d+)\]\s+(.+)$/;
-
-function matchFootnote(
-  trimmed: string,
-): { marker: string; text: string } | undefined {
-  const m = trimmed.match(FOOTNOTE_RE);
-  return m ? { marker: m[1], text: m[2].trim() } : undefined;
-}
-
-function consumeTableBody(
-  lines: string[],
-  start: number,
-  push: PushFn,
-): number {
-  let i = start;
-  while (i < lines.length) {
-    const t = lines[i].trim();
-    const fn = matchFootnote(t);
-    if (fn) {
-      push({ kind: 'table-footnote', marker: fn.marker, text: fn.text }, i);
-      i++;
-      continue;
-    }
-    if (t === '') {
-      // Blank lines stay part of the table only if a footnote follows.
-      let peek = i + 1;
-      while (peek < lines.length && lines[peek].trim() === '') peek++;
-      if (peek < lines.length && matchFootnote(lines[peek].trim())) {
-        i = peek;
-        continue;
-      }
-      break;
-    }
-    if (!t.includes('|')) break;
-    push({ kind: 'table-row', cells: splitTableRow(lines[i]) }, i);
-    i++;
-  }
-  return i;
-}
-
-// A table separator/rule row: only whitespace, dashes, colons, and pipes, and
-// carrying at least one `---` run and one `|`. Requiring the pipe keeps a bare
-// `---` (which the DSL treats as plain text) from reading as a one-column
-// separator, which matters now that a lone separator row starts a table.
-function isSeparatorRow(trimmed: string): boolean {
-  return (
-    /^[\s\-:|]+$/.test(trimmed) &&
-    trimmed.includes('---') &&
-    trimmed.includes('|')
-  );
-}
-
-function splitTableRow(line: string): string[] {
-  // Strip the optional leading/trailing border pipes first so they don't
-  // produce phantom empty cells. Splitting on the interior `|`s then preserves
-  // genuinely empty cells — e.g. `| | Price |` is a blank header over a column,
-  // not a missing column. We can't `.filter(Boolean)` away empties because that
-  // would also drop those intentional blanks and desync the column count.
-  let s = line.trim();
-  if (s.startsWith('|')) s = s.slice(1);
-  if (s.endsWith('|')) s = s.slice(0, -1);
-  return s.split('|').map((c) => c.trim());
-}
-
-function parseAligns(separator: string, columnCount: number): Align[] {
-  return splitTableRow(separator)
-    .map((t): Align => {
-      if (t.startsWith(':') && t.endsWith(':')) return 'center';
-      if (t.endsWith(':')) return 'right';
-      return 'left';
-    })
-    .slice(0, columnCount);
-}
-
-// Capture a delimiter-balanced block starting on `startLine`. Returns the
-// trimmed inner content, the last line consumed, and where the *trimmed* inner
-// begins relative to `startLine` — `innerStart` as a character offset into the
-// line-`startLine`-based block, and `innerStartLineOffset` as a line delta —
-// so the caller can give the re-lexed children absolute, composable spans.
-function captureBalanced(
-  lines: string[],
-  startLine: number,
-  open: string,
-  close: string,
-): {
-  inner: string;
-  endLine: number;
-  innerStart: number;
-  innerStartLineOffset: number;
-} {
-  const locate = (block: string, closeIdx: number, endLine: number) => {
-    const openIdx = block.indexOf(open);
-    const rawInner =
-      closeIdx >= 0
-        ? block.slice(openIdx + 1, closeIdx)
-        : block.slice(openIdx + 1);
-    const leadingWs = rawInner.length - rawInner.trimStart().length;
-    const innerStart = openIdx + 1 + leadingWs;
-    const before = block.slice(0, innerStart);
-    let newlines = 0;
-    for (const ch of before) if (ch === '\n') newlines++;
+  const inlineMatch = trimmed.match(BLOCK_INLINE_RE);
+  if (inlineMatch)
     return {
-      inner: rawInner.trim(),
-      endLine,
-      innerStart,
-      innerStartLineOffset: newlines,
+      kind: 'block-inline',
+      keyword: inlineMatch[1],
+      inner: inlineMatch[2],
     };
-  };
 
-  let depth = 0;
-  let started = false;
+  const refMatch = line.match(REF_OPEN_RE);
+  if (refMatch) return { kind: 'ref-open', key: refMatch[1] };
 
-  for (let li = startLine; li < lines.length; li++) {
-    const line = lines[li];
-    for (const ch of line) {
-      if (ch === open) {
-        if (!started) {
-          started = true;
-          depth = 1;
-        } else {
-          depth++;
-        }
-      } else if (ch === close && started) {
-        depth--;
-        if (depth === 0) {
-          const block = lines.slice(startLine, li + 1).join('\n');
-          return locate(block, block.lastIndexOf(close), li);
-        }
-      }
-    }
-  }
-  // Unbalanced — take everything after the open delimiter.
-  const block = lines.slice(startLine).join('\n');
-  const openIdx = block.indexOf(open);
-  if (openIdx < 0) {
-    return {
-      inner: block,
-      endLine: lines.length - 1,
-      innerStart: 0,
-      innerStartLineOffset: 0,
-    };
-  }
-  return locate(block, -1, lines.length - 1);
+  // Heading level is deliberately unbounded here. Which levels a document may
+  // use is a language rule, and the parser already owns it — capping at `#{1,6}`
+  // during recognition only meant `####### x` silently lexed as prose.
+  const hMatch = trimmed.match(HEADING_RE);
+  if (hMatch)
+    return { kind: 'heading', level: hMatch[1].length, text: hMatch[2] };
+
+  const cMatch = trimmed.match(CENTERED_RE);
+  if (cMatch) return { kind: 'centered-text', content: cMatch[1] };
+
+  if (trimmed.startsWith(';')) return { kind: 'trait-line', raw: line };
+
+  // A line that is *only* `{{key}}` is its own token so the parser can expand it
+  // as a block; inline uses like "Hello {{name}}!" fall through to text and stay
+  // literal (references are block-level, defined elsewhere as `key { ... }`).
+  const refUse = trimmed.match(REFERENCE_RE);
+  if (refUse) return { kind: 'reference', key: refUse[1] };
+
+  if (
+    trimmed.startsWith('* ') ||
+    (trimmed.startsWith('- ') && trimmed.length > 2)
+  )
+    return { kind: 'list-item', text: trimmed.slice(2) };
+
+  const fn = trimmed.match(FOOTNOTE_RE);
+  if (fn)
+    return { kind: 'footnote-line', marker: fn[1], text: fn[2], raw: line };
+
+  if (trimmed.includes('|')) return { kind: 'pipe-line', raw: line };
+
+  return { kind: 'text', content: line };
 }
