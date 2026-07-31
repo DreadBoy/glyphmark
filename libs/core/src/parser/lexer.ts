@@ -59,7 +59,16 @@ type TokenData =
 // {@link TokenId}), the token's absolute source `span`, and `raw` — the line
 // exactly as written, indentation and trailing spaces included. Every payload
 // is a {@link Part} into `raw`, so nothing is lost and nothing is cleaned up.
-type TokenMeta = { id: TokenId; span: TokenSpan; raw: string };
+//
+// `inline` is the markup found in whatever part of the line carries prose (see
+// {@link proseRegion}); empty for lines that carry none. Its offsets are
+// relative to `raw`, like every other part.
+type TokenMeta = {
+  id: TokenId;
+  span: TokenSpan;
+  raw: string;
+  inline: InlineSpan[];
+};
 
 // Distribute `& TokenMeta` across each union member so `Token` stays a
 // discriminated union (a plain `TokenData & TokenMeta` intersection would break
@@ -118,17 +127,63 @@ export function tokenize(input: string): Token[] {
     }
   }
 
-  return lines.map((line, i) => ({
-    ...recognize(line),
-    id: i,
-    raw: line,
-    span: {
-      startLine: i + 1,
-      endLine: i + 1,
-      startOffset: lineStart[i],
-      endOffset: lineStart[i] + line.length,
-    },
-  })) as Token[];
+  return lines.map((line, i) => {
+    const data = recognize(line);
+    return {
+      ...data,
+      id: i,
+      raw: line,
+      inline: scanProse(data, line),
+      span: {
+        startLine: i + 1,
+        endLine: i + 1,
+        startOffset: lineStart[i],
+        endOffset: lineStart[i] + line.length,
+      },
+    };
+  }) as Token[];
+}
+
+/**
+ * Which part of a line carries prose, and so may hold inline markup.
+ *
+ * Most lines keep it in the part they already located. A `text` or `pipe-line`
+ * has no such part because the whole line is content — a pipe line included,
+ * since `|` is not an emphasis delimiter and cells are prose like any other.
+ *
+ * Lines that are pure structure return `null`: no one writes emphasis in a
+ * block opener, and a trait line is a list of identifiers rather than prose.
+ */
+function proseRegion(data: TokenData, line: string): Part | null {
+  switch (data.kind) {
+    case 'heading':
+    case 'centered-text':
+    case 'list-item':
+    case 'footnote-line':
+      return data.content;
+    case 'block-inline':
+      return data.inner;
+    case 'text':
+    case 'pipe-line':
+      return { start: 0, end: line.length };
+    default:
+      return null;
+  }
+}
+
+/** Locate inline markup in a line's prose, in coordinates relative to the line. */
+function scanProse(data: TokenData, line: string): InlineSpan[] {
+  const region = proseRegion(data, line);
+  if (region === null) return [];
+  const shift = region.start;
+  if (shift === 0 && region.end === line.length) return scanInline(line);
+  return scanInline(line.slice(region.start, region.end)).map((run) => ({
+    kind: run.kind,
+    start: run.start + shift,
+    end: run.end + shift,
+    contentStart: run.contentStart + shift,
+    contentEnd: run.contentEnd + shift,
+  }));
 }
 
 /**

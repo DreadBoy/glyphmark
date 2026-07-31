@@ -24,6 +24,12 @@ function readable(tokens: Token[]): Array<Record<string, unknown>> {
     const rec: Record<string, unknown> = {};
     for (const [key, value] of Object.entries(t)) {
       if (key === 'id' || key === 'span' || key === 'raw') continue;
+      // Inline markup has its own block below; dropped when absent so the
+      // shape assertions stay about the line itself.
+      if (key === 'inline') {
+        if (t.inline.length > 0) rec.inline = t.inline.map((r) => r.kind);
+        continue;
+      }
       rec[key] = isPart(value) ? partText(t, value) : value;
     }
     return rec;
@@ -391,6 +397,48 @@ describe('scanInline', () => {
       cursor = run.end;
     }
     expect(runs(input)).toEqual(['em:5-13', 'action:14-18', 'strong:23-30']);
+  });
+});
+
+describe('tokenize — inline markup on tokens', () => {
+  // Every token carries the markup found in whatever part of its line holds
+  // prose, in the line's own coordinates. That is what a highlighter consumes,
+  // and what the cross-language fixtures pin.
+  const inlineOf = (s: string, i = 0) => tokenize(s)[i].inline;
+
+  it('locates markup inside a paragraph line', () => {
+    expect(inlineOf('a **bold** b')).toEqual([
+      { kind: 'strong', start: 2, end: 10, contentStart: 4, contentEnd: 8 },
+    ]);
+  });
+
+  it('offsets are relative to the line, not the part', () => {
+    // A heading's prose starts after `## `, so a run at the very start of that
+    // prose still reports column 3.
+    const [run] = inlineOf('## **Bold** heading');
+    expect(run.start).toBe(3);
+    expect(partText(tokenize('## **Bold** heading')[0], run)).toBe('**Bold**');
+  });
+
+  it('picks up markup in every part that carries prose', () => {
+    expect(inlineOf('# A *b*').map((r) => r.kind)).toEqual(['em']);
+    expect(inlineOf('* A *b*').map((r) => r.kind)).toEqual(['em']);
+    expect(inlineOf('^ A *b*').map((r) => r.kind)).toEqual(['em']);
+    expect(inlineOf('. [*] A *b*').map((r) => r.kind)).toEqual(['em']);
+    expect(inlineOf('rule(A *b*)').map((r) => r.kind)).toEqual(['em']);
+    expect(inlineOf('A *b* | C').map((r) => r.kind)).toEqual(['em']);
+  });
+
+  it('finds none on lines that are pure structure', () => {
+    for (const line of ['item(', ')', 'key {', '}', '-', '=', ';a,b', '']) {
+      expect(inlineOf(line), line).toEqual([]);
+    }
+  });
+
+  it('does not mistake a centered marker for superscript', () => {
+    // `^ ` is a line marker, consumed before the prose region begins, so the
+    // caret cannot pair with a later one.
+    expect(inlineOf('^ up ^high^ down').map((r) => r.kind)).toEqual(['sup']);
   });
 });
 
