@@ -1,16 +1,24 @@
 import type { HeadBlockNode, Segment } from '../parser';
+import type { AnchorFn } from '../renderer/source-anchors';
 import { pt } from './size-helper';
 import { renderInlines } from './inline';
 import { Ornament } from './ornament';
 import { MARGIN } from './document';
 import { DISPLAY_TITLE, SERIF } from '../vendor/font-css';
 
-export function HeadBlock({ node }: { node: HeadBlockNode }) {
+export function HeadBlock({
+  node,
+  anchor,
+}: {
+  node: HeadBlockNode;
+  anchor: AnchorFn;
+}) {
   const yPadding = 20;
   const ornamentSize = 11;
   const borderWidth = 1;
   return (
     <div
+      {...anchor(node.origin)}
       css={{
         columnSpan: 'all',
         textAlign: 'center',
@@ -24,7 +32,7 @@ export function HeadBlock({ node }: { node: HeadBlockNode }) {
       }}
     >
       {node.content.map((segment, i) => (
-        <Segment key={i} segment={segment} />
+        <Segment key={i} segment={segment} anchor={anchor} />
       ))}
       <Ornament
         heightPt={ornamentSize}
@@ -36,13 +44,14 @@ export function HeadBlock({ node }: { node: HeadBlockNode }) {
   );
 }
 
-function Segment({ segment }: { segment: Segment }) {
+function Segment({ segment, anchor }: { segment: Segment; anchor: AnchorFn }) {
   if (segment.kind === 'heading') {
     // h2 is the smaller chapter eyebrow above the title (e.g. "CHAPTER 1:" on
     // page 5); h1 is the large display title beneath it.
     if (segment.level === 2) {
       return (
         <h2
+          {...anchor(segment.origin)}
           css={{
             fontFamily: DISPLAY_TITLE,
             fontSize: pt(16).toRem(),
@@ -56,6 +65,7 @@ function Segment({ segment }: { segment: Segment }) {
     }
     return (
       <h1
+        {...anchor(segment.origin)}
         css={{
           fontFamily: DISPLAY_TITLE,
           fontSize: pt(20).toRem(),
@@ -71,6 +81,7 @@ function Segment({ segment }: { segment: Segment }) {
   if (segment.kind === 'paragraph') {
     return (
       <p
+        {...anchor(segment.origin)}
         css={{
           fontFamily: SERIF,
           fontStyle: 'italic',

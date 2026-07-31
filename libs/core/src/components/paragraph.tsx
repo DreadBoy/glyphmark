@@ -1,4 +1,5 @@
 import type { ParagraphIndent, ParagraphNode } from '../parser';
+import type { AnchorFn } from '../renderer/source-anchors';
 import { pt } from './size-helper';
 import { renderInlines } from './inline';
 import { SERIF } from '../vendor/font-css';
@@ -12,9 +13,16 @@ export function indentStyle(indent: ParagraphIndent) {
   return undefined;
 }
 
-export function Paragraph({ node }: { node: ParagraphNode }) {
+export function Paragraph({
+  node,
+  anchor,
+}: {
+  node: ParagraphNode;
+  anchor: AnchorFn;
+}) {
   return (
     <p
+      {...anchor(node.origin)}
       css={{
         fontFamily: SERIF,
         fontSize: pt(8).toRem(),

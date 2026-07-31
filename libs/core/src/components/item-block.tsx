@@ -1,4 +1,5 @@
 import type { ItemBlockNode, ItemSegment } from '../parser';
+import { startOf, type AnchorFn } from '../renderer/source-anchors';
 import { pt } from './size-helper';
 import { Hr } from './hr';
 import { tighterMargin } from './style-helpers';
@@ -9,10 +10,23 @@ import { ACTION_SYMBOLS } from '../vendor/action-symbols';
 import { SANS, SANS_CONDENSED } from '../vendor/font-css';
 import { indentStyle } from './paragraph';
 
-export function ItemBlock({ node }: { node: ItemBlockNode }) {
+export function ItemBlock({
+  node,
+  anchor,
+}: {
+  node: ItemBlockNode;
+  anchor: AnchorFn;
+}) {
   return (
     <>
+      {/* The block renders as a run of siblings rather than one wrapper, so
+          the node's anchor goes on its header — the first thing it emits and
+          the element a reader would call "the item". Narrowed to the opening
+          line: the header is one strip of text, and claiming the block's whole
+          span for it would make a reader looking at the title resolve to a
+          line from the middle of the body. */}
       <div
+        {...anchor(startOf(node.origin))}
         css={{
           display: 'flex',
           justifyContent: 'space-between',
@@ -66,14 +80,23 @@ export function ItemBlock({ node }: { node: ItemBlockNode }) {
       <Hr />
       {node.traits.length > 0 && <Traits traits={node.traits} />}
       {node.content.map((segment, i) => (
-        <ItemSegment key={i} segment={segment} />
+        <ItemSegment key={i} segment={segment} anchor={anchor} />
       ))}
     </>
   );
 }
 
-function ItemSegment({ segment }: { segment: ItemSegment }) {
-  if (segment.kind === 'hr') return <Hr />;
+function ItemSegment({
+  segment,
+  anchor,
+}: {
+  segment: ItemSegment;
+  anchor: AnchorFn;
+}) {
+  // Breaks are deliberately not anchored. They render as zero-size marker
+  // divs, so they have no box to place a line within, and the segments either
+  // side of them already bracket the same lines.
+  if (segment.kind === 'hr') return <Hr {...anchor(segment.origin)} />;
   if (segment.kind === 'column-break') {
     return <ColumnBreak />;
   }
@@ -83,6 +106,7 @@ function ItemSegment({ segment }: { segment: ItemSegment }) {
   if (segment.kind === 'paragraph') {
     return (
       <p
+        {...anchor(segment.origin)}
         css={{
           fontFamily: SANS,
           fontSize: pt(8).toRem(),
@@ -98,6 +122,7 @@ function ItemSegment({ segment }: { segment: ItemSegment }) {
   if (segment.kind === 'list') {
     return (
       <ul
+        {...anchor(segment.origin)}
         css={{
           margin: 0,
           paddingLeft: segment.indent === 'block' ? pt(18).toRem() : 0,

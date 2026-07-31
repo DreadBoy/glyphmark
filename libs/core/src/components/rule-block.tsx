@@ -1,5 +1,6 @@
 import type { CSSObject } from '@emotion/react';
 import type { RuleBlockNode, RuleSegment } from '../parser';
+import type { AnchorFn } from '../renderer/source-anchors';
 import { pt } from './size-helper';
 import { tighterMargin } from './style-helpers';
 import { renderInlines } from './inline';
@@ -7,13 +8,20 @@ import { Table } from './table';
 import { Ornament } from './ornament';
 import { SANS, SANS_CONDENSED } from '../vendor/font-css';
 
-export function RuleBlock({ node }: { node: RuleBlockNode }) {
+export function RuleBlock({
+  node,
+  anchor,
+}: {
+  node: RuleBlockNode;
+  anchor: AnchorFn;
+}) {
   const yPadding = 13;
   const xPadding = 10;
   const ornamentSize = 11;
   const borderWidth = 1;
   return (
     <div
+      {...anchor(node.origin)}
       css={{
         background: '#EAD9B3',
         padding: `${pt(yPadding).toRem()} ${pt(xPadding).toRem()} ${pt(yPadding).toRem()} ${pt(xPadding).toRem()}`,
@@ -40,7 +48,7 @@ export function RuleBlock({ node }: { node: RuleBlockNode }) {
         }
       >
         {node.content.map((segment, i) => (
-          <Segment key={i} segment={segment} />
+          <Segment key={i} segment={segment} anchor={anchor} />
         ))}
       </div>
       <Ornament
@@ -60,11 +68,18 @@ const PARA_BASE: CSSObject = {
   lineHeight: pt(12).toRem(),
 };
 
-function Segment({ segment }: { segment: RuleSegment }) {
+function Segment({
+  segment,
+  anchor,
+}: {
+  segment: RuleSegment;
+  anchor: AnchorFn;
+}) {
   if (segment.kind === 'heading') {
     if (segment.level === 1) {
       return (
         <p
+          {...anchor(segment.origin)}
           css={{
             textAlign: 'center',
             fontFamily: SANS_CONDENSED,
@@ -82,6 +97,7 @@ function Segment({ segment }: { segment: RuleSegment }) {
     }
     return (
       <p
+        {...anchor(segment.origin)}
         css={{
           textAlign: 'center',
           fontFamily: SANS,
@@ -100,6 +116,7 @@ function Segment({ segment }: { segment: RuleSegment }) {
   if (segment.kind === 'paragraph') {
     return (
       <p
+        {...anchor(segment.origin)}
         css={{
           ...PARA_BASE,
           ...(segment.indent === 'first-line'
@@ -116,6 +133,7 @@ function Segment({ segment }: { segment: RuleSegment }) {
   if (segment.kind === 'list') {
     return (
       <ul
+        {...anchor(segment.origin)}
         css={{
           ...PARA_BASE,
           paddingLeft: pt(12).toRem(),
@@ -134,7 +152,7 @@ function Segment({ segment }: { segment: RuleSegment }) {
   }
 
   if (segment.kind === 'table') {
-    return <Table node={segment.node} />;
+    return <Table node={segment.node} anchor={anchor} />;
   }
 
   return null;

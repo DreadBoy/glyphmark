@@ -46,11 +46,18 @@ fs.writeFileSync('example.pdf', await renderToPdf(doc));
 Parses a `.glyph` source string into an intermediate document tree. Throws on
 syntax errors with line/column information.
 
-### `renderToHtml(doc: GlyphDocument): string`
+### `renderToHtml(doc: GlyphDocument, options?: RenderOptions): string`
 
 Renders a parsed document to a complete HTML string. Output is self-contained
 — fonts, styles, and ornaments are all inlined, so the result can be served
 or saved as a single file.
+
+Pass `{ sourceAnchors: true }` to tag each rendered element with the source
+lines it came from, as `data-glyph-line` / `data-glyph-line-end`. That is what
+an editor integration needs to line a live preview up with the source; it is
+off by default so ordinary output stays clean. `lineToOffset` and
+`offsetToLine` are exported alongside it to map between a source line and a
+vertical offset in the rendered document, given the anchors measured from it.
 
 ### `renderToPdf(doc: GlyphDocument): Promise<Buffer>`
 
@@ -61,7 +68,17 @@ dependency — install it separately if you need this function.
 ### Types
 
 `GlyphDocument` and `BodyNode` are exported for callers that want to inspect
-or transform the IR between parsing and rendering.
+or transform the IR between parsing and rendering, along with `Origin`,
+`TokenId` and `TokenSpan` for resolving a node back to its source lines.
+
+`RenderOptions` is the second argument to `renderToHtml`. `SourceAnchor` is
+what `lineToOffset` and `offsetToLine` work over — one per anchored element,
+holding its source line span and its `top`/`bottom` offsets in document space
+(i.e. with the scroll offset folded in). Building that list means measuring the
+rendered document yourself: query `[data-glyph-line]`, keep them in document
+order rather than sorting by position, and skip any element carrying
+`data-split-from` if you paginate with paged.js. `AnchorAttrs` names the
+attribute pair itself.
 
 ## License
 

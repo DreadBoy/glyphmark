@@ -1,4 +1,5 @@
 import type { HeadingNode } from '../parser';
+import type { AnchorFn } from '../renderer/source-anchors';
 import { pt } from './size-helper';
 import styled from '@emotion/styled';
 import { tighterMargin } from './style-helpers';
@@ -69,9 +70,18 @@ export const H4 = styled.h4({
 
 const TAGS = [H1, H2, H3, H4, 'h5', 'h6'] as const;
 
-export function Heading({ node }: { node: HeadingNode }) {
+export function Heading({
+  node,
+  anchor,
+}: {
+  node: HeadingNode;
+  anchor: AnchorFn;
+}) {
   const level = Math.min(Math.max(node.level, 1), 6);
   const Comp = TAGS[level - 1];
 
-  return <Comp>{renderInlines(node.content)}</Comp>;
+  // H1–H4 are Emotion `styled` components; `data-*` props pass its
+  // `is-prop-valid` filter and reach the DOM, so this works for both the
+  // styled tags and the plain `h5`/`h6` strings.
+  return <Comp {...anchor(node.origin)}>{renderInlines(node.content)}</Comp>;
 }

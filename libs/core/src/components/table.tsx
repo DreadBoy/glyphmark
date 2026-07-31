@@ -1,5 +1,6 @@
 import { Fragment, type ReactNode } from 'react';
 import type { CellInline, TableNode } from '../parser';
+import type { AnchorFn } from '../renderer/source-anchors';
 import { pt } from './size-helper';
 import { tighterMargin } from './style-helpers';
 import { renderInlines } from './inline';
@@ -7,9 +8,12 @@ import { SANS, SANS_CONDENSED } from '../vendor/font-css';
 
 const CELL_PAD = `0 ${pt(4).toRem()}`;
 
-export function Table({ node }: { node: TableNode }) {
+// Anchored as a whole rather than per row: rows are `CellInline[][]` and carry
+// no origin of their own.
+export function Table({ node, anchor }: { node: TableNode; anchor: AnchorFn }) {
   return (
     <div
+      {...anchor(node.origin)}
       css={{
         breakInside: 'avoid',
         ...tighterMargin.marker,
