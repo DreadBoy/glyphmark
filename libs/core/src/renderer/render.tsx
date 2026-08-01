@@ -23,10 +23,11 @@ import {
   FullWidthToggle,
 } from '../components/full-width-toggle';
 import { renderPageShadowTags } from '../components/page-shadow';
+import { createAnchorFn, NO_ANCHORS, type AnchorFn } from './source-anchors';
 
 type NodeOf<T extends BodyNode['type']> = Extract<BodyNode, { type: T }>;
 type Renderers = {
-  [K in BodyNode['type']]?: FC<{ node: NodeOf<K> }>;
+  [K in BodyNode['type']]?: FC<{ node: NodeOf<K>; anchor: AnchorFn }>;
 };
 
 const RENDERERS: Renderers = {
@@ -44,14 +45,40 @@ const RENDERERS: Renderers = {
   info: InfoBlock,
 };
 
-export function renderToHtml(doc: GlyphDocument): string {
+export interface RenderOptions {
+  /**
+   * Emit `data-glyph-line` / `data-glyph-line-end` attributes tying each
+   * rendered element back to the source lines it came from (see
+   * `./source-anchors`).
+   *
+   * Off by default, and deliberately so: provenance is an *editor* concern —
+   * the IntelliJ plugin's preview uses it to keep scrolling in step with the
+   * source. A document written to disk by the CLI, or handed to Chromium for
+   * `renderToPdf`, has no editor to sync with and no reason to carry it.
+   */
+  sourceAnchors?: boolean;
+}
+
+export function renderToHtml(
+  doc: GlyphDocument,
+  options: RenderOptions = {},
+): string {
   const cache = createCache({ key: 'gm' });
   const { extractCriticalToChunks, constructStyleTagsFromChunks } =
     createEmotionServer(cache);
 
+  // Threaded down as an explicit, *required* prop rather than through React
+  // context: this library has no other hooks in it, and an ambient dependency
+  // that silently renders nothing when unprovided is a harder bug to see than
+  // one the compiler refuses. Switching anchors off is this one substitution,
+  // not an absent prop — so every component below stays unaware of the option.
+  const anchor = options.sourceAnchors
+    ? createAnchorFn(doc.tokenMap)
+    : NO_ANCHORS;
+
   const body = renderToString(
     <CacheProvider value={cache}>
-      <Body doc={doc} />
+      <Body doc={doc} anchor={anchor} />
     </CacheProvider>,
   );
 
@@ -62,13 +89,15 @@ export function renderToHtml(doc: GlyphDocument): string {
   return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><style>${FONT_CSS}</style>${styleTags}${pageChrome}</head><body>${body}<script>${PAGEDJS_POLYFILL}</script></body></html>`;
 }
 
-function Body({ doc }: { doc: GlyphDocument }) {
+function Body({ doc, anchor }: { doc: GlyphDocument; anchor: AnchorFn }) {
   return (
     <Document>
       <FullWidthStyles body={doc.body} />
       {doc.body.map((node, index) => {
-        const Comp = RENDERERS[node.type] as FC<{ node: BodyNode }> | undefined;
-        return Comp ? <Comp key={index} node={node} /> : null;
+        const Comp = RENDERERS[node.type] as
+          | FC<{ node: BodyNode; anchor: AnchorFn }>
+          | undefined;
+        return Comp ? <Comp key={index} node={node} anchor={anchor} /> : null;
       })}
     </Document>
   );

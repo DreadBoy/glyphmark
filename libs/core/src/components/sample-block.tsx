@@ -1,12 +1,20 @@
 import type { SampleBlockNode, SampleSegment } from '../parser';
+import type { AnchorFn } from '../renderer/source-anchors';
 import { pt } from './size-helper';
 import { tighterMargin } from './style-helpers';
 import { renderInlines } from './inline';
 import { SANS, SANS_CONDENSED } from '../vendor/font-css';
 
-export function SampleBlock({ node }: { node: SampleBlockNode }) {
+export function SampleBlock({
+  node,
+  anchor,
+}: {
+  node: SampleBlockNode;
+  anchor: AnchorFn;
+}) {
   return (
     <div
+      {...anchor(node.origin)}
       css={{
         background: '#E5D7D3',
         padding: `${pt(7.3).toRem()} ${pt(10).toRem()} ${pt(4.7).toRem()} ${pt(10).toRem()}`,
@@ -16,7 +24,7 @@ export function SampleBlock({ node }: { node: SampleBlockNode }) {
       }}
     >
       {node.content.map((segment, i) => (
-        <Segment key={i} segment={segment} />
+        <Segment key={i} segment={segment} anchor={anchor} />
       ))}
     </div>
   );
@@ -36,11 +44,18 @@ const PARA_BASE = {
   lineHeight: pt(12).toRem(),
 };
 
-function Segment({ segment }: { segment: SampleSegment }) {
+function Segment({
+  segment,
+  anchor,
+}: {
+  segment: SampleSegment;
+  anchor: AnchorFn;
+}) {
   if (segment.kind === 'heading') {
     if (segment.level === 1) {
       return (
         <p
+          {...anchor(segment.origin)}
           css={{
             ...HEADING_BASE,
             fontSize: pt(11).toRem(),
@@ -55,6 +70,7 @@ function Segment({ segment }: { segment: SampleSegment }) {
     }
     return (
       <p
+        {...anchor(segment.origin)}
         css={{
           ...HEADING_BASE,
           textTransform: 'none',
@@ -73,6 +89,7 @@ function Segment({ segment }: { segment: SampleSegment }) {
   if (segment.kind === 'paragraph') {
     return (
       <p
+        {...anchor(segment.origin)}
         css={{
           ...PARA_BASE,
           ...tighterMargin.marker,
@@ -86,6 +103,7 @@ function Segment({ segment }: { segment: SampleSegment }) {
   if (segment.kind === 'centered-paragraph') {
     return (
       <p
+        {...anchor(segment.origin)}
         css={{
           ...PARA_BASE,
           textAlign: 'center',

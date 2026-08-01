@@ -1,5 +1,6 @@
 import type { CSSObject } from '@emotion/react';
 import type { InfoBlockNode, InfoSegment } from '../parser';
+import type { AnchorFn } from '../renderer/source-anchors';
 import { pt } from './size-helper';
 import { tighterMargin } from './style-helpers';
 import { renderInlines } from './inline';
@@ -9,7 +10,13 @@ const BG = '#002A17';
 const FG = '#FFFFFF';
 const BORDER = '#B39D73';
 
-export function InfoBlock({ node }: { node: InfoBlockNode }) {
+export function InfoBlock({
+  node,
+  anchor,
+}: {
+  node: InfoBlockNode;
+  anchor: AnchorFn;
+}) {
   const xPadding = 8.5;
   const yPadding = 10;
   const borderWidth = 1;
@@ -17,6 +24,7 @@ export function InfoBlock({ node }: { node: InfoBlockNode }) {
   const hasColumnBreak = node.content.some((s) => s.kind === 'column-break');
   return (
     <div
+      {...anchor(node.origin)}
       css={{
         background: BG,
         color: FG,
@@ -43,7 +51,7 @@ export function InfoBlock({ node }: { node: InfoBlockNode }) {
       }}
     >
       {node.content.map((segment, i) => (
-        <Segment key={i} segment={segment} />
+        <Segment key={i} segment={segment} anchor={anchor} />
       ))}
     </div>
   );
@@ -56,11 +64,18 @@ const PARA_BASE: CSSObject = {
   lineHeight: pt(12).toRem(),
 };
 
-function Segment({ segment }: { segment: InfoSegment }) {
+function Segment({
+  segment,
+  anchor,
+}: {
+  segment: InfoSegment;
+  anchor: AnchorFn;
+}) {
   if (segment.kind === 'heading') {
     if (segment.level === 1)
       return (
         <p
+          {...anchor(segment.origin)}
           css={{
             fontFamily: SANS,
             fontWeight: 700,
@@ -75,6 +90,7 @@ function Segment({ segment }: { segment: InfoSegment }) {
       );
     return (
       <p
+        {...anchor(segment.origin)}
         css={{
           fontFamily: SANS,
           fontWeight: 700,
@@ -90,7 +106,10 @@ function Segment({ segment }: { segment: InfoSegment }) {
 
   if (segment.kind === 'paragraph') {
     return (
-      <p css={{ ...PARA_BASE, ...tighterMargin.marker }}>
+      <p
+        {...anchor(segment.origin)}
+        css={{ ...PARA_BASE, ...tighterMargin.marker }}
+      >
         {renderInlines(segment.content)}
       </p>
     );

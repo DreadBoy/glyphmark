@@ -66,7 +66,12 @@ class GlyphPreviewFileEditor(private val file: VirtualFile) : UserDataHolderBase
     /** Lets the page tell us a render finished; see `preview/src/index.ts`. */
     private val renderCompleteQuery: JBCefJSQuery?
 
-    /** Set once the shell page has loaded; before that, JS calls would be lost. */
+    /**
+     * Set once the shell page has loaded; before that, JS calls would be lost.
+     * Written from CEF's load-handler thread and read on the EDT, hence
+     * `@Volatile`.
+     */
+    @Volatile
     private var shellLoaded = false
 
     private var rendering = false
@@ -165,6 +170,26 @@ class GlyphPreviewFileEditor(private val file: VirtualFile) : UserDataHolderBase
             0,
         )
     }
+
+    /**
+     * Puts the preview on [line] (1-based).
+     *
+     * Returns whether the request actually reached the page: before the shell
+     * has loaded there is nothing to call into, and the caller needs to know
+     * that so it does not record the line as sent and then suppress every
+     * retry as a duplicate. Delivered requests are best-effort from there on —
+     * the page parks one that arrives mid-render until it has a paginated
+     * document to measure against.
+     */
+    fun scrollToLine(line: Int): Boolean {
+        val cefBrowser = browser?.cefBrowser ?: return false
+        if (!shellLoaded) return false
+        cefBrowser.executeJavaScript("window.glyphmarkScrollToLine($line)", cefBrowser.url ?: "", 0)
+        return true
+    }
+
+    /** Whether the preview half is actually on screen; sync is pointless if not. */
+    fun isShowing(): Boolean = (loadingPanel ?: fallbackPanel)?.isShowing == true
 
     /**
      * The editor's background, so the area around the page matches the IDE

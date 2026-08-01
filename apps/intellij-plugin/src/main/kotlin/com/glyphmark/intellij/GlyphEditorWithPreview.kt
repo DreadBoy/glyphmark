@@ -4,7 +4,6 @@ import com.intellij.ide.structureView.StructureViewBuilder
 import com.intellij.ide.structureView.StructureViewModel
 import com.intellij.ide.structureView.TreeBasedStructureViewBuilder
 import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.fileEditor.FileEditor
 import com.intellij.openapi.fileEditor.TextEditor
 import com.intellij.openapi.fileEditor.TextEditorWithPreview
 import com.intellij.openapi.project.Project
@@ -21,10 +20,18 @@ import com.intellij.psi.PsiManager
  */
 class GlyphEditorWithPreview(
     editor: TextEditor,
-    preview: FileEditor,
+    preview: GlyphPreviewFileEditor,
     private val myProject: Project,
     private val myFile: VirtualFile,
 ) : TextEditorWithPreview(editor, preview, "GlyphEditorWithPreview", Layout.SHOW_EDITOR_AND_PREVIEW) {
+
+    init {
+        // Scroll sync needs both halves, and this is the only object that has
+        // both — see GlyphScrollSync. It registers against `this`, so it
+        // unwinds with the split editor rather than with either half, whose
+        // disposal order relative to each other is not guaranteed.
+        GlyphScrollSync(editor.editor, preview, this)
+    }
 
     override fun getStructureViewBuilder(): StructureViewBuilder? {
         val psiFile = PsiManager.getInstance(myProject).findFile(myFile) ?: return null
