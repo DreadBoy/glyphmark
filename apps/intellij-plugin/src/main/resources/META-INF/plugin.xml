@@ -15,6 +15,10 @@
         <p>Editing actions under <em>Edit | Glyph</em> and the editor's context
         menu toggle bold, italic, superscript and subscript, and pressing Enter
         inside a list carries the bullet onto the next line.</p>
+        <p>The preview panel has a toolbar for zooming, fitting the page to the
+        panel width, jumping to a page, refreshing, and turning off the scroll
+        sync that otherwise keeps the preview on the part of the document the
+        editor is showing. The settings are remembered per file.</p>
     ]]></description>
 
     <depends>com.intellij.modules.platform</depends>

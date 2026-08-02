@@ -2,6 +2,7 @@ package com.glyphmark.intellij
 
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.util.Disposer
 import com.intellij.util.Alarm
 import java.awt.Point
 
@@ -47,9 +48,34 @@ class GlyphScrollSync(
      */
     private var lastSentLine: Int? = null
 
+    /**
+     * Whether the editor drives the preview at all, toggled from the preview's
+     * toolbar.
+     *
+     * The flag lives here rather than on the preview because this class owns
+     * both the behaviour and [lastSentLine], which switching back on has to
+     * defeat: without clearing it, a reader who turns sync off, scrolls, and
+     * turns it back on would sit at a stale position until they happened to
+     * move to a different line.
+     */
+    var enabled: Boolean = true
+        set(value) {
+            if (field == value) return
+            field = value
+            if (value) {
+                lastSentLine = null
+                pushEditorPosition()
+            }
+        }
+
     private val alarm = Alarm(Alarm.ThreadToUse.SWING_THREAD, parentDisposable)
 
     init {
+        // The preview needs to read this flag for its toolbar, and must not
+        // outlive the sync that owns it.
+        Disposer.register(parentDisposable) { preview.detachScrollSync() }
+        preview.attachScrollSync(this)
+
         editor.scrollingModel.addVisibleAreaListener({ event ->
             // Width changes and caret moves raise this too; only vertical
             // movement means the reader went somewhere else.
@@ -59,7 +85,16 @@ class GlyphScrollSync(
         }, parentDisposable)
     }
 
+    /**
+     * Note that `isShowing()` is *not* what makes this harmless in an IDE
+     * without JCEF — the preview's panel is on screen there, showing its
+     * "requires JCEF" message, so it returns true. What makes it harmless is
+     * that [GlyphPreviewFileEditor.scrollToLine] reports failure with no
+     * browser to call into, so [lastSentLine] is never recorded and no retry is
+     * ever suppressed.
+     */
     private fun pushEditorPosition() {
+        if (!enabled) return
         if (editor.isDisposed || !preview.isShowing()) return
 
         val line = topVisibleLine()
