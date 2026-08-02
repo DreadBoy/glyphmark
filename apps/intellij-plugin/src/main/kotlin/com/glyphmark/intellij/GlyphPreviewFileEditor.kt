@@ -1,5 +1,6 @@
 package com.glyphmark.intellij
 
+import com.intellij.openapi.actionSystem.ActionToolbar
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.editor.colors.EditorColorsListener
@@ -63,8 +64,62 @@ class GlyphPreviewFileEditor(private val file: VirtualFile) : UserDataHolderBase
     private val loadingPanel: JBLoadingPanel?
     private val fallbackPanel: JPanel?
 
+    /**
+     * Holds the toolbar above whichever of the two panels this editor got, so
+     * the JCEF-unsupported branch is not a second component shape to reason
+     * about.
+     */
+    private val root = JPanel(BorderLayout())
+
+    private val toolbar: ActionToolbar?
+
     /** Lets the page tell us a render finished; see `preview/src/index.ts`. */
     private val renderCompleteQuery: JBCefJSQuery?
+
+    /**
+     * Carries page position and the fit factor back from the page. Separate
+     * from [renderCompleteQuery] on purpose: completion is a lifecycle signal
+     * consumed once per render, this is a stream that ticks while the reader
+     * scrolls, and folding them together would leave the completion handler
+     * parsing and dispatching.
+     */
+    private val statusQuery: JBCefJSQuery?
+
+    /**
+     * Zoom as an integer percentage — the same unit [GlyphZoom] and
+     * [GlyphPreviewState] use. This side is authoritative: the page is told what
+     * the level is and never reports one back, so the toolbar label cannot
+     * flicker on a round trip.
+     */
+    var zoomPercent: Int = GlyphZoom.DEFAULT
+        private set
+
+    var fitWidth: Boolean = false
+        private set
+
+    var currentPage: Int = 1
+        private set
+
+    var pageCount: Int = 0
+        private set
+
+    /**
+     * Set from [setState] before a sync exists, and applied to it on
+     * [attachScrollSync]. Once attached, [GlyphScrollSync] is the authority —
+     * it owns the behaviour and the dedup that a catch-up has to defeat — and
+     * this field is only the seed.
+     */
+    private var scrollSyncSeed = true
+
+    private var scrollSync: GlyphScrollSync? = null
+
+    /**
+     * Read from a CEF thread on the way to the EDT. A plain flag rather than
+     * `Disposer.isDisposed(this)`, which would depend on this editor being a
+     * registered node in the Disposer tree.
+     */
+    @Volatile
+    private var disposed = false
 
     /**
      * Set once the shell page has loaded; before that, JS calls would be lost.
@@ -91,6 +146,11 @@ class GlyphPreviewFileEditor(private val file: VirtualFile) : UserDataHolderBase
             browser = null
             loadingPanel = null
             renderCompleteQuery = null
+            statusQuery = null
+            // No toolbar here: every control on it targets a browser that does
+            // not exist, and a fully disabled toolbar over an error message is
+            // just noise.
+            toolbar = null
             fallbackPanel = JPanel(BorderLayout()).apply {
                 add(
                     JLabel(
@@ -100,6 +160,7 @@ class GlyphPreviewFileEditor(private val file: VirtualFile) : UserDataHolderBase
                     BorderLayout.CENTER,
                 )
             }
+            root.add(fallbackPanel, BorderLayout.CENTER)
         } else {
             fallbackPanel = null
             val jbCefBrowser = JBCefBrowser()
@@ -120,11 +181,24 @@ class GlyphPreviewFileEditor(private val file: VirtualFile) : UserDataHolderBase
                 // pages out for seconds afterwards on a large document, and the
                 // preview is readable long before that finishes.
                 if (phase == "first-page") {
-                    ApplicationManager.getApplication().invokeLater { finishRendering() }
+                    ApplicationManager.getApplication().invokeLater({ finishRendering() }, { disposed })
                 }
                 null
             }
             renderCompleteQuery = query
+
+            val status = JBCefJSQuery.create(jbCefBrowser as com.intellij.ui.jcef.JBCefBrowserBase)
+            Disposer.register(this, status)
+            status.addHandler { payload ->
+                ApplicationManager.getApplication().invokeLater({ applyStatus(payload) }, { disposed })
+                null
+            }
+            statusQuery = status
+
+            val bar = createPreviewToolbar(this, jbCefBrowser.component)
+            toolbar = bar
+            root.add(bar.component, BorderLayout.NORTH)
+            root.add(panel, BorderLayout.CENTER)
 
             jbCefBrowser.jbCefClient.addLoadHandler(
                 object : CefLoadHandlerAdapter() {
@@ -133,10 +207,18 @@ class GlyphPreviewFileEditor(private val file: VirtualFile) : UserDataHolderBase
                         // document; only the shell's own load matters here.
                         if (frame?.isMain != true) return
                         shellLoaded = true
-                        ApplicationManager.getApplication().invokeLater {
-                            installCompletionBridge()
+                        ApplicationManager.getApplication().invokeLater({
+                            installJsBridges()
+                            // Whatever `setState` restored while there was no
+                            // page to tell about it.
+                            pushViewSettingsToBrowser()
                             pushSourceToBrowser()
-                        }
+                            // Every control is gated on `isLive()`, which only
+                            // becomes true here. Without this they sit greyed
+                            // out until the toolbar's own polling notices —
+                            // brief, but it is the first thing the reader sees.
+                            toolbar?.updateActionsAsync()
+                        }, { disposed })
                     }
                 },
                 jbCefBrowser.cefBrowser,
@@ -160,15 +242,127 @@ class GlyphPreviewFileEditor(private val file: VirtualFile) : UserDataHolderBase
         }
     }
 
-    /** Defines the function `preview/src/index.ts` calls when a render lands. */
-    private fun installCompletionBridge() {
+    /** Defines the functions `preview/src/index.ts` calls back into. */
+    private fun installJsBridges() {
         val cefBrowser = browser?.cefBrowser ?: return
-        val query = renderCompleteQuery ?: return
-        cefBrowser.executeJavaScript(
-            "window.glyphmarkRenderComplete = function(phase) { ${query.inject("phase")} };",
-            cefBrowser.url ?: "",
-            0,
-        )
+        renderCompleteQuery?.let { query ->
+            cefBrowser.executeJavaScript(
+                "window.glyphmarkRenderComplete = function(phase) { ${query.inject("phase")} };",
+                cefBrowser.url ?: "",
+                0,
+            )
+        }
+        statusQuery?.let { query ->
+            cefBrowser.executeJavaScript(
+                "window.glyphmarkStatus = function(payload) { ${query.inject("payload")} };",
+                cefBrowser.url ?: "",
+                0,
+            )
+        }
+    }
+
+    /**
+     * `"<currentPage>|<pageCount>|<fitPercent>"`. Always three numeric fields,
+     * so there is nothing to escape and no shape to branch on.
+     *
+     * The fit percentage is the one number the page is authoritative about —
+     * only it can measure the frame — and it arrives as 0 when it does not
+     * apply.
+     */
+    private fun applyStatus(payload: String) {
+        val fields = payload.split('|')
+        if (fields.size != 3) return
+
+        currentPage = fields[0].toIntOrNull() ?: currentPage
+        pageCount = fields[1].toIntOrNull() ?: pageCount
+        fields[2].toIntOrNull()?.let { fit -> if (fitWidth && fit > 0) zoomPercent = GlyphZoom.clamp(fit) }
+
+        toolbar?.updateActionsAsync()
+    }
+
+    /** Whether there is a loaded page behind this editor to act on. */
+    fun isLive(): Boolean = browser != null && shellLoaded
+
+    fun setZoom(percent: Int) {
+        val clamped = GlyphZoom.clamp(percent)
+        // Picking a level is picking not to track the width; the page makes the
+        // same call, and the two have to agree or the toolbar lies.
+        fitWidth = false
+        zoomPercent = clamped
+        callInPage("window.glyphmarkSetZoom($clamped)")
+        toolbar?.updateActionsAsync()
+    }
+
+    fun setFitWidth(enabled: Boolean) {
+        fitWidth = enabled
+        callInPage("window.glyphmarkSetFitWidth($enabled)")
+        toolbar?.updateActionsAsync()
+    }
+
+    fun goToPage(page: Int) {
+        callInPage("window.glyphmarkGoToPage($page)")
+    }
+
+    /**
+     * Renders again immediately, rather than waiting out the debounce.
+     *
+     * Mid-render this bumps the page's render token, which orphans the
+     * in-flight render's completion signal — so `paginating` there stays set
+     * until the new render finishes. Requests parked in the page survive that,
+     * so nothing is lost; it is only a longer wait than usual.
+     */
+    fun refresh() {
+        debounce.stop()
+        pushSourceToBrowser()
+    }
+
+    /**
+     * Pushes the view settings the page does not otherwise learn about.
+     *
+     * Both are pushed unconditionally, including when they are the defaults.
+     * Sending only the non-default ones would make this a one-way ratchet:
+     * `setState` restoring `100%, fit off` onto a page currently at `Fit · 150%`
+     * would leave the document zoomed while the toolbar claimed otherwise. The
+     * page is idempotent about being told what it already is.
+     */
+    private fun pushViewSettingsToBrowser() {
+        callInPage("window.glyphmarkSetZoom($zoomPercent)")
+        if (fitWidth) callInPage("window.glyphmarkSetFitWidth(true)")
+    }
+
+    private fun callInPage(script: String) {
+        val cefBrowser = browser?.cefBrowser ?: return
+        if (!shellLoaded) return
+        cefBrowser.executeJavaScript(script, cefBrowser.url ?: "", 0)
+    }
+
+    /**
+     * Whether the source editor drives the preview's scrolling.
+     *
+     * The flag itself belongs to [GlyphScrollSync], which owns both the
+     * behaviour and the `lastSentLine` dedup that catching up has to defeat.
+     * Before one is attached — [setState] can arrive first — the value is held
+     * here and handed over in [attachScrollSync].
+     */
+    var scrollSyncEnabled: Boolean
+        get() = scrollSync?.enabled ?: scrollSyncSeed
+        set(value) {
+            scrollSyncSeed = value
+            scrollSync?.enabled = value
+            toolbar?.updateActionsAsync()
+        }
+
+    fun attachScrollSync(sync: GlyphScrollSync) {
+        scrollSync = sync
+        sync.enabled = scrollSyncSeed
+        toolbar?.updateActionsAsync()
+    }
+
+    fun detachScrollSync() {
+        // Keep the last value, so the state written on close reflects the
+        // toggle rather than reverting to whatever it started as.
+        scrollSyncSeed = scrollSync?.enabled ?: scrollSyncSeed
+        scrollSync = null
     }
 
     /**
@@ -189,7 +383,7 @@ class GlyphPreviewFileEditor(private val file: VirtualFile) : UserDataHolderBase
     }
 
     /** Whether the preview half is actually on screen; sync is pointless if not. */
-    fun isShowing(): Boolean = (loadingPanel ?: fallbackPanel)?.isShowing == true
+    fun isShowing(): Boolean = root.isShowing
 
     /**
      * The editor's background, so the area around the page matches the IDE
@@ -266,17 +460,48 @@ class GlyphPreviewFileEditor(private val file: VirtualFile) : UserDataHolderBase
         """.trimIndent()
     }
 
-    override fun getComponent(): JComponent = loadingPanel ?: fallbackPanel!!
+    override fun getComponent(): JComponent = root
 
+    /** The browser, never the toolbar — this editor is for reading. */
     override fun getPreferredFocusedComponent(): JComponent? = browser?.component
 
     override fun getName(): String = "Glyph Preview"
 
     override fun getFile(): VirtualFile = file
 
-    override fun setState(state: FileEditorState) = Unit
+    /**
+     * Restores the toolbar's settings.
+     *
+     * Stored always, and pushed to the page straight away when there is one.
+     * This is not only a pre-load call: splitting a tab, dragging an editor into
+     * its own window and `EditorHistoryManager` all deliver state to an editor
+     * that is already showing, and deferring those unconditionally would read as
+     * the zoom randomly reverting.
+     */
+    override fun setState(state: FileEditorState) {
+        if (state !is GlyphPreviewState) return
 
-    override fun getState(level: FileEditorStateLevel): FileEditorState = FileEditorState.INSTANCE
+        zoomPercent = GlyphZoom.clamp(state.zoomPercent)
+        fitWidth = state.fitWidth
+        scrollSyncEnabled = state.scrollSync
+
+        if (shellLoaded) pushViewSettingsToBrowser()
+        toolbar?.updateActionsAsync()
+    }
+
+    /**
+     * `FULL` only: zoom is a view preference, not a navigation position, and
+     * offering it at `NAVIGATION` would put it in the back/forward history.
+     *
+     * `scrollSyncEnabled` is read through its property rather than off a field,
+     * because once a [GlyphScrollSync] is attached the live value lives there.
+     */
+    override fun getState(level: FileEditorStateLevel): FileEditorState =
+        if (level == FileEditorStateLevel.FULL) {
+            GlyphPreviewState(zoomPercent, fitWidth, scrollSyncEnabled)
+        } else {
+            FileEditorState.INSTANCE
+        }
 
     override fun isModified(): Boolean = false
 
@@ -291,6 +516,7 @@ class GlyphPreviewFileEditor(private val file: VirtualFile) : UserDataHolderBase
     }
 
     override fun dispose() {
+        disposed = true
         debounce.stop()
         showIndicator.stop()
     }

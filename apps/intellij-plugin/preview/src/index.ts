@@ -141,6 +141,435 @@ function anchorsForFrame(): SourceAnchor[] {
   return anchors;
 }
 
+// ---------------------------------------------------------------------------
+// Zoom
+//
+// Applied as CSS `zoom` on the frame's *body*, and only ever after pagination
+// has finished. Both halves of that are load-bearing; see below.
+// ---------------------------------------------------------------------------
+
+/**
+ * Current zoom, as an integer percentage. Kotlin owns this number — the toolbar
+ * is its UI and the persisted state its home — and pushes it in; nothing here
+ * reports it back, so the label cannot flicker on a round trip.
+ *
+ * Integer percent is the unit end to end, divided by 100 exactly once, at the
+ * point the CSS is written.
+ */
+let zoomPercent = 100;
+
+/** Whether the zoom is being recomputed from the frame width on every reflow. */
+let fitWidth = false;
+
+/**
+ * The last factor [fitPercent] worked out, kept so that reporting the fit to
+ * the plugin does not mean measuring it again.
+ *
+ * Measuring is not free of side effects — it drops the zoom to take its
+ * readings — and the status payload goes out on every scroll, so recomputing
+ * there put a layout thrash on the scroll path and, worse, the browser's
+ * `scrollTop` clamp with it. The number only changes when the fit is actually
+ * recomputed, so the cached one is what the toolbar wants anyway.
+ */
+let lastFitPercent = 0;
+
+/**
+ * Leaves the page shadow visible either side of the page at fit width, and
+ * keeps the fit off by a hair rather than a hair over, which would put a
+ * horizontal scrollbar on the frame.
+ */
+const FIT_GUTTER_PX = 8;
+
+/**
+ * The range a zoom level may take, mirroring the ends of `GlyphZoom.STOPS` on
+ * the Kotlin side. Duplicated rather than shared because there is no way to
+ * share a constant across the JVM/JavaScript boundary here; if the stop list
+ * ever grows past these, both sides have to move together.
+ */
+const MIN_ZOOM_PERCENT = 25;
+const MAX_ZOOM_PERCENT = 300;
+
+/**
+ * Zoom goes on `body`, never on `documentElement`.
+ *
+ * In standards mode `documentElement` *is* `scrollingElement`, and Chromium
+ * adjusts a zoomed element's own `scrollTop`/`scrollHeight` by its effective
+ * zoom while `getBoundingClientRect()` on its descendants is already in the
+ * zoomed viewport space. `collectAnchors` adds those two together
+ * (`rect.top + scrollTop`) and `glideTo` writes the result back to `scrollTop`,
+ * so zooming the scroller would put the two halves of that sum in different
+ * spaces and skew every anchor in proportion to (1 - zoom) — a silent scroll
+ * sync misalignment, not a crash.
+ *
+ * Zooming `body` leaves the scroller at zoom 1. Layout still scales,
+ * `scrollHeight` still grows, and `anchors.ts` needs no changes at all.
+ *
+ * The precondition for that, should this ever move: nothing between the zoomed
+ * element and the scroller may carry zoom. Putting it on `.pagedjs_pages`
+ * instead would keep the invariant; putting it back on `documentElement` would
+ * not.
+ */
+function applyZoom(): void {
+  // Never while paged.js is still laying pages out. Zoom applied mid-flight is
+  // zoom applied *before* the remaining pages are measured, which is precisely
+  // the case that moves page breaks — and it is reachable from the toolbar,
+  // whose zoom buttons stay live during the seconds a book takes to paginate.
+  //
+  // Nothing is lost by refusing: `zoomPercent` already holds the new level, and
+  // `restoreScroll` applies it at `done`.
+  if (paginating) return;
+
+  const doc = frame.contentDocument;
+  if (!doc?.body) return;
+
+  // `overflow-y: scroll` is pinned on documentElement permanently, not on body
+  // and not only while fit is on. Not body, because body's overflow only
+  // propagates to the viewport while documentElement's own is `visible` —
+  // which would couple the fit arithmetic to whatever the renderer happens to
+  // emit — and body is the zoomed element besides. Permanently, because a
+  // conditional pin changes `clientWidth` when fit is toggled, so the displayed
+  // percentage would jump on a toggle that changed nothing else. It also kills
+  // the oscillation where zooming out removes the scrollbar, which widens the
+  // available width, which refits, which brings the scrollbar back.
+  if (doc.documentElement) doc.documentElement.style.overflowY = 'scroll';
+
+  doc.body.style.zoom = zoomPercent === 100 ? '' : String(zoomPercent / 100);
+
+  // The layout just moved under both caches.
+  anchors = null;
+  pageBoxes = null;
+}
+
+/**
+ * The zoom at which one page fills the frame, as an integer percentage, or 0
+ * when there is nothing to measure against.
+ *
+ * **Both numbers are measured with the zoom switched off**, and that is the
+ * whole design. The obvious version measures the page at whatever zoom is
+ * current and divides it back out — which requires knowing whether this
+ * browser's `getBoundingClientRect()` and `clientWidth` report zoomed or
+ * unzoomed values. That convention changed when CSS `zoom` was standardised,
+ * and the Chromium inside JCEF does not necessarily match the one this was
+ * developed against. Guessing wrong does not fail loudly: it returns a factor
+ * that is off by the zoom, so every application of the fit compounds the error
+ * — the page shrinking a little more on each click, and the fit disagreeing
+ * with the panel after a resize.
+ *
+ * Measuring at zoom 1 asks the browser nothing about zoom. The ratio is between
+ * two lengths taken in the same, unzoomed state, so it is correct under either
+ * convention and — the property that matters — *idempotent*: fitting an
+ * already-fitted page returns the same number.
+ *
+ * The reset and the restore happen inside one task with no paint between them,
+ * so nothing flashes.
+ */
+function fitPercent(): number {
+  // Half the pages of a half-paginated document are not there yet, and the ones
+  // that are may still be resized. Measuring now would fit to a number that is
+  // about to change; `restoreScroll` re-measures at `done`.
+  if (paginating) return 0;
+
+  const doc = frame.contentDocument;
+  const scrolling = doc?.scrollingElement;
+  if (!doc?.body || !scrolling) return 0;
+
+  const page = doc.querySelector('.pagedjs_page');
+  if (!page) return 0;
+
+  const previous = doc.body.style.zoom;
+  // Dropping the zoom makes the document shorter, and the browser *clamps*
+  // `scrollTop` into the range that shorter document has — a clamp that putting
+  // the zoom back does not undo. Left unrestored, the reader simply cannot
+  // reach the end of the document: every attempt to scroll past roughly
+  // (1 / zoom) of it gets pulled back.
+  const scrollTop = scrolling.scrollTop;
+
+  doc.body.style.zoom = '';
+  // Both reads force layout, so both see the unzoomed state just written.
+  const pageWidth = page.getBoundingClientRect().width;
+  const available = scrolling.clientWidth - FIT_GUTTER_PX;
+
+  doc.body.style.zoom = previous;
+  if (scrolling.scrollTop !== scrollTop) scrolling.scrollTop = scrollTop;
+
+  if (pageWidth <= 0 || available <= 0) return 0;
+
+  // Clamped to the same bounds `GlyphZoom` enforces on the Kotlin side. Without
+  // this the two disagree: a very narrow panel fits at, say, 12%, the page
+  // renders at 12%, and the toolbar — which clamps on receipt — reads 25%. The
+  // next Zoom In then steps from 25 to 50 and the view jumps.
+  const percent = Math.round((available / pageWidth) * 100);
+  lastFitPercent = Math.min(
+    Math.max(percent, MIN_ZOOM_PERCENT),
+    MAX_ZOOM_PERCENT,
+  );
+  return lastFitPercent;
+}
+
+/**
+ * Pulls the zoom back if the page ended up wider than the panel after all.
+ *
+ * `scrollWidth` and `clientWidth` are both read off the scroller, which is
+ * never the zoomed element, so their *ratio* is a true measure of how far the
+ * content overhangs no matter how this browser reports zoomed geometry. That
+ * makes this a check on the observed result rather than on the arithmetic that
+ * produced it — the one thing that can catch a fit which is wrong for a reason
+ * not thought of here.
+ *
+ * Only for fit. A reader who asks for 300% means to overflow.
+ */
+function correctFitOverflow(): void {
+  const scrolling = frame.contentDocument?.scrollingElement;
+  if (!scrolling || scrolling.clientWidth <= 0) return;
+
+  const overhang = scrolling.scrollWidth / scrolling.clientWidth;
+  // A hair over is rounding, not overflow.
+  if (overhang <= 1.005) return;
+
+  const corrected = Math.floor(zoomPercent / overhang);
+  zoomPercent = Math.min(
+    Math.max(corrected, MIN_ZOOM_PERCENT),
+    MAX_ZOOM_PERCENT,
+  );
+  applyZoom();
+  emitStatus();
+}
+
+/**
+ * Recomputes and applies the fit zoom; a no-op when fit is off.
+ *
+ * A fit that comes out where it already was writes nothing. Dragging the split
+ * divider fires a stream of these, and every zoom write is a reflow the reader
+ * can feel — and one more chance for the scroll position to be clamped.
+ */
+function applyFit(): void {
+  if (!fitWidth) return;
+  const percent = fitPercent();
+  if (percent <= 0 || percent === zoomPercent) return;
+  zoomPercent = percent;
+  applyZoom();
+  correctFitOverflow();
+}
+
+/**
+ * Called from the plugin when the reader picks a zoom level. Turns fit off:
+ * choosing a number is choosing not to track the width.
+ */
+function setZoom(percent: number): void {
+  fitWidth = false;
+  changeZoomKeepingPlace(percent);
+}
+
+/** Called from the plugin when the fit-to-width toggle changes. */
+function setFitWidth(enabled: boolean): void {
+  fitWidth = enabled;
+  if (!enabled) {
+    emitStatus();
+    return;
+  }
+  const percent = fitPercent();
+  if (percent <= 0) {
+    emitStatus();
+    return;
+  }
+  changeZoomKeepingPlace(percent);
+  correctFitOverflow();
+}
+
+/**
+ * Zooming should leave the reader looking at the same *text*, not at the same
+ * pixel offset — which is a different part of the document once everything has
+ * changed size. So the line at the top of the viewport is read off the old
+ * layout and restored against the new one, without animation: the reader has
+ * not asked to be moved.
+ */
+function changeZoomKeepingPlace(percent: number): void {
+  const scrolling = frame.contentDocument?.scrollingElement;
+  const line =
+    scrolling && !paginating
+      ? offsetToLine(anchorsForFrame(), scrolling.scrollTop)
+      : null;
+
+  zoomPercent = percent;
+  applyZoom();
+
+  if (line !== null) {
+    pendingLine = line;
+    applyPendingLine(false);
+  }
+  emitStatus();
+}
+
+// ---------------------------------------------------------------------------
+// Pages
+//
+// The toolbar shows "page N of M" and jumps to a page, so the plugin needs both
+// numbers. They are derived here, where the laid-out document is.
+// ---------------------------------------------------------------------------
+
+/**
+ * Vertical extent of every `.pagedjs_page`, in document space, measured lazily
+ * and cached exactly like [anchors].
+ *
+ * Without the cache, resolving the current page would mean a
+ * `getBoundingClientRect()` per page on every scroll frame — 200 of them on a
+ * book, which is the precise cost the anchor cache exists to avoid.
+ */
+let pageBoxes: { top: number; bottom: number }[] | null = null;
+
+/**
+ * A page jump that arrived while the document was still paginating, held until
+ * there are pages to count. Same shape and the same reason as [pendingLine],
+ * and step 5 of `restoreScroll` resolves whichever is set.
+ */
+let pendingPage: number | null = null;
+
+/** Longest a burst of scrolling may go without the plugin hearing about it. */
+const STATUS_COALESCE_MS = 100;
+
+function pageBoxesForFrame(): { top: number; bottom: number }[] {
+  const doc = frame.contentDocument;
+  const scrolling = doc?.scrollingElement;
+  if (!doc || !scrolling) return [];
+  if (pageBoxes === null) {
+    const scrollTop = scrolling.scrollTop;
+    pageBoxes = [...doc.querySelectorAll('.pagedjs_page')].map((page) => {
+      const rect = page.getBoundingClientRect();
+      return { top: rect.top + scrollTop, bottom: rect.bottom + scrollTop };
+    });
+  }
+  return pageBoxes;
+}
+
+/**
+ * 1-based number of the page the reader is looking at: **the page showing the
+ * most of itself in the viewport.**
+ *
+ * "Which page am I on" has several defensible readings, so this one is written
+ * down rather than left to be re-derived. The obvious alternative — the last
+ * page whose top edge has passed the top of the viewport — was tried first and
+ * is too brittle to use: a jump to page 5 lands a few pixels short of its top
+ * often enough to matter (the eased scroll finishes on a sub-pixel boundary),
+ * and the field then says 4 while the reader is plainly looking at page 5. Any
+ * fix for that is a tolerance constant tuned to the symptom.
+ *
+ * Largest-visible-area needs no such constant, and it is also the right answer
+ * at low zoom, where several whole pages are on screen at once.
+ *
+ * The scan is bounded by the number of *visible* pages, not the document
+ * length: the binary search finds the first page reaching into the viewport,
+ * and the loop stops at the first one past its bottom edge.
+ */
+function currentPage(): number {
+  const scrolling = frame.contentDocument?.scrollingElement;
+  const boxes = pageBoxesForFrame();
+  if (!scrolling || boxes.length === 0) return 1;
+
+  const viewportTop = scrolling.scrollTop;
+  const viewportBottom = viewportTop + scrolling.clientHeight;
+
+  // First page whose bottom edge is below the top of the viewport — i.e. the
+  // first one with anything to show.
+  let low = 0;
+  let high = boxes.length - 1;
+  let first = boxes.length - 1;
+  while (low <= high) {
+    const middle = (low + high) >> 1;
+    if (boxes[middle].bottom > viewportTop) {
+      first = middle;
+      high = middle - 1;
+    } else {
+      low = middle + 1;
+    }
+  }
+
+  let best = first;
+  let bestVisible = -1;
+  for (let index = first; index < boxes.length; index++) {
+    const box = boxes[index];
+    if (box.top >= viewportBottom) break;
+    const visible =
+      Math.min(box.bottom, viewportBottom) - Math.max(box.top, viewportTop);
+    if (visible > bestVisible) {
+      bestVisible = visible;
+      best = index;
+    }
+  }
+  return best + 1;
+}
+
+/** Last payload sent, so an unchanged one is not pushed across the bridge. */
+let lastStatus: string | null = null;
+let statusTimer: number | null = null;
+
+/**
+ * Tells the plugin where the reader is and how many pages there are.
+ *
+ * Always three fields, so the Kotlin parser has no branch: current page, page
+ * count, and the fit percentage — 0 meaning "not applicable", either because
+ * fit is off or because there is nothing to measure. The fit factor is the one
+ * number the plugin cannot work out for itself, which is why it travels back;
+ * the zoom level does not, because Kotlin owns it.
+ */
+function emitStatus(): void {
+  // Mid-pagination the page list describes only however much has been laid out
+  // so far, so "page 3 of 4" would be true for a moment and wrong immediately.
+  if (paginating) return;
+
+  // Both numbers come off the same cached measurement, so the payload cannot
+  // report a page out of a count that disagrees with it.
+  const count = pageBoxesForFrame().length;
+  // The cached factor, never a fresh measurement: this runs on every scroll,
+  // and measuring has side effects on layout and scroll position.
+  const payload = `${currentPage()}|${count}|${fitWidth ? lastFitPercent : 0}`;
+  if (payload === lastStatus) return;
+  lastStatus = payload;
+  globalThis.window.glyphmarkStatus?.(payload);
+}
+
+/**
+ * Coalesced like the editor-side scroll bridge, and for the same reason: every
+ * push crosses the JCEF process boundary, and a scroll produces far more events
+ * than a toolbar label can usefully show.
+ */
+function scheduleStatus(): void {
+  if (statusTimer !== null) return;
+  statusTimer = globalThis.setTimeout(() => {
+    statusTimer = null;
+    emitStatus();
+  }, STATUS_COALESCE_MS);
+}
+
+/** Called from the plugin when the reader asks for a particular page. */
+function goToPage(page: number): void {
+  pendingPage = page;
+  applyPendingPage();
+}
+
+function applyPendingPage(): void {
+  if (pendingPage === null) return;
+  if (paginating) return;
+
+  const scrolling = frame.contentDocument?.scrollingElement;
+  if (!scrolling) return;
+
+  const boxes = pageBoxesForFrame();
+  if (boxes.length === 0) {
+    // Nothing to jump to — an error page, or a document that never paginated.
+    // Drop the request rather than park it forever; the page numbers the reader
+    // typed it against do not exist.
+    pendingPage = null;
+    return;
+  }
+
+  const index = Math.min(Math.max(pendingPage, 1), boxes.length) - 1;
+  pendingPage = null;
+  // Eases rather than jumps, so a page jump reads like every other movement in
+  // the preview.
+  glideTo(boxes[index].top);
+  scheduleStatus();
+}
+
 /**
  * Fraction of the remaining distance covered per 60Hz frame, the reference
  * frame time that fraction is quoted against, and the distance at which the
@@ -292,9 +721,38 @@ function applyPendingLine(animate: boolean): void {
  */
 function watchFrameResize(): void {
   const observer = new globalThis.ResizeObserver(() => {
-    anchors = null;
+    onFrameResized();
   });
   observer.observe(frame);
+}
+
+/**
+ * A narrower frame means a different fit, and the whole point of fit is that it
+ * tracks the width rather than being a zoom the reader reapplies after every
+ * drag of the split divider.
+ */
+function onFrameResized(): void {
+  anchors = null;
+  pageBoxes = null;
+  applyFit();
+  scheduleStatus();
+}
+
+/**
+ * The frame's *own* resize event, which is the authoritative one.
+ *
+ * The `ResizeObserver` above watches the iframe element from the shell page and
+ * fires as soon as that box changes — which can be before the document inside
+ * has been laid out at the new size, so a fit computed there can measure the
+ * old viewport width and land on a factor for a panel size that no longer
+ * exists. The inner `resize` event fires after the inner viewport has actually
+ * changed, so it always measures the real thing.
+ *
+ * Both are kept, and that is safe precisely because the fit is idempotent:
+ * running it twice for one drag lands on the same number.
+ */
+function watchInnerResize(view: Window): void {
+  view.addEventListener('resize', onFrameResized, { passive: true });
 }
 
 function renderError(message: string): string {
@@ -384,7 +842,17 @@ function render(source: string): void {
     pendingLine = offsetToLine(anchorsForFrame(), previousScroll);
   }
   anchors = null;
+  pageBoxes = null;
+  // A jump parked against the outgoing document is a page number in a
+  // pagination that no longer exists — the new one may not even have that many
+  // pages. Dropping it leaves the reader where they were, which is what the
+  // line-based restore below is for.
+  pendingPage = null;
   paginating = true;
+  // The page numbers in the outgoing document are about to stop meaning
+  // anything, but the status is not re-emitted until `done` — a count taken
+  // mid-pagination would be true for a moment and wrong immediately.
+  lastStatus = null;
 
   let html: string;
   let failed = false;
@@ -408,9 +876,40 @@ function render(source: string): void {
     // measurable must still not leave later pushes parked forever.
     paginating = false;
     const scrolling = frame.contentDocument?.scrollingElement;
-    if (!scrolling) return;
+    if (!scrolling) {
+      emitStatus();
+      return;
+    }
+
+    // Zoom goes on *after* pagination, always.
+    //
+    // Measured, before this was written: a 31-page document paginated with the
+    // zoom already set on body comes out as 16 pages at 50% and 21 at 67% —
+    // paged.js sizes the page box from unzoomed computed styles while the
+    // content inside it shrinks, so far more fits on a page. Zooming in happens
+    // to be stable (31 pages at both 150% and 300%), but zooming out is the
+    // direction fit-to-width lands in, and moving a page break would break the
+    // one thing this preview promises: that it shows what the CLI writes.
+    //
+    // The cost is that the reader sees an unzoomed page for as long as
+    // pagination takes — the indicator comes down at `first-page`, deliberately,
+    // long before `done`. That flash is accepted. Holding the indicator until
+    // `done` whenever zoom is on was the alternative, and it trades a flash for
+    // a stall on every keystroke, which is worse.
+    applyFit();
+    applyZoom();
+
     anchors = null;
-    if (
+    pageBoxes = null;
+
+    // An explicit jump outranks scroll restoration: the reader asked for a page,
+    // where a parked line is only where they happened to be. Both can be set at
+    // once — typing an edit while a jump is parked does it — so the precedence
+    // is stated rather than left to whichever branch runs first.
+    if (pendingPage !== null) {
+      pendingLine = null;
+      applyPendingPage();
+    } else if (
       pendingLine !== null &&
       lineToOffset(anchorsForFrame(), pendingLine) !== null
     ) {
@@ -420,6 +919,7 @@ function render(source: string): void {
       scrolling.scrollTop = previousScroll;
     }
     pendingLine = null;
+    emitStatus();
   };
 
   // Error pages carry no paged.js, so there is nothing to wait for beyond load.
@@ -458,9 +958,20 @@ function render(source: string): void {
     globalThis.window.addEventListener('message', onMessage);
     globalThis.setTimeout(() => {
       globalThis.window.removeEventListener('message', onMessage);
+      // Only for the render this watchdog belongs to. Two minutes of editing a
+      // large document is an ordinary session, so by the time this fires the
+      // document in the frame is routinely a much later one — and clearing
+      // `paginating` for *that* render would hand out anchors and a page count
+      // measured against a half-laid-out document.
+      if (token !== currentToken) return;
       // A wedged render must not leave scroll sync switched off for the rest
       // of the session.
       paginating = false;
+      // Whatever did make it into the frame is what the reader is looking at,
+      // so the zoom belongs on it and the toolbar should describe it rather
+      // than keep numbers from the document before.
+      applyZoom();
+      emitStatus();
       notifyRendered(token, 'done');
     }, WATCHDOG_MS);
   }
@@ -473,10 +984,21 @@ declare global {
     glyphmarkRender: (source: string) => void;
     /** Injected by the plugin over the JCEF query bridge. */
     glyphmarkRenderComplete?: (phase: RenderPhase) => void;
+    /**
+     * Injected by the plugin over a second JCEF query bridge. Carries
+     * `"<currentPage>|<pageCount>|<fitPercent>"`; see [emitStatus].
+     */
+    glyphmarkStatus?: (payload: string) => void;
     /** Called by the plugin on startup and whenever the IDE theme changes. */
     glyphmarkSetBackdrop: (color: string) => void;
     /** Called by the plugin when the source editor scrolls. */
     glyphmarkScrollToLine: (line: number) => void;
+    /** Called by the plugin from the toolbar's zoom controls. */
+    glyphmarkSetZoom: (percent: number) => void;
+    /** Called by the plugin when the fit-to-width toggle changes. */
+    glyphmarkSetFitWidth: (enabled: boolean) => void;
+    /** Called by the plugin from the toolbar's page field. */
+    glyphmarkGoToPage: (page: number) => void;
     /** Seeded by the shell page so the first paint is already themed. */
     __glyphmarkBackdrop?: string;
   }
@@ -485,14 +1007,23 @@ declare global {
 globalThis.window.glyphmarkRender = render;
 globalThis.window.glyphmarkSetBackdrop = setBackdrop;
 globalThis.window.glyphmarkScrollToLine = scrollToLine;
+globalThis.window.glyphmarkSetZoom = setZoom;
+globalThis.window.glyphmarkSetFitWidth = setFitWidth;
+globalThis.window.glyphmarkGoToPage = goToPage;
 
 // Every `srcdoc` assignment replaces the frame's document, so the anchors
 // measured from the old one describe a layout that no longer exists.
 frame.addEventListener('load', () => {
   anchors = null;
+  pageBoxes = null;
   // The glide was aimed at a layout that no longer exists.
   stopGliding();
   const doc = frame.contentDocument;
-  if (doc) watchUserScroll(doc);
+  if (!doc) return;
+  watchUserScroll(doc);
+  // Re-attached per document for the same reason `watchUserScroll` is: the
+  // listener belongs to a document that `srcdoc` has just thrown away.
+  doc.addEventListener('scroll', scheduleStatus, { passive: true });
+  if (doc.defaultView) watchInnerResize(doc.defaultView);
 });
 watchFrameResize();

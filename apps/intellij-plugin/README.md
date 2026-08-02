@@ -20,6 +20,65 @@ a line scanner that mirrors the lexer's block and heading patterns — the IDE
 can't run the TypeScript parser on the JVM, and an outline only needs the
 document's skeleton.
 
+## Preview toolbar
+
+The preview panel carries its own toolbar: zoom in and out, fit the page to the
+panel's width, jump to a page, refresh, and turn scroll sync off.
+
+It sits on the preview rather than on the split editor, which is where the
+platform would put it. A toolbar owned by the composite stays visible in the
+editor-only layout, where every control on it would be acting on a panel that
+is not on screen. The actions are also not registered in `plugin.xml` — each one
+acts on one particular preview instance, so it is handed a reference rather than
+looking one up through a `DataKey`. The trade is that they get no keymap entries
+and do not appear in Search Everywhere.
+
+**Zoom is CSS `zoom` on the frame's `<body>`, applied after pagination.** Both
+halves of that are load-bearing.
+
+Not on `documentElement`, because in standards mode that element *is*
+`scrollingElement`. Chromium scales a zoomed element's own `scrollTop` and
+`scrollHeight`, so zooming the scroller puts them in a different space from the
+`getBoundingClientRect()` values the anchor table adds them to — which would
+skew scroll sync in proportion to the zoom, silently. Zooming `<body>` leaves the
+scroller at 1 and [`anchors.ts`](preview/src/anchors.ts) needs no changes at all.
+
+Not before pagination, because paged.js sizes the page box from unzoomed
+computed styles while the content inside it shrinks. Measured on a 31-page
+document, paginating with the zoom already applied gives **16 pages at 50%** and
+**21 at 67%** — page breaks moving with the zoom level would break the one thing
+the preview promises, that it shows what the CLI writes. (Zooming *in* happens to
+be stable, but zooming out is the direction fit-to-width lands in.) The cost is
+that a large document paints unzoomed for as long as pagination takes, since the
+loading indicator deliberately comes down before that; the flash is the accepted
+price of not moving a page break.
+
+The browser's own zoom was the other candidate and is worse on both counts: CEF
+stores zoom per *origin* and every preview loads through `loadHTML`, so all open
+previews would share one level, and it gives nothing to compute a fit factor
+from.
+
+**Fit to width** divides the panel's width by the page's unzoomed width, which
+is the rendered width divided by the zoom the document is *actually* carrying —
+not by the zoom the plugin thinks it has. Those disagree exactly once, when a
+re-render has replaced the document and it is briefly back at 1, and measuring
+against the wrong one inflates the fit a little more on every keystroke.
+`overflow-y: scroll` is pinned permanently so that zooming out cannot remove the
+scrollbar, widen the panel, refit, and bring the scrollbar back.
+
+**The page number** is the page showing the most of itself in the viewport. The
+obvious alternative — the last page whose top edge has passed the top of the
+viewport — reports the *previous* page after a jump, because the eased scroll
+lands a few pixels short of the target, and every fix for that is a tolerance
+constant tuned to the symptom. Largest-visible-area needs no constant and is
+also right at low zoom, where several whole pages are on screen.
+
+Zoom, fit and the scroll-sync toggle are remembered per file, which needs
+`readState`/`writeState` on the editor provider: `TextEditorWithPreview` hands
+each half its own state back within a session, but `FileEditorProvider`'s
+persistence hooks are defaulted no-ops, so nothing reached `workspace.xml` at
+all before. The split layout is now remembered too, for the same reason.
+
 ## Editing actions
 
 The everyday markup edits live under <kbd>Edit</kbd> → <kbd>Glyph</kbd> and on
@@ -124,10 +183,18 @@ Large documents take a noticeable moment, so the panel shows the IDE's standard
 loading indicator (`JBLoadingPanel`) once a render passes 200 ms — short renders
 never flash a spinner. The indicator is deliberately a Swing overlay rather than
 anything in the page: rendering blocks the browser's JavaScript thread, so an
-in-page spinner would freeze, while the EDT keeps animating. The page reports
-completion back over a `JBCefJSQuery` bridge.
+in-page spinner would freeze, while the EDT keeps animating.
 
-That bridge reports two phases, because neither obvious signal is the right one.
+The page talks back over two `JBCefJSQuery` bridges. One reports render
+completion; the other carries the toolbar's status — which page the reader is
+on, how many there are, and the fit factor, as three numbers in one
+pipe-delimited string. They are kept apart because completion is a lifecycle
+signal consumed once per render while status ticks the whole time the reader is
+scrolling, and folding them together would leave the completion handler parsing
+and dispatching.
+
+The completion bridge reports two phases, because neither obvious signal is the
+right one.
 The iframe's `load` event is far too early — it fires before a single page is
 laid out. But paged.js's `PagedConfig.after` is too late: it waits for the *last*
 page, and pagination costs roughly 9 ms per page, so on a 200-page document it
