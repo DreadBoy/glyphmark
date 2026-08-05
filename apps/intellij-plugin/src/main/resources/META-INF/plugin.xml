@@ -23,6 +23,17 @@
 
     <depends>com.intellij.modules.platform</depends>
 
+    <!-- The preview renders in a JCEF browser. Up to build 252 the JCEF classes
+         were reachable from every plugin's class loader, so no declaration was
+         needed; from 262 they only live in the `intellij.platform.ui.jcef`
+         content module of the bundled JCEF plugin, and without this dependency
+         `JBCefApp` fails to load and the editor provider — hence the whole
+         `.glyph` tab — dies on open. The module name resolves on 252 as well,
+         so this stays compatible with the declared since-build. -->
+    <dependencies>
+        <module name="intellij.platform.ui.jcef"/>
+    </dependencies>
+
     <extensions defaultExtensionNs="com.intellij">
         <!-- No `language` attribute: GlyphFileType is a *secondary* file type
              for plain text (PlainTextFileType is the primary one), and the
