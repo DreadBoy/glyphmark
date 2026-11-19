@@ -136,7 +136,7 @@ object GlyphLexer {
     private const val WS = "[\\u0009-\\u000D\\u0020\\u00A0\\u1680\\u2000-\\u200A" +
         "\\u2028\\u2029\\u202F\\u205F\\u3000\\uFEFF]"
 
-    private const val KEYWORD = "item|info|rule|sample|head|css|fonts"
+    private const val KEYWORD = "item|info|rule|sample|head|sidebar|css|fonts"
     private val BLOCK_OPEN_RE = Regex("^($KEYWORD)$WS*\\($")
     private val BLOCK_INLINE_RE = Regex("^($KEYWORD)$WS*\\((.*)\\)$")
     private val REF_OPEN_RE = Regex("^(\\w+)$WS*\\{$")

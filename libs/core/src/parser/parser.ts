@@ -16,6 +16,7 @@ import type {
   RuleBlockNode,
   RuleSegment,
   SampleSegment,
+  SidebarSegment,
   GlyphDocument,
   Segment,
   TableFootnote,
@@ -32,7 +33,14 @@ import {
 
 // Container kinds drive per-block indent decisions. "body" is the document
 // level (normal text); the rest correspond to block-open keywords.
-type ContainerKind = 'body' | 'item' | 'rule' | 'sample' | 'info' | 'head';
+type ContainerKind =
+  | 'body'
+  | 'item'
+  | 'rule'
+  | 'sample'
+  | 'info'
+  | 'head'
+  | 'sidebar';
 
 // What a block keyword means. The lexer hands over the word it saw; sorting
 // those words into containers, preambles, and neither is a semantic question,
@@ -47,6 +55,7 @@ const BLOCK_KEYWORDS: readonly string[] = [
   'rule',
   'sample',
   'head',
+  'sidebar',
 ];
 
 function isPreambleKeyword(keyword: string): keyword is PreambleType {
@@ -60,7 +69,12 @@ function isBlockKeyword(keyword: string): keyword is BlockType {
 // Widest possible segment shape the parser can emit. Each caller narrows to
 // its concrete container segment type via a (provably sound) cast — the
 // parser only emits kinds that the container's allowed-set permits.
-type AnySegment = ItemSegment | SampleSegment | RuleSegment | InfoSegment;
+type AnySegment =
+  | ItemSegment
+  | SampleSegment
+  | RuleSegment
+  | InfoSegment
+  | SidebarSegment;
 type SegmentKind = AnySegment['kind'];
 
 // Single source of truth for "which segment kinds may appear in which
@@ -80,6 +94,9 @@ export const ALLOWED_SEGMENTS: Record<
   rule: new Set(['paragraph', 'heading', 'list', 'column-break', 'table']),
   info: new Set(['paragraph', 'heading', 'column-break']),
   head: new Set(['paragraph', 'heading']),
+  // Same content as rule() minus column-break — a title plus paragraphs, lists,
+  // and tables. Single-column, so an inner column-break is meaningless (dropped).
+  sidebar: new Set(['paragraph', 'heading']),
 };
 
 // Global cap on heading levels — the lexer can emit h1..h6 but the renderer
@@ -94,6 +111,7 @@ export const MAX_HEADING_LEVEL: Partial<
 > = {
   head: 2,
   info: 2,
+  sidebar: 2,
 };
 
 // Record a recovered-from problem: appended to the document's structured
@@ -223,7 +241,8 @@ function paragraphIndent(
   if (kind === 'body' || kind === 'rule') {
     return firstInSection ? 'none' : 'first-line';
   }
-  // sample, info, head — paragraphs sit flush.
+  // sample, info, head, sidebar — paragraphs sit flush (the lore boxes set
+  // their body flush, no first-line indent).
   return 'none';
 }
 
@@ -492,6 +511,17 @@ function buildBlock(
         ) as Segment[],
         origin,
       };
+    case 'sidebar':
+      return {
+        type: 'sidebar',
+        content: parseSegmentsFromTokens(
+          inner,
+          'sidebar block',
+          'sidebar',
+          diagnostics,
+        ) as SidebarSegment[],
+        origin,
+      };
   }
 }
 
@@ -527,6 +557,7 @@ function retargetOrigins(node: BodyNode, origin: Origin): void {
       for (const seg of node.content) seg.origin = origin;
       return;
     case 'rule':
+    case 'sidebar':
       for (const seg of node.content) {
         seg.origin = origin;
         if (seg.kind === 'table') retargetOrigins(seg.node, origin);

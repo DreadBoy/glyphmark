@@ -222,6 +222,13 @@ export type RuleSegment =
  */
 export type InfoSegment = Segment | { kind: 'column-break'; origin: Origin };
 
+/**
+ * Sidebar blocks are the margin/aside lore notes. They hold only `#`/`##`
+ * titles and paragraphs — the source books' sidebars carry nothing else, so
+ * lists, tables, and breaks are warn-and-dropped by the allow-list.
+ */
+export type SidebarSegment = Segment;
+
 export interface PageBreakNode {
   type: 'page-break';
   origin: Origin;
@@ -324,6 +331,11 @@ export interface HeadBlockNode {
   content: Segment[];
   origin: Origin;
 }
+export interface SidebarBlockNode {
+  type: 'sidebar';
+  content: SidebarSegment[];
+  origin: Origin;
+}
 
 export type BodyNode =
   | PageBreakNode
@@ -337,7 +349,8 @@ export type BodyNode =
   | InfoBlockNode
   | RuleBlockNode
   | SampleBlockNode
-  | HeadBlockNode;
+  | HeadBlockNode
+  | SidebarBlockNode;
 
 export interface GlyphDocument {
   customCss?: string;

@@ -51,7 +51,7 @@ class GlyphOutlineNode(
  */
 object GlyphOutline {
 
-    private val BLOCK_OPEN = Regex("""^(item|info|rule|sample|head)\s*\(""")
+    private val BLOCK_OPEN = Regex("""^(item|info|rule|sample|head|sidebar)\s*\(""")
     private val HEADING = Regex("""^(#{1,6})\s+(.+)$""")
     private val REF_DEF = Regex("""^(\w+)\s*\{\s*$""")
     private val ACTION_SYMBOL = Regex("""\s*:(?:aaa|aa|a|r|f):\s*""")
