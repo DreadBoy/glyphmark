@@ -1,0 +1,185 @@
+sidebar(
+# Born From Tragedy
+
+The banshee represents one of the most tragic of undead, a soul so wracked with
+agony and fury over a betrayal in life that, in death, it lingers on as a great
+evil. That most of those who become banshees were not evil in life only deepens
+this tragic theme, and many elven adventurers see it as their duty not only to put
+banshees to rest, but to right the wrong that saw their creation in the first
+place.
+)
+
+# Banshee
+
+Banshees are the furious, tormented souls of those bound to the world by a
+betrayal that defined the final hours of their lives. Some banshees arise from
+those who were slain by trusted friends and allies, or whose loved ones betrayed
+them on their deathbeds. Others spawn from those whose treacherous deeds shortly
+before their deaths left a stain upon their souls. Regardless of their origin,
+banshees despise the living. This hatred of life is all too often a horrific
+inversion of their personalities in life. Some speculate that the more
+kind-hearted the person (and the more wrenching the betrayal), the crueler the
+banshee.
+
+Banshees rarely stray far from where they perished and typically haunt thick
+forests and canopied swamps where little light graces the ground. Many banshees
+are elves and can be found in the elven nation of Kyonin, specifically in
+Tanglebriar, the sinister domain of the demon Treerazer. Similarly, a large number
+of banshees can be found lurking in the frozen wastes in northern Avistan, created
+from a cruel and widespread betrayal that is centuries old.
+
+item(
+# Banshee
+## Creature 17
+-
+;Uncommon, Medium, Incorporeal, Spirit, Undead, Unholy
+
+**Perception** +32; hears heartbeats (imprecise) 60 feet, darkvision
+
+**Languages** Common, Elven
+
+**Skills** Acrobatics +31, Intimidation +32, Occultism +25
+
+**Str** –5, **Dex** +6, **Con** +2, **Int** +0, **Wis** +7, **Cha** +7
+
+**Hears Heartbeats** The banshee can hear heartbeats within 60 feet of it as an
+imprecise sense.
+
+**Sunlight Powerlessness** A banshee in sunlight is clumsy 2 and stunned 2.
+-
+**AC** 39; **Fort** +25, **Ref** +29, **Will** +32
+
+**HP** 250, void healing; **Immunities** bleed, death effects, disease, paralyzed,
+poison, precision, unconscious; **Resistances** all damage 12 (except force,
+*ghost touch*, spirit, or vitality; double resistance vs. non-magical)
+
+**Vengeful Spite** :r: (occult) **Trigger** A foe critically hits the banshee, or
+the banshee critically fails their save against a foe’s damaging effect;
+**Effect** The banshee lashes back at their tormentor, dealing 4d10+14 mental
+damage with a DC 38 basic Will save and applying the effects of terrifying touch
+based on the results of the same Will save.
+-
+**Speed** fly 60 feet
+
+**Melee** :a: hand +32 (finesse, magical), **Damage** 4d10+14 void plus
+terrifying touch
+
+**Spectral Ripple** When a banshee Strides at least 10 feet, they’re concealed
+until the start of their next turn.
+
+**Terrifying Touch** (emotion, fear, occult) A creature damaged by the banshee’s
+touch that isn’t already frightened must attempt a DC 38 Will save (DC 43 if the
+attack was a critical hit). If the creature fails its save, it’s frightened 2; on
+a critical failure, the creature also cowers with fear and is stunned 4. If the
+creature is protected against fear by a spell or magic item, the banshee’s touch
+first attempts to counteract the protection effect, with the effect of a 9th-rank
+*dispel magic* spell.
+
+**Wail** :aa: (auditory, concentrate, death, occult) The banshee unleashes a
+soul-chilling *wails of the damned* (DC 38). This Wail overcomes *silence* and
+similar effects of 5th rank or lower. The banshee can instead use Wail as a
+three-action activity to overcome such effects of up to 8th rank.
+
+The banshee’s Wail resonates for 1 round, and any creature that comes within the
+area during that time must attempt a save against the effect. A creature can’t be
+affected more than once by the same Wail. The banshee can’t Wail again for 1d4
+rounds.
+)
+
+=
+
+sidebar(
+# Canine Rivalries
+
+In addition to their adversarial relationships with other barghests, the beasts
+are hated by mundane dogs and wolves. They fit in more easily among intelligent
+lupine beasts like wargs and werewolves, with wild barghests leading those packs
+or occasionally accepting the leadership of a powerful specimen like a witchwarg.
+)
+
+sidebar(
+# The Origins of Barghests
+
+Many different legends purport to explain the origins of barghests, invoking
+everyone from Lamashtu to the fey’s Wild Hunt. Although of interest to scholars,
+barghests themselves have little concern for these legends other than adding their
+supposed creators as prey to aspire to.
+)
+
+# Barghest
+
+Barghests are canine beasts that take great joy in the hunt, often lurking near
+humanoid settlements to find prey that can provide a suitable challenge. Even in
+the deepest wilderness, barghests choose the most clever or difficult prey,
+searching endlessly for challenges like giants, nymphs, and unicorns.
+
+More than victory or even the possibility of a meal at the end, barghests enjoy
+the thrill of the chase and the fear they create within their prey. Particularly
+terrified targets of a hunting barghest might even be allowed to escape, spreading
+the terror and enticing hunters who can become the barghest’s next victims. A
+handful of barghests resort to learning magical methods of causing fear directly,
+though they find such fear hollow and unsatisfying.
+
+Although they rarely tolerate the competition of another barghest’s presence,
+these hunters will happily work with anyone who helps them find prey to torment
+and kill. This often involves enforcing the will of hags or particularly cruel
+fey, but a bored barghest might also force a family of weaker humanoids to work as
+scouts and bait.
+
+Typical barghests often make use of their shapechanging abilities to hide in plain
+sight, only taking their true forms to frighten their prey and exult in the hunt.
+However, they are often still exposed by their trail of victims or the curiously
+unhealing wounds they inflict, even in humanoid form. Tales of powerful barghests
+with invisible heads are sometimes told in remote and dwindling villages. These
+barghests generally dispense with hiding as a humanoid or dog, instead terrifying
+entire communities and openly hunting increasingly dangerous prey. Some also
+extend this pride to their intellect, insisting on matching wits with their prey
+or even with those who believe they’re hunting the barghest.
+
+item(
+# Barghest
+## Creature 4
+-
+;Medium, Beast, Unholy
+
+**Perception** +12; darkvision, scent (imprecise) 30 feet
+
+**Languages** Common, Fey, Goblin, Jotun
+
+**Skills** Athletics +13, Deception +11, Diplomacy +9, Intimidation +11, Stealth
++10, Survival +12
+
+**Str** +5, **Dex** +2, **Con** +3, **Int** +2, **Wis** +2, **Cha** +3
+-
+**AC** 20; **Fort** +11, **Ref** +12, **Will** +8
+
+**HP** 50; **Weaknesses** holy 5; **Resistances** physical 5 (except cold iron)
+
+**Primal Hunt** :r: (primal, teleportation) **Trigger** A creature within the
+barghest’s reach takes a move or teleportation action; **Effect** After the
+triggering action, the barghest can teleport up to 60 feet to a space adjacent to
+that creature.
+-
+**Speed** 25 feet
+
+**Melee** :a: jaws +13 (unholy), **Damage** 2d8+5 piercing plus Knockdown (page
+359)
+
+**Melee** :a: claw +13 (agile, unholy), **Damage** 2d6+5 slashing plus unhealing
+wound
+
+**Primal Innate Spells** DC 21; **2nd** *invisibility*, *mist*; **Cantrips (2nd)**
+*figment*, *light*
+
+**Change Shape** :a: (concentrate, polymorph, primal) The barghest takes on the
+shape of a humanoid, a dog, or its true form (page 358). Their size changes to
+match the new form. When the barghest is a humanoid, their claw Strike deals
+bludgeoning damage and they lose their jaws Strike. When the barghest is a dog,
+their Speed changes to 35 feet. Each individual barghest has only one humanoid
+form and one dog form.
+
+**Unhealing Wound** (curse, primal) A creature damaged by the barghest’s claws
+must succeed at a DC 21 Fortitude save or be cursed. The cursed creature can’t
+regain Hit Points except via magic until it returns to maximum Hit Points. The
+creature can attempt a new saving throw against the curse every 24 hours.
+)

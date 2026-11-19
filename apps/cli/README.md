@@ -117,6 +117,7 @@ sit on one line; the closing `)` sits on its own line. They cannot be nested.
 | `rule(...)`  | GM advice / rule explanation box.                        |
 | `info(...)`  | Small tinted callout (key attribute, hit points, etc.).  |
 | `head(...)`  | Page-spanning header band (e.g. ancestry/class title).   |
+| `sidebar(...)`| Maroon margin/aside lore note, not boxed (e.g. Monster Core). |
 
 #### `item()`
 
@@ -186,6 +187,22 @@ head(
 
 Pathfinder is a fantasy tabletop roleplaying game where you and a group of
 friends gather to tell a tale of brave heroes and cunning villains...
+)
+```
+
+#### `sidebar()`
+
+A margin/aside lore note (e.g. Monster Core's "SHUYOOKHS" or "BASILISK LAIRS").
+Not boxed like `info()`/`rule()` — `#`/`##` titles (capped at `h2`) over short
+maroon prose; only headings and paragraphs are allowed. Rendered as a full-height
+rail on the page's outer edge (right on recto, left on verso), separated from the
+main text by a keyline on the spine side.
+
+```glyph
+sidebar(
+# Jann Shuyookhs
+
+Jann shuyookhs add the following innate spells: **4th** *invisibility* (×2).
 )
 ```
 

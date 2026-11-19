@@ -1,0 +1,1590 @@
+{
+  "contentRefs": {},
+  "body": [
+    {
+      "content": [
+        {
+          "content": [
+            {
+              "kind": "text",
+              "text": "Born From Tragedy"
+            }
+          ],
+          "kind": "heading",
+          "level": 1,
+          "origin": {
+            "startLine": 2,
+            "endLine": 2,
+            "startOffset": 9,
+            "endOffset": 28
+          }
+        },
+        {
+          "content": [
+            {
+              "kind": "text",
+              "text": "The banshee represents one of the most tragic of undead, a soul so wracked with agony and fury over a betrayal in life that, in death, it lingers on as a great evil. That most of those who become banshees were not evil in life only deepens this tragic theme, and many elven adventurers see it as their duty not only to put banshees to rest, but to right the wrong that saw their creation in the first place."
+            }
+          ],
+          "indent": "none",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 4,
+            "endLine": 9,
+            "startOffset": 30,
+            "endOffset": 437
+          }
+        }
+      ],
+      "origin": {
+        "startLine": 1,
+        "endLine": 10,
+        "startOffset": 0,
+        "endOffset": 439
+      },
+      "type": "sidebar"
+    },
+    {
+      "content": [
+        {
+          "kind": "text",
+          "text": "Banshee"
+        }
+      ],
+      "level": 1,
+      "origin": {
+        "startLine": 12,
+        "endLine": 12,
+        "startOffset": 441,
+        "endOffset": 450
+      },
+      "type": "heading"
+    },
+    {
+      "content": [
+        {
+          "kind": "text",
+          "text": "Banshees are the furious, tormented souls of those bound to the world by a betrayal that defined the final hours of their lives. Some banshees arise from those who were slain by trusted friends and allies, or whose loved ones betrayed them on their deathbeds. Others spawn from those whose treacherous deeds shortly before their deaths left a stain upon their souls. Regardless of their origin, banshees despise the living. This hatred of life is all too often a horrific inversion of their personalities in life. Some speculate that the more kind-hearted the person (and the more wrenching the betrayal), the crueler the banshee."
+        }
+      ],
+      "indent": "none",
+      "origin": {
+        "startLine": 14,
+        "endLine": 22,
+        "startOffset": 452,
+        "endOffset": 1082
+      },
+      "type": "paragraph"
+    },
+    {
+      "content": [
+        {
+          "kind": "text",
+          "text": "Banshees rarely stray far from where they perished and typically haunt thick forests and canopied swamps where little light graces the ground. Many banshees are elves and can be found in the elven nation of Kyonin, specifically in Tanglebriar, the sinister domain of the demon Treerazer. Similarly, a large number of banshees can be found lurking in the frozen wastes in northern Avistan, created from a cruel and widespread betrayal that is centuries old."
+        }
+      ],
+      "indent": "first-line",
+      "origin": {
+        "startLine": 24,
+        "endLine": 29,
+        "startOffset": 1084,
+        "endOffset": 1540
+      },
+      "type": "paragraph"
+    },
+    {
+      "content": [
+        {
+          "content": [
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "Perception"
+                }
+              ],
+              "kind": "strong"
+            },
+            {
+              "kind": "text",
+              "text": " +32; hears heartbeats (imprecise) 60 feet, darkvision"
+            }
+          ],
+          "indent": "hanging",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 37,
+            "endLine": 37,
+            "startOffset": 1631,
+            "endOffset": 1699
+          }
+        },
+        {
+          "content": [
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "Languages"
+                }
+              ],
+              "kind": "strong"
+            },
+            {
+              "kind": "text",
+              "text": " Common, Elven"
+            }
+          ],
+          "indent": "hanging",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 39,
+            "endLine": 39,
+            "startOffset": 1701,
+            "endOffset": 1728
+          }
+        },
+        {
+          "content": [
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "Skills"
+                }
+              ],
+              "kind": "strong"
+            },
+            {
+              "kind": "text",
+              "text": " Acrobatics +31, Intimidation +32, Occultism +25"
+            }
+          ],
+          "indent": "hanging",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 41,
+            "endLine": 41,
+            "startOffset": 1730,
+            "endOffset": 1788
+          }
+        },
+        {
+          "content": [
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "Str"
+                }
+              ],
+              "kind": "strong"
+            },
+            {
+              "kind": "text",
+              "text": " –5, "
+            },
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "Dex"
+                }
+              ],
+              "kind": "strong"
+            },
+            {
+              "kind": "text",
+              "text": " +6, "
+            },
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "Con"
+                }
+              ],
+              "kind": "strong"
+            },
+            {
+              "kind": "text",
+              "text": " +2, "
+            },
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "Int"
+                }
+              ],
+              "kind": "strong"
+            },
+            {
+              "kind": "text",
+              "text": " +0, "
+            },
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "Wis"
+                }
+              ],
+              "kind": "strong"
+            },
+            {
+              "kind": "text",
+              "text": " +7, "
+            },
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "Cha"
+                }
+              ],
+              "kind": "strong"
+            },
+            {
+              "kind": "text",
+              "text": " +7"
+            }
+          ],
+          "indent": "hanging",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 43,
+            "endLine": 43,
+            "startOffset": 1790,
+            "endOffset": 1860
+          }
+        },
+        {
+          "content": [
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "Hears Heartbeats"
+                }
+              ],
+              "kind": "strong"
+            },
+            {
+              "kind": "text",
+              "text": " The banshee can hear heartbeats within 60 feet of it as an imprecise sense."
+            }
+          ],
+          "indent": "hanging",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 45,
+            "endLine": 46,
+            "startOffset": 1862,
+            "endOffset": 1958
+          }
+        },
+        {
+          "content": [
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "Sunlight Powerlessness"
+                }
+              ],
+              "kind": "strong"
+            },
+            {
+              "kind": "text",
+              "text": " A banshee in sunlight is clumsy 2 and stunned 2."
+            }
+          ],
+          "indent": "hanging",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 48,
+            "endLine": 48,
+            "startOffset": 1960,
+            "endOffset": 2035
+          }
+        },
+        {
+          "kind": "hr",
+          "origin": {
+            "startLine": 49,
+            "endLine": 49,
+            "startOffset": 2036,
+            "endOffset": 2037
+          }
+        },
+        {
+          "content": [
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "AC"
+                }
+              ],
+              "kind": "strong"
+            },
+            {
+              "kind": "text",
+              "text": " 39; "
+            },
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "Fort"
+                }
+              ],
+              "kind": "strong"
+            },
+            {
+              "kind": "text",
+              "text": " +25, "
+            },
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "Ref"
+                }
+              ],
+              "kind": "strong"
+            },
+            {
+              "kind": "text",
+              "text": " +29, "
+            },
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "Will"
+                }
+              ],
+              "kind": "strong"
+            },
+            {
+              "kind": "text",
+              "text": " +32"
+            }
+          ],
+          "indent": "hanging",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 50,
+            "endLine": 50,
+            "startOffset": 2038,
+            "endOffset": 2088
+          }
+        },
+        {
+          "content": [
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "HP"
+                }
+              ],
+              "kind": "strong"
+            },
+            {
+              "kind": "text",
+              "text": " 250, void healing; "
+            },
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "Immunities"
+                }
+              ],
+              "kind": "strong"
+            },
+            {
+              "kind": "text",
+              "text": " bleed, death effects, disease, paralyzed, poison, precision, unconscious; "
+            },
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "Resistances"
+                }
+              ],
+              "kind": "strong"
+            },
+            {
+              "kind": "text",
+              "text": " all damage 12 (except force, "
+            },
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "ghost touch"
+                }
+              ],
+              "kind": "em"
+            },
+            {
+              "kind": "text",
+              "text": ", spirit, or vitality; double resistance vs. non-magical)"
+            }
+          ],
+          "indent": "hanging",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 52,
+            "endLine": 54,
+            "startOffset": 2090,
+            "endOffset": 2320
+          }
+        },
+        {
+          "content": [
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "Vengeful Spite"
+                }
+              ],
+              "kind": "strong"
+            },
+            {
+              "kind": "text",
+              "text": " "
+            },
+            {
+              "kind": "action",
+              "symbol": ":r:"
+            },
+            {
+              "kind": "text",
+              "text": " (occult) "
+            },
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "Trigger"
+                }
+              ],
+              "kind": "strong"
+            },
+            {
+              "kind": "text",
+              "text": " A foe critically hits the banshee, or the banshee critically fails their save against a foe’s damaging effect; "
+            },
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "Effect"
+                }
+              ],
+              "kind": "strong"
+            },
+            {
+              "kind": "text",
+              "text": " The banshee lashes back at their tormentor, dealing 4d10+14 mental damage with a DC 38 basic Will save and applying the effects of terrifying touch based on the results of the same Will save."
+            }
+          ],
+          "indent": "hanging",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 56,
+            "endLine": 60,
+            "startOffset": 2322,
+            "endOffset": 2679
+          }
+        },
+        {
+          "kind": "hr",
+          "origin": {
+            "startLine": 61,
+            "endLine": 61,
+            "startOffset": 2680,
+            "endOffset": 2681
+          }
+        },
+        {
+          "content": [
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "Speed"
+                }
+              ],
+              "kind": "strong"
+            },
+            {
+              "kind": "text",
+              "text": " fly 60 feet"
+            }
+          ],
+          "indent": "hanging",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 62,
+            "endLine": 62,
+            "startOffset": 2682,
+            "endOffset": 2703
+          }
+        },
+        {
+          "content": [
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "Melee"
+                }
+              ],
+              "kind": "strong"
+            },
+            {
+              "kind": "text",
+              "text": " "
+            },
+            {
+              "kind": "action",
+              "symbol": ":a:"
+            },
+            {
+              "kind": "text",
+              "text": " hand +32 (finesse, magical), "
+            },
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "Damage"
+                }
+              ],
+              "kind": "strong"
+            },
+            {
+              "kind": "text",
+              "text": " 4d10+14 void plus terrifying touch"
+            }
+          ],
+          "indent": "hanging",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 64,
+            "endLine": 65,
+            "startOffset": 2705,
+            "endOffset": 2793
+          }
+        },
+        {
+          "content": [
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "Spectral Ripple"
+                }
+              ],
+              "kind": "strong"
+            },
+            {
+              "kind": "text",
+              "text": " When a banshee Strides at least 10 feet, they’re concealed until the start of their next turn."
+            }
+          ],
+          "indent": "hanging",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 67,
+            "endLine": 68,
+            "startOffset": 2795,
+            "endOffset": 2909
+          }
+        },
+        {
+          "content": [
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "Terrifying Touch"
+                }
+              ],
+              "kind": "strong"
+            },
+            {
+              "kind": "text",
+              "text": " (emotion, fear, occult) A creature damaged by the banshee’s touch that isn’t already frightened must attempt a DC 38 Will save (DC 43 if the attack was a critical hit). If the creature fails its save, it’s frightened 2; on a critical failure, the creature also cowers with fear and is stunned 4. If the creature is protected against fear by a spell or magic item, the banshee’s touch first attempts to counteract the protection effect, with the effect of a 9th-rank "
+            },
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "dispel magic"
+                }
+              ],
+              "kind": "em"
+            },
+            {
+              "kind": "text",
+              "text": " spell."
+            }
+          ],
+          "indent": "hanging",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 70,
+            "endLine": 76,
+            "startOffset": 2911,
+            "endOffset": 3419
+          }
+        },
+        {
+          "content": [
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "Wail"
+                }
+              ],
+              "kind": "strong"
+            },
+            {
+              "kind": "text",
+              "text": " "
+            },
+            {
+              "kind": "action",
+              "symbol": ":aa:"
+            },
+            {
+              "kind": "text",
+              "text": " (auditory, concentrate, death, occult) The banshee unleashes a soul-chilling "
+            },
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "wails of the damned"
+                }
+              ],
+              "kind": "em"
+            },
+            {
+              "kind": "text",
+              "text": " (DC 38). This Wail overcomes "
+            },
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "silence"
+                }
+              ],
+              "kind": "em"
+            },
+            {
+              "kind": "text",
+              "text": " and similar effects of 5th rank or lower. The banshee can instead use Wail as a three-action activity to overcome such effects of up to 8th rank."
+            }
+          ],
+          "indent": "hanging",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 78,
+            "endLine": 81,
+            "startOffset": 3421,
+            "endOffset": 3718
+          }
+        },
+        {
+          "content": [
+            {
+              "kind": "text",
+              "text": "The banshee’s Wail resonates for 1 round, and any creature that comes within the area during that time must attempt a save against the effect. A creature can’t be affected more than once by the same Wail. The banshee can’t Wail again for 1d4 rounds."
+            }
+          ],
+          "indent": "first-line",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 83,
+            "endLine": 86,
+            "startOffset": 3720,
+            "endOffset": 3969
+          }
+        }
+      ],
+      "name": [
+        {
+          "kind": "text",
+          "text": "Banshee"
+        }
+      ],
+      "origin": {
+        "startLine": 31,
+        "endLine": 87,
+        "startOffset": 1542,
+        "endOffset": 3971
+      },
+      "subtitle": [
+        {
+          "kind": "text",
+          "text": "Creature 17"
+        }
+      ],
+      "traits": [
+        "Uncommon",
+        "Medium",
+        "Incorporeal",
+        "Spirit",
+        "Undead",
+        "Unholy"
+      ],
+      "type": "item"
+    },
+    {
+      "origin": {
+        "startLine": 89,
+        "endLine": 89,
+        "startOffset": 3973,
+        "endOffset": 3974
+      },
+      "type": "page-break"
+    },
+    {
+      "content": [
+        {
+          "content": [
+            {
+              "kind": "text",
+              "text": "Canine Rivalries"
+            }
+          ],
+          "kind": "heading",
+          "level": 1,
+          "origin": {
+            "startLine": 92,
+            "endLine": 92,
+            "startOffset": 3985,
+            "endOffset": 4003
+          }
+        },
+        {
+          "content": [
+            {
+              "kind": "text",
+              "text": "In addition to their adversarial relationships with other barghests, the beasts are hated by mundane dogs and wolves. They fit in more easily among intelligent lupine beasts like wargs and werewolves, with wild barghests leading those packs or occasionally accepting the leadership of a powerful specimen like a witchwarg."
+            }
+          ],
+          "indent": "none",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 94,
+            "endLine": 97,
+            "startOffset": 4005,
+            "endOffset": 4327
+          }
+        }
+      ],
+      "origin": {
+        "startLine": 91,
+        "endLine": 98,
+        "startOffset": 3976,
+        "endOffset": 4329
+      },
+      "type": "sidebar"
+    },
+    {
+      "content": [
+        {
+          "content": [
+            {
+              "kind": "text",
+              "text": "The Origins of Barghests"
+            }
+          ],
+          "kind": "heading",
+          "level": 1,
+          "origin": {
+            "startLine": 101,
+            "endLine": 101,
+            "startOffset": 4340,
+            "endOffset": 4366
+          }
+        },
+        {
+          "content": [
+            {
+              "kind": "text",
+              "text": "Many different legends purport to explain the origins of barghests, invoking everyone from Lamashtu to the fey’s Wild Hunt. Although of interest to scholars, barghests themselves have little concern for these legends other than adding their supposed creators as prey to aspire to."
+            }
+          ],
+          "indent": "none",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 103,
+            "endLine": 106,
+            "startOffset": 4368,
+            "endOffset": 4648
+          }
+        }
+      ],
+      "origin": {
+        "startLine": 100,
+        "endLine": 107,
+        "startOffset": 4331,
+        "endOffset": 4650
+      },
+      "type": "sidebar"
+    },
+    {
+      "content": [
+        {
+          "kind": "text",
+          "text": "Barghest"
+        }
+      ],
+      "level": 1,
+      "origin": {
+        "startLine": 109,
+        "endLine": 109,
+        "startOffset": 4652,
+        "endOffset": 4662
+      },
+      "type": "heading"
+    },
+    {
+      "content": [
+        {
+          "kind": "text",
+          "text": "Barghests are canine beasts that take great joy in the hunt, often lurking near humanoid settlements to find prey that can provide a suitable challenge. Even in the deepest wilderness, barghests choose the most clever or difficult prey, searching endlessly for challenges like giants, nymphs, and unicorns."
+        }
+      ],
+      "indent": "none",
+      "origin": {
+        "startLine": 111,
+        "endLine": 114,
+        "startOffset": 4664,
+        "endOffset": 4970
+      },
+      "type": "paragraph"
+    },
+    {
+      "content": [
+        {
+          "kind": "text",
+          "text": "More than victory or even the possibility of a meal at the end, barghests enjoy the thrill of the chase and the fear they create within their prey. Particularly terrified targets of a hunting barghest might even be allowed to escape, spreading the terror and enticing hunters who can become the barghest’s next victims. A handful of barghests resort to learning magical methods of causing fear directly, though they find such fear hollow and unsatisfying."
+        }
+      ],
+      "indent": "first-line",
+      "origin": {
+        "startLine": 116,
+        "endLine": 121,
+        "startOffset": 4972,
+        "endOffset": 5427
+      },
+      "type": "paragraph"
+    },
+    {
+      "content": [
+        {
+          "kind": "text",
+          "text": "Although they rarely tolerate the competition of another barghest’s presence, these hunters will happily work with anyone who helps them find prey to torment and kill. This often involves enforcing the will of hags or particularly cruel fey, but a bored barghest might also force a family of weaker humanoids to work as scouts and bait."
+        }
+      ],
+      "indent": "first-line",
+      "origin": {
+        "startLine": 123,
+        "endLine": 127,
+        "startOffset": 5429,
+        "endOffset": 5765
+      },
+      "type": "paragraph"
+    },
+    {
+      "content": [
+        {
+          "kind": "text",
+          "text": "Typical barghests often make use of their shapechanging abilities to hide in plain sight, only taking their true forms to frighten their prey and exult in the hunt. However, they are often still exposed by their trail of victims or the curiously unhealing wounds they inflict, even in humanoid form. Tales of powerful barghests with invisible heads are sometimes told in remote and dwindling villages. These barghests generally dispense with hiding as a humanoid or dog, instead terrifying entire communities and openly hunting increasingly dangerous prey. Some also extend this pride to their intellect, insisting on matching wits with their prey or even with those who believe they’re hunting the barghest."
+        }
+      ],
+      "indent": "first-line",
+      "origin": {
+        "startLine": 129,
+        "endLine": 137,
+        "startOffset": 5767,
+        "endOffset": 6475
+      },
+      "type": "paragraph"
+    },
+    {
+      "content": [
+        {
+          "content": [
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "Perception"
+                }
+              ],
+              "kind": "strong"
+            },
+            {
+              "kind": "text",
+              "text": " +12; darkvision, scent (imprecise) 30 feet"
+            }
+          ],
+          "indent": "hanging",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 145,
+            "endLine": 145,
+            "startOffset": 6534,
+            "endOffset": 6591
+          }
+        },
+        {
+          "content": [
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "Languages"
+                }
+              ],
+              "kind": "strong"
+            },
+            {
+              "kind": "text",
+              "text": " Common, Fey, Goblin, Jotun"
+            }
+          ],
+          "indent": "hanging",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 147,
+            "endLine": 147,
+            "startOffset": 6593,
+            "endOffset": 6633
+          }
+        },
+        {
+          "content": [
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "Skills"
+                }
+              ],
+              "kind": "strong"
+            },
+            {
+              "kind": "text",
+              "text": " Athletics +13, Deception +11, Diplomacy +9, Intimidation +11, Stealth +10, Survival +12"
+            }
+          ],
+          "indent": "hanging",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 149,
+            "endLine": 150,
+            "startOffset": 6635,
+            "endOffset": 6733
+          }
+        },
+        {
+          "content": [
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "Str"
+                }
+              ],
+              "kind": "strong"
+            },
+            {
+              "kind": "text",
+              "text": " +5, "
+            },
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "Dex"
+                }
+              ],
+              "kind": "strong"
+            },
+            {
+              "kind": "text",
+              "text": " +2, "
+            },
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "Con"
+                }
+              ],
+              "kind": "strong"
+            },
+            {
+              "kind": "text",
+              "text": " +3, "
+            },
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "Int"
+                }
+              ],
+              "kind": "strong"
+            },
+            {
+              "kind": "text",
+              "text": " +2, "
+            },
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "Wis"
+                }
+              ],
+              "kind": "strong"
+            },
+            {
+              "kind": "text",
+              "text": " +2, "
+            },
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "Cha"
+                }
+              ],
+              "kind": "strong"
+            },
+            {
+              "kind": "text",
+              "text": " +3"
+            }
+          ],
+          "indent": "hanging",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 152,
+            "endLine": 152,
+            "startOffset": 6735,
+            "endOffset": 6805
+          }
+        },
+        {
+          "kind": "hr",
+          "origin": {
+            "startLine": 153,
+            "endLine": 153,
+            "startOffset": 6806,
+            "endOffset": 6807
+          }
+        },
+        {
+          "content": [
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "AC"
+                }
+              ],
+              "kind": "strong"
+            },
+            {
+              "kind": "text",
+              "text": " 20; "
+            },
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "Fort"
+                }
+              ],
+              "kind": "strong"
+            },
+            {
+              "kind": "text",
+              "text": " +11, "
+            },
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "Ref"
+                }
+              ],
+              "kind": "strong"
+            },
+            {
+              "kind": "text",
+              "text": " +12, "
+            },
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "Will"
+                }
+              ],
+              "kind": "strong"
+            },
+            {
+              "kind": "text",
+              "text": " +8"
+            }
+          ],
+          "indent": "hanging",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 154,
+            "endLine": 154,
+            "startOffset": 6808,
+            "endOffset": 6857
+          }
+        },
+        {
+          "content": [
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "HP"
+                }
+              ],
+              "kind": "strong"
+            },
+            {
+              "kind": "text",
+              "text": " 50; "
+            },
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "Weaknesses"
+                }
+              ],
+              "kind": "strong"
+            },
+            {
+              "kind": "text",
+              "text": " holy 5; "
+            },
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "Resistances"
+                }
+              ],
+              "kind": "strong"
+            },
+            {
+              "kind": "text",
+              "text": " physical 5 (except cold iron)"
+            }
+          ],
+          "indent": "hanging",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 156,
+            "endLine": 156,
+            "startOffset": 6859,
+            "endOffset": 6938
+          }
+        },
+        {
+          "content": [
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "Primal Hunt"
+                }
+              ],
+              "kind": "strong"
+            },
+            {
+              "kind": "text",
+              "text": " "
+            },
+            {
+              "kind": "action",
+              "symbol": ":r:"
+            },
+            {
+              "kind": "text",
+              "text": " (primal, teleportation) "
+            },
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "Trigger"
+                }
+              ],
+              "kind": "strong"
+            },
+            {
+              "kind": "text",
+              "text": " A creature within the barghest’s reach takes a move or teleportation action; "
+            },
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "Effect"
+                }
+              ],
+              "kind": "strong"
+            },
+            {
+              "kind": "text",
+              "text": " After the triggering action, the barghest can teleport up to 60 feet to a space adjacent to that creature."
+            }
+          ],
+          "indent": "hanging",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 158,
+            "endLine": 161,
+            "startOffset": 6940,
+            "endOffset": 7190
+          }
+        },
+        {
+          "kind": "hr",
+          "origin": {
+            "startLine": 162,
+            "endLine": 162,
+            "startOffset": 7191,
+            "endOffset": 7192
+          }
+        },
+        {
+          "content": [
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "Speed"
+                }
+              ],
+              "kind": "strong"
+            },
+            {
+              "kind": "text",
+              "text": " 25 feet"
+            }
+          ],
+          "indent": "hanging",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 163,
+            "endLine": 163,
+            "startOffset": 7193,
+            "endOffset": 7210
+          }
+        },
+        {
+          "content": [
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "Melee"
+                }
+              ],
+              "kind": "strong"
+            },
+            {
+              "kind": "text",
+              "text": " "
+            },
+            {
+              "kind": "action",
+              "symbol": ":a:"
+            },
+            {
+              "kind": "text",
+              "text": " jaws +13 (unholy), "
+            },
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "Damage"
+                }
+              ],
+              "kind": "strong"
+            },
+            {
+              "kind": "text",
+              "text": " 2d8+5 piercing plus Knockdown (page 359)"
+            }
+          ],
+          "indent": "hanging",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 165,
+            "endLine": 166,
+            "startOffset": 7212,
+            "endOffset": 7296
+          }
+        },
+        {
+          "content": [
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "Melee"
+                }
+              ],
+              "kind": "strong"
+            },
+            {
+              "kind": "text",
+              "text": " "
+            },
+            {
+              "kind": "action",
+              "symbol": ":a:"
+            },
+            {
+              "kind": "text",
+              "text": " claw +13 (agile, unholy), "
+            },
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "Damage"
+                }
+              ],
+              "kind": "strong"
+            },
+            {
+              "kind": "text",
+              "text": " 2d6+5 slashing plus unhealing wound"
+            }
+          ],
+          "indent": "hanging",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 168,
+            "endLine": 169,
+            "startOffset": 7298,
+            "endOffset": 7384
+          }
+        },
+        {
+          "content": [
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "Primal Innate Spells"
+                }
+              ],
+              "kind": "strong"
+            },
+            {
+              "kind": "text",
+              "text": " DC 21; "
+            },
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "2nd"
+                }
+              ],
+              "kind": "strong"
+            },
+            {
+              "kind": "text",
+              "text": " "
+            },
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "invisibility"
+                }
+              ],
+              "kind": "em"
+            },
+            {
+              "kind": "text",
+              "text": ", "
+            },
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "mist"
+                }
+              ],
+              "kind": "em"
+            },
+            {
+              "kind": "text",
+              "text": "; "
+            },
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "Cantrips (2nd)"
+                }
+              ],
+              "kind": "strong"
+            },
+            {
+              "kind": "text",
+              "text": " "
+            },
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "figment"
+                }
+              ],
+              "kind": "em"
+            },
+            {
+              "kind": "text",
+              "text": ", "
+            },
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "light"
+                }
+              ],
+              "kind": "em"
+            }
+          ],
+          "indent": "hanging",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 171,
+            "endLine": 172,
+            "startOffset": 7386,
+            "endOffset": 7487
+          }
+        },
+        {
+          "content": [
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "Change Shape"
+                }
+              ],
+              "kind": "strong"
+            },
+            {
+              "kind": "text",
+              "text": " "
+            },
+            {
+              "kind": "action",
+              "symbol": ":a:"
+            },
+            {
+              "kind": "text",
+              "text": " (concentrate, polymorph, primal) The barghest takes on the shape of a humanoid, a dog, or its true form (page 358). Their size changes to match the new form. When the barghest is a humanoid, their claw Strike deals bludgeoning damage and they lose their jaws Strike. When the barghest is a dog, their Speed changes to 35 feet. Each individual barghest has only one humanoid form and one dog form."
+            }
+          ],
+          "indent": "hanging",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 174,
+            "endLine": 179,
+            "startOffset": 7489,
+            "endOffset": 7906
+          }
+        },
+        {
+          "content": [
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "Unhealing Wound"
+                }
+              ],
+              "kind": "strong"
+            },
+            {
+              "kind": "text",
+              "text": " (curse, primal) A creature damaged by the barghest’s claws must succeed at a DC 21 Fortitude save or be cursed. The cursed creature can’t regain Hit Points except via magic until it returns to maximum Hit Points. The creature can attempt a new saving throw against the curse every 24 hours."
+            }
+          ],
+          "indent": "hanging",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 181,
+            "endLine": 184,
+            "startOffset": 7908,
+            "endOffset": 8218
+          }
+        }
+      ],
+      "name": [
+        {
+          "kind": "text",
+          "text": "Barghest"
+        }
+      ],
+      "origin": {
+        "startLine": 139,
+        "endLine": 185,
+        "startOffset": 6477,
+        "endOffset": 8220
+      },
+      "subtitle": [
+        {
+          "kind": "text",
+          "text": "Creature 4"
+        }
+      ],
+      "traits": [
+        "Medium",
+        "Beast",
+        "Unholy"
+      ],
+      "type": "item"
+    }
+  ]
+}
