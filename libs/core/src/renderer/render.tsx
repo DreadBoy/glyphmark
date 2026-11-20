@@ -168,23 +168,54 @@ function SidebarGroup({
   );
 }
 
+// Global that `renderToPdf`'s injected PagedConfig sets once paged.js is done.
+const PAGED_DONE = '__glyphmarkPaged';
+
 // PDF rendering reuses the HTML output and lets Chromium paginate it. We
 // import Playwright lazily (via a dynamic import) so consumers that only
 // need `renderToHtml` don't pay the cost of loading Playwright at module
 // init — and so the import doesn't run in browser-side consumers of the
 // library at all.
 export async function renderToPdf(doc: GlyphDocument): Promise<Buffer> {
-  const html = renderToHtml(doc);
+  // paged.js reads `window.PagedConfig` once, when the polyfill initialises,
+  // and calls `after` only once the whole document has been laid out. Waiting
+  // for `.pagedjs_pages` is not enough: that container appears with the first
+  // page, and printing then cuts the PDF off wherever pagination has got to
+  // (#33). The config goes at the top of <head>, ahead of the polyfill script.
+  // (`page.addInitScript` would be neater, but `setContent` doesn't run it.)
+  const html = renderToHtml(doc).replace(
+    '<head>',
+    `<head><script>window.PagedConfig = { after: () => { window.${PAGED_DONE} = true; } };</script>`,
+  );
   const { chromium } = await import('playwright');
   const browser = await chromium.launch();
   try {
     const context = await browser.newContext({ deviceScaleFactor: 1 });
     const page = await context.newPage();
+    // A paged.js failure would otherwise leave `after` uncalled, and the wait
+    // below would hang instead of reporting it.
+    const pageError = new Promise<never>((_, reject) => {
+      page.on('pageerror', (error) =>
+        reject(new Error(`Pagination failed: ${error.message}`)),
+      );
+    });
+    // Once the race below settles nobody awaits this, and a late error would
+    // surface as an unhandled rejection.
+    pageError.catch(() => undefined);
     // Print media first so screen-only chrome (page shadows) is excluded
     // before paged.js paginates against the print stylesheet.
     await page.emulateMedia({ media: 'print' });
     await page.setContent(html, { waitUntil: 'networkidle' });
-    await page.waitForSelector('.pagedjs_pages', { timeout: 30_000 });
+    // No timeout: pagination time grows with the document, and a book of
+    // tens of thousands of lines legitimately takes minutes.
+    await Promise.race([
+      page.waitForFunction(
+        (flag) => (globalThis as Record<string, unknown>)[flag],
+        PAGED_DONE,
+        { timeout: 0, polling: 100 },
+      ),
+      pageError,
+    ]);
     // `preferCSSPageSize` honours the document's own `@page { size: ... }`,
     // which paged.js already drives — so the PDF page geometry matches the
     // HTML preview exactly. `printBackground` keeps the styled backgrounds
