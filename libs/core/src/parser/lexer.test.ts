@@ -149,12 +149,18 @@ describe('tokenize — line shapes', () => {
 });
 
 describe('tokenize — delimiters', () => {
-  it.each(['item', 'info', 'rule', 'sample', 'head', 'css', 'fonts'])(
-    'emits block-open for %s(',
-    (keyword) => {
-      expect(lex(`${keyword}(`)).toEqual([{ kind: 'block-open', keyword }]);
-    },
-  );
+  it.each([
+    'item',
+    'info',
+    'rule',
+    'sample',
+    'head',
+    'sidebar',
+    'css',
+    'fonts',
+  ])('emits block-open for %s(', (keyword) => {
+    expect(lex(`${keyword}(`)).toEqual([{ kind: 'block-open', keyword }]);
+  });
 
   it('allows whitespace between keyword and paren', () => {
     expect(lex('item (')).toEqual([{ kind: 'block-open', keyword: 'item' }]);

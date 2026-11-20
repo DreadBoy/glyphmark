@@ -49,6 +49,22 @@ If you cannot agree to these terms, please do not submit a contribution.
 - **Code style** — the repo uses Prettier and ESLint. Run `npx nx lint` to
   check.
 
+## Development workflow
+
+Rendering work in `libs/core` is easiest to iterate on through the visual golden
+suite (`libs/core/test/golden/golden.test.ts`), with the rendered HTML open in a
+browser:
+
+1. In IntelliJ, create a Vitest run configuration for `golden.test.ts` with the
+   environment variables `OUTPUT_HTML=1;SKIP_SCREENSHOTS=1`. Narrow it to one
+   fixture with a test-name filter (e.g. `-t sidebar`) to keep runs fast.
+2. Run it. Each fixture writes `output.html` next to its `input.glyph` in
+   `libs/core/test/golden/<fixture>/`.
+3. Open that `output.html` in a browser from IntelliJ (right-click →
+   **Open In** → **Browser**). IntelliJ's built-in web server serves it and
+   reloads the page whenever the file is rewritten, so rerunning the test after
+   an edit refreshes it.
+
 ## Questions
 
 If anything above is unclear, open an issue and ask before contributing.

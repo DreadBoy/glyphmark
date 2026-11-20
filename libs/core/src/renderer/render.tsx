@@ -3,7 +3,7 @@ import type { FC } from 'react';
 import { CacheProvider } from '@emotion/react';
 import createCache from '@emotion/cache';
 import createEmotionServer from '@emotion/server/create-instance';
-import type { GlyphDocument, BodyNode } from '../parser';
+import type { GlyphDocument, BodyNode, SidebarBlockNode } from '../parser';
 import { FONT_CSS } from '../vendor/font-css';
 import { PAGEDJS_POLYFILL } from '../vendor/pagedjs';
 import { Document } from '../components/document';
@@ -18,6 +18,11 @@ import { SampleBlock } from '../components/sample-block';
 import { RuleBlock } from '../components/rule-block';
 import { HeadBlock } from '../components/head-block';
 import { InfoBlock } from '../components/info-block';
+import {
+  SIDEBAR_PAGE_HANDLER,
+  SidebarBlock,
+  SidebarRail,
+} from '../components/sidebar-block';
 import {
   FullWidthStyles,
   FullWidthToggle,
@@ -86,20 +91,80 @@ export function renderToHtml(
 
   const pageChrome = renderPageShadowTags();
 
-  return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><style>${FONT_CSS}</style>${styleTags}${pageChrome}</head><body>${body}<script>${PAGEDJS_POLYFILL}</script></body></html>`;
+  // The sidebar page handler must be registered after the polyfill defines
+  // `window.Paged` but before it starts paginating (it waits for the document
+  // to be ready, so a following inline script is in time).
+  const hasSidebar = doc.body.some((node) => node.type === 'sidebar');
+  const handlers = hasSidebar ? `<script>${SIDEBAR_PAGE_HANDLER}</script>` : '';
+
+  return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><style>${FONT_CSS}</style>${styleTags}${pageChrome}</head><body>${body}<script>${PAGEDJS_POLYFILL}</script>${handlers}</body></html>`;
 }
 
 function Body({ doc, anchor }: { doc: GlyphDocument; anchor: AnchorFn }) {
   return (
     <Document>
       <FullWidthStyles body={doc.body} />
-      {doc.body.map((node, index) => {
-        const Comp = RENDERERS[node.type] as
+      {groupSidebars(doc.body).map((item, index) => {
+        if (Array.isArray(item)) {
+          return (
+            <SidebarGroup
+              key={index}
+              nodes={item}
+              atPageStart={index === 0 || isPageBreak(doc, item[0])}
+              anchor={anchor}
+            />
+          );
+        }
+        const Comp = RENDERERS[item.type] as
           | FC<{ node: BodyNode; anchor: AnchorFn }>
           | undefined;
-        return Comp ? <Comp key={index} node={node} anchor={anchor} /> : null;
+        return Comp ? <Comp key={index} node={item} anchor={anchor} /> : null;
       })}
     </Document>
+  );
+}
+
+// Runs of consecutive sidebar() blocks collapse into one array so they share a
+// single rail; every other node passes through unchanged.
+function groupSidebars(body: BodyNode[]): (BodyNode | SidebarBlockNode[])[] {
+  const out: (BodyNode | SidebarBlockNode[])[] = [];
+  for (const node of body) {
+    const last = out[out.length - 1];
+    if (node.type !== 'sidebar') out.push(node);
+    else if (Array.isArray(last)) last.push(node);
+    else out.push([node]);
+  }
+  return out;
+}
+
+// Whether the node right before `first` in the body is an explicit `=`.
+function isPageBreak(doc: GlyphDocument, first: SidebarBlockNode): boolean {
+  const i = doc.body.indexOf(first);
+  return i > 0 && doc.body[i - 1].type === 'page-break';
+}
+
+// A sidebar page always starts with its rail: the rail is what switches the
+// page to the sidebar geometry, so it must come before any main text on that
+// page. When the source doesn't open the page with `=` (or the document
+// start), break the page implicitly.
+function SidebarGroup({
+  nodes,
+  atPageStart,
+  anchor,
+}: {
+  nodes: SidebarBlockNode[];
+  atPageStart: boolean;
+  anchor: AnchorFn;
+}) {
+  return (
+    <>
+      {!atPageStart && <PageBreak />}
+      <SidebarRail>
+        {nodes.map((node, index) => (
+          <SidebarBlock key={index} node={node} anchor={anchor} />
+        ))}
+      </SidebarRail>
+    </>
   );
 }
 

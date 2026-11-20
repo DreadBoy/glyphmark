@@ -35,6 +35,10 @@ Currently supported blocks
   * still, let's implement it
 * [x] content reference
   * wrap the reference in `key {}` and later reuse with `{{key}}`
+* [x] sidebar
+  * there's left and right sidebar
+  * Monster Core (156, 157)
+  * Player Core (43, 123)
 
 ## On paragraphs indents
 In normal text, paragraphs, except first one, are indented in first line (274). Lists are indented in all lines of the list, also if they are first paragraph (109). Paragraphs with bolded first words are indented just in first line (274). 
@@ -50,9 +54,6 @@ In sample block, bolded paragraphs are not indented (231).
 * [ ] page chrome
   * using pagenumbers attribute
   * decided to skip for now as it's complicated and less usefull for shorter documents
-* [ ] right sidebar (43, 123)
-  * right() 
-  * there doesn't appear to be left sidebar
 * [ ] item block interrupted by other blocks (eg. rule ) (245)
 * [ ] item in rule
 * [ ] rule with hr, also heading hr (190)
@@ -60,6 +61,7 @@ In sample block, bolded paragraphs are not indented (231).
 * [ ] table with multiple non-numeric footnotes (111)
 * [ ] custom css and fonts (423, 429)
 * [ ] custom images (255)
+  * text flowing around an image (Monster Core 38)
 
 ## Known bugs
 

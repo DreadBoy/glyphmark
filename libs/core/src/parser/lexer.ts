@@ -86,7 +86,7 @@ export function partText(tok: Token, part: Part): string {
 // `item(` from prose that happens to end in a paren. What each keyword *means*
 // is not: whether `css` introduces a preamble or a container is a question the
 // parser answers, so the lexer locates the word and stops there.
-const KEYWORD = 'item|info|rule|sample|head|css|fonts';
+const KEYWORD = 'item|info|rule|sample|head|sidebar|css|fonts';
 const BLOCK_OPEN_RE = new RegExp(`^(${KEYWORD})\\s*\\($`);
 const BLOCK_INLINE_RE = new RegExp(`^(${KEYWORD})\\s*\\((.*)\\)$`);
 const REF_OPEN_RE = /^(\w+)\s*\{$/;
