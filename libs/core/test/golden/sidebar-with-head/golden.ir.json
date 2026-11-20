@@ -1,0 +1,196 @@
+{
+  "contentRefs": {},
+  "body": [
+    {
+      "origin": {
+        "startLine": 1,
+        "endLine": 1,
+        "startOffset": 0,
+        "endOffset": 1
+      },
+      "type": "page-break"
+    },
+    {
+      "content": [
+        {
+          "content": [
+            {
+              "kind": "text",
+              "text": "Initial Proficiencies"
+            }
+          ],
+          "kind": "heading",
+          "level": 2,
+          "origin": {
+            "startLine": 4,
+            "endLine": 4,
+            "startOffset": 12,
+            "endOffset": 36
+          }
+        },
+        {
+          "content": [
+            {
+              "kind": "text",
+              "text": "At 1st level, you gain the listed proficiency ranks in the following statistics."
+            }
+          ],
+          "indent": "none",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 5,
+            "endLine": 5,
+            "startOffset": 37,
+            "endOffset": 117
+          }
+        },
+        {
+          "content": [
+            {
+              "kind": "text",
+              "text": "Perception"
+            }
+          ],
+          "kind": "heading",
+          "level": 2,
+          "origin": {
+            "startLine": 7,
+            "endLine": 7,
+            "startOffset": 119,
+            "endOffset": 132
+          }
+        },
+        {
+          "content": [
+            {
+              "kind": "text",
+              "text": "Expert in Perception"
+            }
+          ],
+          "indent": "none",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 8,
+            "endLine": 8,
+            "startOffset": 133,
+            "endOffset": 153
+          }
+        }
+      ],
+      "origin": {
+        "startLine": 3,
+        "endLine": 9,
+        "startOffset": 3,
+        "endOffset": 155
+      },
+      "type": "sidebar"
+    },
+    {
+      "content": [
+        {
+          "content": [
+            {
+              "kind": "text",
+              "text": "BARD"
+            }
+          ],
+          "kind": "heading",
+          "level": 1,
+          "origin": {
+            "startLine": 12,
+            "endLine": 12,
+            "startOffset": 163,
+            "endOffset": 169
+          }
+        },
+        {
+          "content": [
+            {
+              "kind": "text",
+              "text": "A short intro paragraph for the head band."
+            }
+          ],
+          "indent": "none",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 14,
+            "endLine": 14,
+            "startOffset": 171,
+            "endOffset": 213
+          }
+        }
+      ],
+      "origin": {
+        "startLine": 11,
+        "endLine": 15,
+        "startOffset": 157,
+        "endOffset": 215
+      },
+      "type": "head"
+    },
+    {
+      "content": [
+        {
+          "content": [
+            {
+              "kind": "text",
+              "text": "Key Attribute"
+            }
+          ],
+          "kind": "heading",
+          "level": 2,
+          "origin": {
+            "startLine": 18,
+            "endLine": 18,
+            "startOffset": 223,
+            "endOffset": 239
+          }
+        },
+        {
+          "content": [
+            {
+              "children": [
+                {
+                  "kind": "text",
+                  "text": "Charisma"
+                }
+              ],
+              "kind": "strong"
+            }
+          ],
+          "indent": "none",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 19,
+            "endLine": 19,
+            "startOffset": 240,
+            "endOffset": 252
+          }
+        }
+      ],
+      "origin": {
+        "startLine": 17,
+        "endLine": 20,
+        "startOffset": 217,
+        "endOffset": 254
+      },
+      "type": "info"
+    },
+    {
+      "content": [
+        {
+          "kind": "text",
+          "text": "Body text…"
+        }
+      ],
+      "indent": "none",
+      "origin": {
+        "startLine": 22,
+        "endLine": 22,
+        "startOffset": 256,
+        "endOffset": 266
+      },
+      "type": "paragraph"
+    }
+  ]
+}

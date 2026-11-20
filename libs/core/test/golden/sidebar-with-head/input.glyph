@@ -1,0 +1,22 @@
+=
+
+sidebar(
+## Initial Proficiencies
+At 1st level, you gain the listed proficiency ranks in the following statistics.
+
+## Perception
+Expert in Perception
+)
+
+head(
+# BARD
+
+A short intro paragraph for the head band.
+)
+
+info(
+## Key Attribute
+**Charisma**
+)
+
+Body text…

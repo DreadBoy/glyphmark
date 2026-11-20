@@ -6,6 +6,15 @@ import { Ornament } from './ornament';
 import { MARGIN } from './document';
 import { DISPLAY_TITLE, SERIF } from '../vendor/font-css';
 
+// Marker class on the band, so page-level overrides (the sidebar page) can
+// reach it.
+export const HEAD_CLASS = 'gm-head';
+// CSS anchor name the band publishes, so a sidebar rail on the same page can
+// start below it (see SidebarRail).
+export const HEAD_ANCHOR = '--gm-head';
+// Gap between the band's bottom edge and the text under it.
+export const HEAD_GAP = 20; // pt
+
 export function HeadBlock({
   node,
   anchor,
@@ -13,13 +22,15 @@ export function HeadBlock({
   node: HeadBlockNode;
   anchor: AnchorFn;
 }) {
-  const yPadding = 20;
+  const yPadding = HEAD_GAP;
   const ornamentSize = 11;
   const borderWidth = 1;
   return (
     <div
       {...anchor(node.origin)}
+      className={HEAD_CLASS}
       css={{
+        anchorName: HEAD_ANCHOR,
         columnSpan: 'all',
         textAlign: 'center',
         background: '#EAD9B3',
