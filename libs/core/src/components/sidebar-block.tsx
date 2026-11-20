@@ -2,7 +2,8 @@ import { Global, type CSSObject } from '@emotion/react';
 import type { PropsWithChildren } from 'react';
 import type { SidebarBlockNode, SidebarSegment } from '../parser';
 import { pt } from './size-helper';
-import { COLUMN_GAP, DOCUMENT_CLASS } from './document';
+import { COLUMN_GAP, DOCUMENT_CLASS, MARGIN } from './document';
+import { HEAD_ANCHOR, HEAD_CLASS, HEAD_GAP } from './head-block';
 import { renderInlines } from './inline';
 import type { AnchorFn } from '../renderer/source-anchors';
 import { SANS } from '../vendor/font-css';
@@ -65,6 +66,16 @@ function SidebarPageStyles() {
           paddingRight: 0,
           paddingLeft: reserve,
         },
+        // A head() band on a sidebar page still spans the full page width
+        // (the rail starts below it), so it bleeds across the reserved strip
+        // as well as the page margin.
+        [`.${SIDEBAR_PAGE} .${HEAD_CLASS}`]: {
+          marginRight: `calc(${pt(-MARGIN).toRem()} - ${reserve})`,
+        },
+        [`.${SIDEBAR_PAGE}${VERSO} .${HEAD_CLASS}`]: {
+          marginRight: pt(-MARGIN).toRem(),
+          marginLeft: `calc(${pt(-MARGIN).toRem()} - ${reserve})`,
+        },
       }}
     />
   );
@@ -78,9 +89,14 @@ export function SidebarRail({ children }: PropsWithChildren) {
       className={RAIL_CLASS}
       css={{
         // Positioned against .pagedjs_page_content (position: relative), so
-        // the rail spans the full content height of its page.
+        // the rail runs down to the bottom of its page's content box. It
+        // starts at the top, unless a head() band shares the page: then it
+        // starts below the band, level with the text under it. anchor()
+        // only resolves to a band inside the rail's own containing block,
+        // i.e. on the same page; otherwise the fallback cancels the gap and
+        // the rail sits at 0.
         position: 'absolute',
-        top: 0,
+        top: `calc(anchor(${HEAD_ANCHOR} bottom, ${pt(-HEAD_GAP).toRem()}) + ${pt(HEAD_GAP).toRem()})`,
         bottom: 0,
         right: 0,
         width: pt(RAIL_WIDTH).toRem(),
