@@ -1,22 +1,20 @@
-import { Global } from '@emotion/react';
-import type { BodyNode, FullWidthToggleNode } from '../parser';
+import type { PropsWithChildren } from 'react';
 
-export function FullWidthToggle({ node }: { node: FullWidthToggleNode }) {
-  return <div className={`gm-fw-${node.index}`} />;
-}
+// Class on the wrapper around a run of full-width (`/` … `/`) content.
+export const FULL_WIDTH_CLASS = 'gm-full-width';
 
-// One `column-span: all|none` rule per `/` marker, keyed by the marker's
-// 1-based index. Same specificity across rules, so cascade picks the last one
-// declared — which is the rule of the most recent preceding marker for any
-// given element. Odd index enters full-width, even index leaves it.
-export function FullWidthStyles({ body }: { body: BodyNode[] }) {
-  const toggles = body.filter((node) => node.type === 'full-width-toggle');
-  if (toggles.length === 0) return null;
-  const rules = Object.fromEntries(
-    toggles.map((_, i) => [
-      `.gm-fw-${i + 1} ~ *`,
-      { columnSpan: i % 2 === 0 ? ('all' as const) : ('none' as const) },
-    ]),
+// A full-width band is a wrapper element spanning both columns, holding the
+// band's content as children. It used to be styled through sibling selectors
+// keyed off the `/` marker (`.gm-fw-1 ~ *`), but those only hold while the
+// content shares a parent with the marker: once paged.js breaks the page, the
+// overflow goes into a fresh clone of the document wrapper that no longer
+// contains the marker, and the band fell back to two columns (#38). A wrapper
+// carries its own `column-span` — paged.js clones it, class and all, onto
+// every page the band runs onto.
+export function FullWidthBand({ children }: PropsWithChildren) {
+  return (
+    <div className={FULL_WIDTH_CLASS} css={{ columnSpan: 'all' }}>
+      {children}
+    </div>
   );
-  return <Global styles={rules} />;
 }

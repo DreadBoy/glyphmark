@@ -23,10 +23,7 @@ import {
   SidebarBlock,
   SidebarRail,
 } from '../components/sidebar-block';
-import {
-  FullWidthStyles,
-  FullWidthToggle,
-} from '../components/full-width-toggle';
+import { FullWidthBand } from '../components/full-width-toggle';
 import { renderPageShadowTags } from '../components/page-shadow';
 import { createAnchorFn, NO_ANCHORS, type AnchorFn } from './source-anchors';
 
@@ -40,7 +37,6 @@ const RENDERERS: Renderers = {
   heading: Heading,
   'column-break': ColumnBreak,
   'page-break': PageBreak,
-  'full-width-toggle': FullWidthToggle,
   paragraph: Paragraph,
   list: List,
   table: Table,
@@ -101,27 +97,72 @@ export function renderToHtml(
 }
 
 function Body({ doc, anchor }: { doc: GlyphDocument; anchor: AnchorFn }) {
+  const renderItem = (item: BodyNode | SidebarBlockNode[], key: number) => {
+    if (Array.isArray(item)) {
+      return (
+        <SidebarGroup
+          key={key}
+          nodes={item}
+          atPageStart={key === 0 || isPageBreak(doc, item[0])}
+          anchor={anchor}
+        />
+      );
+    }
+    const Comp = RENDERERS[item.type] as
+      | FC<{ node: BodyNode; anchor: AnchorFn }>
+      | undefined;
+    return Comp ? <Comp key={key} node={item} anchor={anchor} /> : null;
+  };
   return (
     <Document>
-      <FullWidthStyles body={doc.body} />
-      {groupSidebars(doc.body).map((item, index) => {
-        if (Array.isArray(item)) {
-          return (
-            <SidebarGroup
-              key={index}
-              nodes={item}
-              atPageStart={index === 0 || isPageBreak(doc, item[0])}
-              anchor={anchor}
-            />
-          );
-        }
-        const Comp = RENDERERS[item.type] as
-          | FC<{ node: BodyNode; anchor: AnchorFn }>
-          | undefined;
-        return Comp ? <Comp key={index} node={item} anchor={anchor} /> : null;
-      })}
+      {groupBands(groupSidebars(doc.body)).map((entry) =>
+        'band' in entry ? (
+          <FullWidthBand key={entry.key}>
+            {entry.band.map(({ item, key }) => renderItem(item, key))}
+          </FullWidthBand>
+        ) : (
+          renderItem(entry.item, entry.key)
+        ),
+      )}
     </Document>
   );
+}
+
+type Item = BodyNode | SidebarBlockNode[];
+type Keyed = { item: Item; key: number };
+
+// Gathers the content between each pair of `/` toggles into one band, to be
+// rendered inside a full-width wrapper. The toggles themselves render nothing.
+// Page and column breaks stay outside the wrapper and split it in two, so they
+// keep acting on the top-level flow exactly as they do outside a band (and as
+// a hand-written `/` `=` `/` does). Sidebars stay outside as well: a rail sets
+// its own page geometry.
+function groupBands(items: Item[]): (Keyed | { band: Keyed[]; key: number })[] {
+  const out: (Keyed | { band: Keyed[]; key: number })[] = [];
+  let fullWidth = false;
+  let band: Keyed[] | undefined;
+  items.forEach((item, key) => {
+    if (!Array.isArray(item) && item.type === 'full-width-toggle') {
+      fullWidth = !fullWidth;
+      band = undefined;
+      return;
+    }
+    const breaksBand =
+      Array.isArray(item) ||
+      item.type === 'page-break' ||
+      item.type === 'column-break';
+    if (!fullWidth || breaksBand) {
+      band = undefined;
+      out.push({ item, key });
+      return;
+    }
+    if (!band) {
+      band = [];
+      out.push({ band, key });
+    }
+    band.push({ item, key });
+  });
+  return out;
 }
 
 // Runs of consecutive sidebar() blocks collapse into one array so they share a

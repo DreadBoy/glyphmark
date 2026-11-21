@@ -609,7 +609,7 @@ function parseBody(tokens: Token[], doc: GlyphDocument): void {
   let firstInSection = true;
   let fullWidthToggleIdx = 0;
   // Tracks whether subsequent body nodes will render in the full-width band.
-  // Each `/` toggle flips this, matching how FullWidthStyles cascades. Used to
+  // Each `/` toggle flips this, matching how the renderer groups bands. Used to
   // gate column-break inside rule() blocks — those are only valid full-width.
   let fullWidth = false;
   while (i < tokens.length) {
