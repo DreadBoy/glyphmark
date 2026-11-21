@@ -1,0 +1,510 @@
+{
+  "contentRefs": {},
+  "body": [
+    {
+      "content": [
+        {
+          "kind": "text",
+          "text": "Rule test"
+        }
+      ],
+      "level": 1,
+      "origin": {
+        "startLine": 1,
+        "endLine": 1,
+        "startOffset": 0,
+        "endOffset": 11
+      },
+      "type": "heading"
+    },
+    {
+      "content": [
+        {
+          "kind": "text",
+          "text": "Paragraph 1. bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha"
+        }
+      ],
+      "indent": "none",
+      "origin": {
+        "startLine": 3,
+        "endLine": 3,
+        "startOffset": 13,
+        "endOffset": 397
+      },
+      "type": "paragraph"
+    },
+    {
+      "content": [
+        {
+          "kind": "text",
+          "text": "Paragraph 2. charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo"
+        }
+      ],
+      "indent": "first-line",
+      "origin": {
+        "startLine": 5,
+        "endLine": 5,
+        "startOffset": 399,
+        "endOffset": 783
+      },
+      "type": "paragraph"
+    },
+    {
+      "content": [
+        {
+          "kind": "text",
+          "text": "Paragraph 3. delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie"
+        }
+      ],
+      "indent": "first-line",
+      "origin": {
+        "startLine": 7,
+        "endLine": 7,
+        "startOffset": 785,
+        "endOffset": 1169
+      },
+      "type": "paragraph"
+    },
+    {
+      "content": [
+        {
+          "kind": "text",
+          "text": "Paragraph 4. echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta"
+        }
+      ],
+      "indent": "first-line",
+      "origin": {
+        "startLine": 9,
+        "endLine": 9,
+        "startOffset": 1171,
+        "endOffset": 1555
+      },
+      "type": "paragraph"
+    },
+    {
+      "content": [
+        {
+          "kind": "text",
+          "text": "Paragraph 5. foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo"
+        }
+      ],
+      "indent": "first-line",
+      "origin": {
+        "startLine": 11,
+        "endLine": 11,
+        "startOffset": 1557,
+        "endOffset": 1941
+      },
+      "type": "paragraph"
+    },
+    {
+      "content": [
+        {
+          "kind": "text",
+          "text": "Paragraph 6. golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot"
+        }
+      ],
+      "indent": "first-line",
+      "origin": {
+        "startLine": 13,
+        "endLine": 13,
+        "startOffset": 1943,
+        "endOffset": 2327
+      },
+      "type": "paragraph"
+    },
+    {
+      "content": [
+        {
+          "kind": "text",
+          "text": "Paragraph 7. hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf"
+        }
+      ],
+      "indent": "first-line",
+      "origin": {
+        "startLine": 15,
+        "endLine": 15,
+        "startOffset": 2329,
+        "endOffset": 2713
+      },
+      "type": "paragraph"
+    },
+    {
+      "content": [
+        {
+          "kind": "text",
+          "text": "Paragraph 8. india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel"
+        }
+      ],
+      "indent": "first-line",
+      "origin": {
+        "startLine": 17,
+        "endLine": 17,
+        "startOffset": 2715,
+        "endOffset": 3099
+      },
+      "type": "paragraph"
+    },
+    {
+      "content": [
+        {
+          "kind": "text",
+          "text": "Paragraph 9. juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india"
+        }
+      ],
+      "indent": "first-line",
+      "origin": {
+        "startLine": 19,
+        "endLine": 19,
+        "startOffset": 3101,
+        "endOffset": 3485
+      },
+      "type": "paragraph"
+    },
+    {
+      "content": [
+        {
+          "kind": "text",
+          "text": "Paragraph 10. kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet"
+        }
+      ],
+      "indent": "first-line",
+      "origin": {
+        "startLine": 21,
+        "endLine": 21,
+        "startOffset": 3487,
+        "endOffset": 3872
+      },
+      "type": "paragraph"
+    },
+    {
+      "content": [
+        {
+          "kind": "text",
+          "text": "Paragraph 11. lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo"
+        }
+      ],
+      "indent": "first-line",
+      "origin": {
+        "startLine": 23,
+        "endLine": 23,
+        "startOffset": 3874,
+        "endOffset": 4259
+      },
+      "type": "paragraph"
+    },
+    {
+      "content": [
+        {
+          "kind": "text",
+          "text": "Paragraph 12. mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima"
+        }
+      ],
+      "indent": "first-line",
+      "origin": {
+        "startLine": 25,
+        "endLine": 25,
+        "startOffset": 4261,
+        "endOffset": 4646
+      },
+      "type": "paragraph"
+    },
+    {
+      "content": [
+        {
+          "kind": "text",
+          "text": "Paragraph 13. november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike"
+        }
+      ],
+      "indent": "first-line",
+      "origin": {
+        "startLine": 27,
+        "endLine": 27,
+        "startOffset": 4648,
+        "endOffset": 5033
+      },
+      "type": "paragraph"
+    },
+    {
+      "index": 1,
+      "origin": {
+        "startLine": 29,
+        "endLine": 29,
+        "startOffset": 5035,
+        "endOffset": 5036
+      },
+      "type": "full-width-toggle"
+    },
+    {
+      "content": [
+        {
+          "content": [
+            {
+              "kind": "text",
+              "text": "FULL-WIDTH BOX"
+            }
+          ],
+          "kind": "heading",
+          "level": 1,
+          "origin": {
+            "startLine": 31,
+            "endLine": 31,
+            "startOffset": 5043,
+            "endOffset": 5059
+          }
+        },
+        {
+          "content": [
+            {
+              "kind": "text",
+              "text": "Paragraph 100. alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango"
+            }
+          ],
+          "indent": "none",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 33,
+            "endLine": 33,
+            "startOffset": 5061,
+            "endOffset": 5323
+          }
+        },
+        {
+          "content": [
+            {
+              "kind": "text",
+              "text": "Paragraph 101. bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha"
+            }
+          ],
+          "indent": "first-line",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 35,
+            "endLine": 35,
+            "startOffset": 5325,
+            "endOffset": 5587
+          }
+        },
+        {
+          "content": [
+            {
+              "kind": "text",
+              "text": "Paragraph 102. charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo"
+            }
+          ],
+          "indent": "first-line",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 37,
+            "endLine": 37,
+            "startOffset": 5589,
+            "endOffset": 5851
+          }
+        },
+        {
+          "kind": "column-break",
+          "origin": {
+            "startLine": 39,
+            "endLine": 39,
+            "startOffset": 5853,
+            "endOffset": 5854
+          }
+        },
+        {
+          "content": [
+            {
+              "kind": "text",
+              "text": "Paragraph 103. delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie"
+            }
+          ],
+          "indent": "first-line",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 41,
+            "endLine": 41,
+            "startOffset": 5856,
+            "endOffset": 6118
+          }
+        },
+        {
+          "content": [
+            {
+              "kind": "text",
+              "text": "Paragraph 104. echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta"
+            }
+          ],
+          "indent": "first-line",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 43,
+            "endLine": 43,
+            "startOffset": 6120,
+            "endOffset": 6382
+          }
+        },
+        {
+          "content": [
+            {
+              "kind": "text",
+              "text": "Paragraph 105. foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo"
+            }
+          ],
+          "indent": "first-line",
+          "kind": "paragraph",
+          "origin": {
+            "startLine": 45,
+            "endLine": 45,
+            "startOffset": 6384,
+            "endOffset": 6646
+          }
+        }
+      ],
+      "fullWidth": true,
+      "origin": {
+        "startLine": 30,
+        "endLine": 47,
+        "startOffset": 5037,
+        "endOffset": 6649
+      },
+      "type": "rule"
+    },
+    {
+      "index": 2,
+      "origin": {
+        "startLine": 48,
+        "endLine": 48,
+        "startOffset": 6650,
+        "endOffset": 6651
+      },
+      "type": "full-width-toggle"
+    },
+    {
+      "content": [
+        {
+          "kind": "text",
+          "text": "Paragraph 14. oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november"
+        }
+      ],
+      "indent": "none",
+      "origin": {
+        "startLine": 50,
+        "endLine": 50,
+        "startOffset": 6653,
+        "endOffset": 7038
+      },
+      "type": "paragraph"
+    },
+    {
+      "content": [
+        {
+          "kind": "text",
+          "text": "Paragraph 15. papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar"
+        }
+      ],
+      "indent": "first-line",
+      "origin": {
+        "startLine": 52,
+        "endLine": 52,
+        "startOffset": 7040,
+        "endOffset": 7425
+      },
+      "type": "paragraph"
+    },
+    {
+      "content": [
+        {
+          "kind": "text",
+          "text": "Paragraph 16. quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa"
+        }
+      ],
+      "indent": "first-line",
+      "origin": {
+        "startLine": 54,
+        "endLine": 54,
+        "startOffset": 7427,
+        "endOffset": 7812
+      },
+      "type": "paragraph"
+    },
+    {
+      "content": [
+        {
+          "kind": "text",
+          "text": "Paragraph 17. romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec"
+        }
+      ],
+      "indent": "first-line",
+      "origin": {
+        "startLine": 56,
+        "endLine": 56,
+        "startOffset": 7814,
+        "endOffset": 8199
+      },
+      "type": "paragraph"
+    },
+    {
+      "content": [
+        {
+          "kind": "text",
+          "text": "Paragraph 18. sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo"
+        }
+      ],
+      "indent": "first-line",
+      "origin": {
+        "startLine": 58,
+        "endLine": 58,
+        "startOffset": 8201,
+        "endOffset": 8586
+      },
+      "type": "paragraph"
+    },
+    {
+      "content": [
+        {
+          "kind": "text",
+          "text": "Paragraph 19. tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra"
+        }
+      ],
+      "indent": "first-line",
+      "origin": {
+        "startLine": 60,
+        "endLine": 60,
+        "startOffset": 8588,
+        "endOffset": 8973
+      },
+      "type": "paragraph"
+    },
+    {
+      "content": [
+        {
+          "kind": "text",
+          "text": "Paragraph 20. alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango"
+        }
+      ],
+      "indent": "first-line",
+      "origin": {
+        "startLine": 62,
+        "endLine": 62,
+        "startOffset": 8975,
+        "endOffset": 9360
+      },
+      "type": "paragraph"
+    },
+    {
+      "content": [
+        {
+          "kind": "text",
+          "text": "Paragraph 21. bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha"
+        }
+      ],
+      "indent": "first-line",
+      "origin": {
+        "startLine": 64,
+        "endLine": 64,
+        "startOffset": 9362,
+        "endOffset": 9747
+      },
+      "type": "paragraph"
+    }
+  ]
+}

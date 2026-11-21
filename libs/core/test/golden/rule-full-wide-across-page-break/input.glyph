@@ -1,0 +1,64 @@
+# Rule test
+
+Paragraph 1. bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha
+
+Paragraph 2. charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo
+
+Paragraph 3. delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie
+
+Paragraph 4. echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta
+
+Paragraph 5. foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo
+
+Paragraph 6. golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot
+
+Paragraph 7. hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf
+
+Paragraph 8. india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel
+
+Paragraph 9. juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india
+
+Paragraph 10. kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet
+
+Paragraph 11. lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo
+
+Paragraph 12. mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima
+
+Paragraph 13. november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike
+
+/
+rule(
+# FULL-WIDTH BOX
+
+Paragraph 100. alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango
+
+Paragraph 101. bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha
+
+Paragraph 102. charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo
+
+|
+
+Paragraph 103. delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie
+
+Paragraph 104. echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta
+
+Paragraph 105. foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo
+
+)
+/
+
+Paragraph 14. oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november
+
+Paragraph 15. papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar
+
+Paragraph 16. quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa
+
+Paragraph 17. romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec
+
+Paragraph 18. sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo
+
+Paragraph 19. tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra
+
+Paragraph 20. alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango
+
+Paragraph 21. bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha
