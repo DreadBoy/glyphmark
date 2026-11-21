@@ -205,9 +205,15 @@ export async function renderToPdf(doc: GlyphDocument): Promise<Buffer> {
     // Print media first so screen-only chrome (page shadows) is excluded
     // before paged.js paginates against the print stylesheet.
     await page.emulateMedia({ media: 'print' });
-    await page.setContent(html, { waitUntil: 'networkidle' });
-    // No timeout: pagination time grows with the document, and a book of
-    // tens of thousands of lines legitimately takes minutes.
+    // Only wait for the DOM: paged.js starts paginating as soon as the
+    // document is interactive (and loads the fonts itself first), and
+    // `load` / `networkidle` then can't fire until much of that work is done
+    // — so on a large document they ran into Playwright's default 30s
+    // timeout before pagination finished (#36). The flag below is the real
+    // "done" signal. No timeout either way: parsing and pagination time grow
+    // with the document, and a book of tens of thousands of lines
+    // legitimately takes minutes.
+    await page.setContent(html, { waitUntil: 'domcontentloaded', timeout: 0 });
     await Promise.race([
       page.waitForFunction(
         (flag) => (globalThis as Record<string, unknown>)[flag],
